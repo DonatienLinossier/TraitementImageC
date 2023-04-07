@@ -99,7 +99,7 @@ int main()
         int indiceRGB = i%3;
         int indiceWIDTH = (i/3)%WIDTH;
         int indiceHEIGHT = (i/3)/WIDTH;
-        //printf("%d: [%d][%d][%d] ", i, indiceHEIGHT, indiceWIDTH, indiceRGB);
+        printf("%d: [%d][%d][%d] ", i, indiceHEIGHT, indiceWIDTH, indiceRGB);
         image[indiceHEIGHT][indiceWIDTH][indiceRGB] = caractereActuel;
         i++;
     }
@@ -107,7 +107,7 @@ int main()
     printf("Done\n");
     printf("Affichage Finale :\n");
     for(int i = 0; i<WIDTH; i++) {
-        printf("[120][%d] : (%d, %d, %d) \n", i, image[120][i][0], image[120][i][1], image[120][i][2]);
+       // printf("[120][%d] : (%d, %d, %d) \n", i, image[120][i][0], image[120][i][1], image[120][i][2]);
     }
     return 0;
     
