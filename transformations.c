@@ -1,43 +1,54 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
-#include "image.c"
-
-#define columns 200
-#define rows 200
 
 
 
-void display_grid(int grid[rows][columns][3]){
-    printf("{");
-    for (int y=0; y<rows; y++){
-        printf("[");
-        for (int x=0; x<columns; x++){
-            printf("(%d,%d,%d), ",grid[y][x][0],grid[y][x][1],grid[y][x][2]);
+void inverse_image(int columns, int rows, int pixels[rows][columns][3]){
+    for (int x = 0; x<columns; x++){
+        for (int y = 0; y<rows; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                pixels[y][x][rgb] = 255-pixels[y][x][rgb];
+            }
         }
-        printf("]\n\n");
     }
-    printf("}");
+}
+
+void affiche_image(int columns, int rows, int pixels[rows][columns][3]){
+    printf("[\n");
+    for (int x = 0; x<columns; x++){
+        printf("    [ ");
+        for (int y = 0; y<rows; y++){
+            printf("[%d, %d, %d],",pixels[y][x][0],pixels[y][x][1],pixels[y][x][2]);
+        }
+        printf(" ]\n");
+    }
+    printf("]\n");
 }
 
 
 
+
 void main(void){
-    printf("1");
-    long int len_tab = sizeof(image_map)/sizeof(image_map[0]);
-    printf("%d", len_tab);
-    int grid[rows][columns][3];
-    for (int y=0; y < rows; y++){
-        for (int x=0; x< columns; x++){
-            //printf("%d %d / ", y, x);
-            for (int i=0; i<3; i++){
-                grid[y][x][i] = image_map[y*rows + x + i];
-            }
-        }
-    }
-    printf("2");
-    display_grid (grid[rows][columns][3]);
-    printf("3");
-    return 0;
+    const int columns=2;
+    const int rows=2;
+    int (*pixels)[columns][3] = malloc(rows * sizeof(*pixels));
+    pixels[0][0][0] = 255;
+    pixels[0][0][1] = 0;
+    pixels[0][0][2] = 0;
+    pixels[0][1][0] = 0;
+    pixels[0][1][1] = 0;
+    pixels[0][1][2] = 0;
+    pixels[1][0][0] = 255;
+    pixels[1][0][1] = 255;
+    pixels[1][0][2] = 0;
+    pixels[1][1][0] = 128;
+    pixels[1][1][1] = 128;
+    pixels[1][1][2] = 128;
+affiche_image(columns, rows, pixels);
+inverse_image(columns, rows, pixels);
+affiche_image(columns, rows, pixels);
+free(pixels);
 }
