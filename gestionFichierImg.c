@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <sys/types.h>
+#include "gestionFichierImg.h"
 
 //Permet de décoder les infos dans les headers stockées en little Endian(La casi totalité des infos).
 int decodageLittleEndian(int bytes[], int SIZE) {
@@ -17,20 +17,9 @@ int decodageLittleEndian(int bytes[], int SIZE) {
         }
         resulttotal+= result;
         
-    }
+    } 
     return resulttotal;
 }
-
-
-//Le header du fichier
-typedef struct {
-    char type[2];
-    int size;
-    int createdBy;
-    int createdByBis;
-    int offset;  
-} Header;
-
 
 //Afficher les infos du headers
 void affichageHeader(Header header) {
@@ -42,20 +31,6 @@ void affichageHeader(Header header) {
     printf("    Offset : %d\n", header.offset);
 }
 
-
-typedef struct {
-    int sizeHeader;
-    int width;
-    int height;
-    int nbColorplane; //must be 1
-    int nbBitByPixel;
-    int compressionMethod;
-    int imageSize;
-    int horizontalResolution;
-    int verticalResolution;
-    int nbColorInPalette;
-    int nbOfImportantColorUsed;
-} DibHeader;
 
 void affichageDIBHeader(DibHeader dibHeader) {
     printf("Information sur le header : \n");
@@ -72,30 +47,23 @@ void affichageDIBHeader(DibHeader dibHeader) {
     printf("    nbOfImportantColorUsed : %d\n", dibHeader.nbOfImportantColorUsed);
 }
 
-
-typedef struct {
-    Header header;
-    DibHeader dibHeader;
-    int** image;
-} Image;
-
-
 int getP(Image* image, int width, int height, int rgb) {
-    printf("%d", image->image[(height*(image->dibHeader.width*3) + width *3 + rgb)]);
-    return (int) image->image[(height*(image->dibHeader.width*3) + width *3 + rgb)];
+    return image->image[(height*(image->dibHeader.width*3) + width *3 + rgb)];
 }
 
+void setP(Image* image, int width, int height, int rgb, int value) {
+    image->image[(height*(image->dibHeader.width*3) + width *3 + rgb)]=value;
+}
 
-
-Header decoderANDgetHeader(FILE* fichier, Image* image) {
+void decoderANDgetHeader(FILE* fichier, Image* image) {
     int caractereActuel;
     int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
-    printf("HEADER :\n");
+    //printf("HEADER :\n");
     for(int i =0; i<5; i++) {
         int tab[SizeElementsHeaders[i]];
         for(int j = 0; j< SizeElementsHeaders[i]; j++) {
             caractereActuel = fgetc(fichier); //On lit le caractère
-            printf("%d ", caractereActuel);
+            //printf("%d ", caractereActuel);
             tab[j] = caractereActuel;
         }
         switch(i) {
@@ -122,7 +90,11 @@ Header decoderANDgetHeader(FILE* fichier, Image* image) {
 
 
 //ATTENTION, A MODIFIER EN FONCTION DU FORMAT
-Header decoderANDgetDIBHeader(FILE* fichier, Image* image) {
+/*Reflexion perso:
+On recupere que la taille du DIBHeader, la width et la height
+Le fin du DIB Header depend de son type. Long a faire pour rien. 
+*/
+void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
     int caractereActuel;
     int SizeElementsDIBHeaders[11] = {4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4};
     int* elementsDIBHeaders[11];   
@@ -171,9 +143,42 @@ Header decoderANDgetDIBHeader(FILE* fichier, Image* image) {
                 image->dibHeader.nbOfImportantColorUsed = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
                 break;
         }
-        //printf("\n");
     }
 }
+
+
+
+void decoderImg(FILE* fichier, Image* image) {
+    int caractereActuel;
+    int i = 0;
+    printf("%d", image->dibHeader.height * image->dibHeader.width * 3);
+    int imagee[image->dibHeader.height * image->dibHeader.width * 3];
+    while(caractereActuel != EOF && i!=3*image->dibHeader.width*image->dibHeader.height) {
+        caractereActuel = fgetc(fichier);
+        imagee[i] = caractereActuel;
+        i++;
+    }
+    image->image = imagee; 
+}
+
+
+Image getImageFromFile(FILE *fichier) {
+    Image image;
+
+    decoderANDgetHeader(fichier, &image);
+    //affichageHeader(image.header);
+
+    decoderANDgetDIBHeader(fichier, &image);
+    //affichageDIBHeader(image.dibHeader);
+
+    decoderImg(fichier, &image);
+
+    return image;
+}
+
+
+
+
 
 
 
@@ -181,42 +186,60 @@ Header decoderANDgetDIBHeader(FILE* fichier, Image* image) {
 int main()
 {
 
-    Image image;
 
-    int caractereActuel = 0;
     FILE* fichier = NULL;
 
     fichier = fopen("bmp_24.bmp", "rb");
     //fichier = fopen("img.bmp", "rb");
 
+    Image image = getImageFromFile(fichier);
+
+    fclose(fichier);
 
 
-    decoderANDgetHeader(fichier, &image);
+
+
+    
+
+    /*decoderANDgetHeader(fichier, &image);
     affichageHeader(image.header);
 
     decoderANDgetDIBHeader(fichier, &image);
     affichageDIBHeader(image.dibHeader);
+
+    decoderImg(fichier, &image);*/
     
-    int i = 0;
 
-
-
+    
+    /*int i = 0;
+    printf("%d", image.dibHeader.height * image.dibHeader.width * 3);
     int imagee[image.dibHeader.height * image.dibHeader.width * 3];
     while(caractereActuel != EOF && i!=3*image.dibHeader.width*image.dibHeader.height) {
         caractereActuel = fgetc(fichier);
         imagee[i] = caractereActuel;
         i++;
     }
-    int j=i;
-    //A vérifier si besoin de &imagee
-    image.image = &imagee; 
-    image.image[0] = 0;
+    //int j=i;
+    image.image = imagee; 
+    */
 
-    for(int i =0; i<image.dibHeader.height * image.dibHeader.width * 3 && i<j; i++) {
-        printf("%d ", image.image[i]);
+    /*for(int i =0; i<image.dibHeader.height * image.dibHeader.width * 3 && i<j; i++) {
+        //printf("%d ", image.image[i]);
+    }*/
+
+    for(int i = 0; i<image.dibHeader.height; i++) {
+        for(int j = 0; j<image.dibHeader.width; j++) {
+            for(int k = 0; k<3; k++) {
+                if(getP(&image, i, j, k)>255 || getP(&image, i, j, k)<0) {
+                    printf("\n%d \n", getP(&image, i, j, k));
+                }
+                printf("%d ", getP(&image, i, j, k));
+            }
+        }
     }
-    printf("Done\n");
-    printf("Affichage Finale :\n");
+
+
+    printf("\nDone\n");
     return 0;
     
 }
