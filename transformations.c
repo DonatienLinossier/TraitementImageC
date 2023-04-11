@@ -28,7 +28,17 @@ void affiche_image(int columns, int rows, int pixels[rows][columns][3]){
     printf("]\n");
 }
 
-
+void noir_et_blanc(int columns, int rows, int pixels[rows][columns][3]){
+    printf("[\n");
+    for (int x = 0; x<columns; x++){
+        ;
+        for (int y = 0; y<rows; y++){
+        ;
+        }
+        printf(" ]\n");
+    }
+    printf("]\n");
+}
 
 
 void main(void){
