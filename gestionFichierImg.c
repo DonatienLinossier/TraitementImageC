@@ -21,6 +21,7 @@ int decodageLittleEndian(int bytes[], int SIZE) {
     return resulttotal;
 }
 
+
 //Afficher les infos du headers
 void affichageHeader(Header header) {
     printf("Information sur le header : \n");
@@ -37,14 +38,6 @@ void affichageDIBHeader(DibHeader dibHeader) {
     printf("    sizeHeader : %d\n", dibHeader.sizeHeader);
     printf("    Image width : %d\n", dibHeader.width);
     printf("    Image height : %d\n", dibHeader.height);
-    printf("    nbColorplane : %d\n", dibHeader.nbColorplane);
-    printf("    nbBitByPixel : %d\n", dibHeader.nbBitByPixel);
-    printf("    compressionMethod : %d\n", dibHeader.compressionMethod);
-    printf("    imageSize : %d\n", dibHeader.imageSize);
-    printf("    horizontalResolution : %d\n", dibHeader.horizontalResolution);
-    printf("    verticalResolution : %d\n", dibHeader.verticalResolution);
-    printf("    nbColorInPalette : %d\n", dibHeader.nbColorInPalette);
-    printf("    nbOfImportantColorUsed : %d\n", dibHeader.nbOfImportantColorUsed);
 }
 
 int getP(Image* image, int height,  int width, int rgb) {
@@ -92,20 +85,22 @@ void decoderANDgetHeader(FILE* fichier, Image* image) {
 //ATTENTION, A MODIFIER EN FONCTION DU FORMAT
 /*Reflexion perso:
 On recupere que la taille du DIBHeader, la width et la height
-Le fin du DIB Header depend de son type. Long a faire pour rien. 
+Le fin du DIB Header depend de son type. Long a faire pour rien.
+--> On partirait sur le truc dit juste au dessus. il faut juste que je garde la fin du dibHeader dans un tab. Pas bs de le decoder normalement. dp du DIB Header
 */
 void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
     int caractereActuel;
-    int SizeElementsDIBHeaders[11] = {4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4};
-    int* elementsDIBHeaders[11];   
+    int SizeElementsDIBHeaders[3] = {4, 4, 4};
+    //int SizeElementsDIBHeaders[11] = {4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4};
+    int* elementsDIBHeaders[3];
     //printf("\nDIB HEADER :\n");
-    for(int i = 0; i<11; i++) {
+    for(int i = 0; i<3; i++) {
         //printf("%d : ", i);
         int tab[SizeElementsDIBHeaders[i]];
         for(int j = 0; j < SizeElementsDIBHeaders[i]; j++) {
             //printf("\nj : %d \n", j);
             caractereActuel = fgetc(fichier); // On lit le caractère
-            //printf("%d ", caractereActuel);
+            printf(" %d ", caractereActuel);
             tab[j] = caractereActuel;
         }
         elementsDIBHeaders[i] = tab;
@@ -118,32 +113,17 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
             case 2:
                 image->dibHeader.height = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
                 break;
-            case 3:
-                image->dibHeader.nbColorplane = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 4:
-                image->dibHeader.nbBitByPixel = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 5:
-                image->dibHeader.compressionMethod = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 6:
-                image->dibHeader.imageSize = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 7:
-                image->dibHeader.horizontalResolution = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 8:
-                image->dibHeader.verticalResolution = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 9:
-                image->dibHeader.nbColorInPalette = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 10:
-                image->dibHeader.nbOfImportantColorUsed = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
         }
     }
+    //récuperer le reste, sans le décoder
+    //A VERIFIER!! YA PEUT ETRE UN DECALAGE DE UN
+    int reste[image->dibHeader.sizeHeader-4-4-4];
+    for(int i = 0; i<image->dibHeader.sizeHeader-4-4-4; i++) {
+        caractereActuel = fgetc(fichier);
+        reste[i] = caractereActuel;
+        printf("%d ", caractereActuel);
+    }
+    image->dibHeader.reste = reste;
 }
 
 
@@ -151,7 +131,6 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
 void decoderImg(FILE* fichier, Image* image) {
     int caractereActuel;
     int i = 0;
-    //printf("%d", image->dibHeader.height * image->dibHeader.width * 3);
     int imagee[image->dibHeader.height * image->dibHeader.width * 3];
     while(caractereActuel != EOF && i!=3*image->dibHeader.width*image->dibHeader.height) {
         caractereActuel = fgetc(fichier);
@@ -214,16 +193,16 @@ int main()
         //printf("%d ", image.image[i]);
     }*/
 
-    /*for(int i = 0; i<image.dibHeader.height; i++) {
+    for(int i = 0; i<image.dibHeader.height; i++) {
         for(int j = 0; j<image.dibHeader.width; j++) {
             for(int k = 0; k<3; k++) {
                 if(getP(&image, i, j, k)>255 || getP(&image, i, j, k)<0) {
                     printf("\n");
                 }
-                //printf("%d ", getP(&image, i, j, k));
+                printf("%d ", getP(&image, i, j, k));
             }
         }
-    }*/
+    }
 
 
     //printf("\nDone\n");
@@ -246,7 +225,25 @@ int main()
 // NE PLUS PRENDRE EN COMPTE A PARTIR DE LA
 //-----------------------------------------
 
+/*
+void affichageDIBHeader(DibHeader dibHeader) {
+    printf("Information sur le header : \n");
+    printf("    sizeHeader : %d\n", dibHeader.sizeHeader);
+    printf("    Image width : %d\n", dibHeader.width);
+    printf("    Image height : %d\n", dibHeader.height);
+    printf("    nbColorplane : %d\n", dibHeader.nbColorplane);
+    printf("    nbBitByPixel : %d\n", dibHeader.nbBitByPixel);
+    printf("    compressionMethod : %d\n", dibHeader.compressionMethod);
+    printf("    imageSize : %d\n", dibHeader.imageSize);
+    printf("    horizontalResolution : %d\n", dibHeader.horizontalResolution);
+    printf("    verticalResolution : %d\n", dibHeader.verticalResolution);
+    printf("    nbColorInPalette : %d\n", dibHeader.nbColorInPalette);
+    printf("    nbOfImportantColorUsed : %d\n", dibHeader.nbOfImportantColorUsed);
+}
 
+
+
+*/
 
 
 /*PAS UTILISé CAR TROP GALERE AVEC LES DIFFENTES FORMATS EXISTANTS. ON UTILISERA SUREMENT QUE LE TAILLE DU HEADER, AINSI QUE LA LARGEUR ET LONGUEUR DE L'IMAGE

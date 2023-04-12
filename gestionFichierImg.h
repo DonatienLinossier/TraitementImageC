@@ -26,7 +26,7 @@
       |                        |- CreatedByBis
       |                        |- Offset
       |                   
-      |------>DIBHeader--------|- SizeHeader
+      |------>DIBHeader--------|- SizeHeadergit 
       |                        |- width
       |                        |- height
       |                        |- ... 
@@ -56,14 +56,15 @@ typedef struct {
     int sizeHeader;
     int width;
     int height;
-    int nbColorplane; //must be 1
+    int* reste;
+    /*int nbColorplane; //must be 1
     int nbBitByPixel;
     int compressionMethod;
     int imageSize;
     int horizontalResolution;
     int verticalResolution;
     int nbColorInPalette;
-    int nbOfImportantColorUsed;
+    int nbOfImportantColorUsed;*/
 } DibHeader;
 
 //Structure de l'image
