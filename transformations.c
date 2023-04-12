@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <gestionFichierImg.h>
+#include "gestionFichierImg.h"
 
 
 
@@ -37,12 +37,13 @@ void symetrie_x(int columns, int rows, int pixels[rows][columns][3]){
 }
 
 void affiche_image(Image img){
-    rows = img.dibHeader.
+    int rows = img.dibHeader.height;
+    int columns = img.dibHeader.width;
     printf("[\n");
     for (int y = 0; y<rows; y++){
         printf("    [ ");
         for (int x = 0; x<columns; x++){
-            printf("[%3d, %3d, %3d],",pixels[y][x][0],pixels[y][x][1],pixels[y][x][2]);
+            /*printf("[%3d, %3d, %3d],",getP(&img, y, x, 0),getP(&img, y, x, 1),getP(&img, y, x, 2));*/
         }
         printf(" ]\n");
     }
@@ -58,8 +59,8 @@ int rota_90(int columns, int rows, int pixels[rows][columns][3]){
             }
         }
     }
-    symetrie_y(rows, columns, pixels2);
-    affiche_image(rows, columns, pixels2);
+    //symetrie_y(rows, columns, pixels2);
+    //affiche_image(rows, columns, pixels2);
     
 }
 
@@ -67,15 +68,15 @@ int rota_90(int columns, int rows, int pixels[rows][columns][3]){
 
 
 void main(void){
-    struct Image img;
+    Image img;
     img.dibHeader.width = 2;
     img.dibHeader.height = 3;
-    setP(img,0,0,0, 0);setP(img,0,0,1, 1);setP(img,0,0,2, 2);
-    setP(img,0,1,0, 10);setP(img,0,1,1, 11);setP(img,0,1,2, 12);
-    setP(img,1,0,0, 100);setP(img,1,0,1, 101);setP(img,1,0,2, 102);
-    setP(img,1,1,0, 110);setP(img,1,1,1, 111);setP(img,1,1,2, 112);
-    setP(img,2,0,0, 200);setP(img,2,0,1, 201);setP(img,2,0,2, 202);
-    setP(img,2,1,0, 210);setP(img,2,1,1, 211);setP(img,2,1,2, 212);
+    /*setP(&img,0,0,0, 0);setP(&img,0,0,1, 1);setP(&img,0,0,2, 2);
+    setP(&img,0,1,0, 10);setP(&img,0,1,1, 11);setP(&img,0,1,2, 12);
+    setP(&img,1,0,0, 100);setP(&img,1,0,1, 101);setP(&img,1,0,2, 102);
+    setP(&img,1,1,0, 110);setP(&img,1,1,1, 111);setP(&img,1,1,2, 112);
+    setP(&img,2,0,0, 200);setP(&img,2,0,1, 201);setP(&img,2,0,2, 202);
+    setP(&img,2,1,0, 210);setP(&img,2,1,1, 211);setP(&img,2,1,2, 212);*/
 affiche_image(img);
 //symetrie_x(columns, rows, pixels);
 //affiche_image(columns, rows, pixels);
