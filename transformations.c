@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
+#include <gestionFichierImg.h>
 
 
 
@@ -38,7 +36,8 @@ void symetrie_x(int columns, int rows, int pixels[rows][columns][3]){
     }
 }
 
-void affiche_image(int columns, int rows, int pixels[rows][columns][3]){
+void affiche_image(Image img){
+    rows = img.dibHeader.
     printf("[\n");
     for (int y = 0; y<rows; y++){
         printf("    [ ");
@@ -68,17 +67,17 @@ int rota_90(int columns, int rows, int pixels[rows][columns][3]){
 
 
 void main(void){
-    const int columns=2;
-    const int rows=3;
-    int (*pixels)[columns][3] = malloc(rows * sizeof(*pixels));
-    pixels[0][0][0] = 0; pixels[0][0][1] = 1; pixels[0][0][2] = 2;
-    pixels[0][1][0] = 10; pixels[0][1][1] = 11; pixels[0][1][2] = 12;
-    pixels[1][0][0] = 100; pixels[1][0][1] = 101; pixels[1][0][2] = 102;
-    pixels[1][1][0] = 110; pixels[1][1][1] = 111; pixels[1][1][2] = 112;
-    pixels[2][0][0] = 200; pixels[2][0][1] = 201; pixels[2][0][2] = 202;
-    pixels[2][1][0] = 210; pixels[2][1][1] = 211; pixels[2][1][2] = 212;
-affiche_image(columns, rows, pixels);
-rota_90(columns, rows, pixels);
-affiche_image(columns, rows, pixels);
-free(pixels);
+    struct Image img;
+    img.dibHeader.width = 2;
+    img.dibHeader.height = 3;
+    setP(img,0,0,0, 0);setP(img,0,0,1, 1);setP(img,0,0,2, 2);
+    setP(img,0,1,0, 10);setP(img,0,1,1, 11);setP(img,0,1,2, 12);
+    setP(img,1,0,0, 100);setP(img,1,0,1, 101);setP(img,1,0,2, 102);
+    setP(img,1,1,0, 110);setP(img,1,1,1, 111);setP(img,1,1,2, 112);
+    setP(img,2,0,0, 200);setP(img,2,0,1, 201);setP(img,2,0,2, 202);
+    setP(img,2,1,0, 210);setP(img,2,1,1, 211);setP(img,2,1,2, 212);
+affiche_image(img);
+//symetrie_x(columns, rows, pixels);
+//affiche_image(columns, rows, pixels);
+//free(pixels);
 }
