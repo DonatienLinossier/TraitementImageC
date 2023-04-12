@@ -4,6 +4,19 @@
 #include <stdio.h>
 
 //---------------------------
+//Mode d'emploi récupération de l'image
+//---------------------------
+/*
+    FILE* fichier = NULL;
+
+    fichier = fopen("%image%.bmp", "rb");
+
+    Image image = getImageFromFile(fichier);
+
+    fclose(fichier);
+*/
+
+//---------------------------
 //Structure de l'image 
 //---------------------------
 /*
@@ -24,6 +37,9 @@
 
 
 */
+
+
+
 
 //Structure du Header du fichier .bmp
 typedef struct {

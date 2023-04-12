@@ -47,11 +47,11 @@ void affichageDIBHeader(DibHeader dibHeader) {
     printf("    nbOfImportantColorUsed : %d\n", dibHeader.nbOfImportantColorUsed);
 }
 
-int getP(Image* image, int width, int height, int rgb) {
+int getP(Image* image, int height,  int width, int rgb) {
     return image->image[(height*(image->dibHeader.width*3) + width *3 + rgb)];
 }
 
-void setP(Image* image, int width, int height, int rgb, int value) {
+void setP(Image* image, int height, int width, int rgb, int value) {
     image->image[(height*(image->dibHeader.width*3) + width *3 + rgb)]=value;
 }
 
@@ -84,7 +84,7 @@ void decoderANDgetHeader(FILE* fichier, Image* image) {
                 image->header.offset = decodageLittleEndian(tab, SizeElementsHeaders[i]);
                 break;
         }
-        printf("\n");
+        //printf("\n");
     }
 }
 
@@ -151,7 +151,7 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
 void decoderImg(FILE* fichier, Image* image) {
     int caractereActuel;
     int i = 0;
-    printf("%d", image->dibHeader.height * image->dibHeader.width * 3);
+    //printf("%d", image->dibHeader.height * image->dibHeader.width * 3);
     int imagee[image->dibHeader.height * image->dibHeader.width * 3];
     while(caractereActuel != EOF && i!=3*image->dibHeader.width*image->dibHeader.height) {
         caractereActuel = fgetc(fichier);
@@ -195,19 +195,6 @@ int main()
     Image image = getImageFromFile(fichier);
 
     fclose(fichier);
-
-
-
-
-    
-
-    /*decoderANDgetHeader(fichier, &image);
-    affichageHeader(image.header);
-
-    decoderANDgetDIBHeader(fichier, &image);
-    affichageDIBHeader(image.dibHeader);
-
-    decoderImg(fichier, &image);*/
     
 
     
@@ -227,19 +214,19 @@ int main()
         //printf("%d ", image.image[i]);
     }*/
 
-    for(int i = 0; i<image.dibHeader.height; i++) {
+    /*for(int i = 0; i<image.dibHeader.height; i++) {
         for(int j = 0; j<image.dibHeader.width; j++) {
             for(int k = 0; k<3; k++) {
                 if(getP(&image, i, j, k)>255 || getP(&image, i, j, k)<0) {
-                    printf("\n%d \n", getP(&image, i, j, k));
+                    printf("\n");
                 }
-                printf("%d ", getP(&image, i, j, k));
+                //printf("%d ", getP(&image, i, j, k));
             }
         }
-    }
+    }*/
 
 
-    printf("\nDone\n");
+    //printf("\nDone\n");
     return 0;
     
 }
@@ -291,10 +278,6 @@ void affichageDIBHeader(DibHeader dibHeader) {
     printf("    nbColorInPalette : %d\n", dibHeader.nbColorInPalette);
     printf("    nbOfImportantColorUsed : %d\n", dibHeader.nbOfImportantColorUsed);
 }*/
-
-
-
-
 
     /*ON NE PASSE PLUS PAR UN TAB 3D, donc obsolete
     int imagee[image.height][image.width][3];
