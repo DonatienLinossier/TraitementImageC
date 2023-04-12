@@ -22,6 +22,7 @@ int decodageLittleEndian(int bytes[], int SIZE) {
 }
 
 
+
 //Afficher les infos du headers
 void affichageHeader(Header header) {
     printf("Information sur le header : \n");
@@ -121,23 +122,22 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
     for(int i = 0; i<image->dibHeader.sizeHeader-4-4-4; i++) {
         caractereActuel = fgetc(fichier);
         reste[i] = caractereActuel;
-        printf("%d ", caractereActuel);
+        //printf("%d ", caractereActuel);
     }
     image->dibHeader.reste = reste;
 }
 
 
 
-void decoderImg(FILE* fichier, Image* image) {
+void getImg(FILE* fichier, Image* image) {
+    image->image = malloc(image->dibHeader.height*image->dibHeader.width*3*sizeof(int));
     int caractereActuel;
     int i = 0;
-    int imagee[image->dibHeader.height * image->dibHeader.width * 3];
     while(caractereActuel != EOF && i!=3*image->dibHeader.width*image->dibHeader.height) {
         caractereActuel = fgetc(fichier);
-        imagee[i] = caractereActuel;
+        image->image[i] = caractereActuel;
         i++;
     }
-    image->image = imagee; 
 }
 
 
@@ -150,11 +150,36 @@ Image getImageFromFile(FILE *fichier) {
     decoderANDgetDIBHeader(fichier, &image);
     //affichageDIBHeader(image.dibHeader);
 
-    decoderImg(fichier, &image);
+    getImg(fichier, &image);
 
     return image;
 }
 
+
+//Retourne une nouvelle image vide[noir] de dimension (height) * (width) et remplie le header et le DIBHeader avec les infos de l'image entrée en parametre 
+//Peut etre plutot trouver un moyen de redimenssioner directement avec l'allocation dynamique, tout en sauvgardant les anciennes valeurs
+Image newBlankImageFrom(Image *image, int height, int width) {
+    Image ImageN = *image;
+    ImageN.dibHeader.height = height;
+    ImageN.dibHeader.width = width;
+    ImageN.image = malloc(image->dibHeader.height*image->dibHeader.width*3*sizeof(int));
+    
+    /*int tabImageN[height * width * 3];
+    for(int i = 0; i< height * width * 3; i++) {
+        tabImageN[i] = 0;
+        //printf("%d", tabImageN[i]);
+    }
+    ImageN.image= tabImageN;*/
+    for(int i = 0; i<ImageN.dibHeader.height; i++) {
+        for(int j = 0; j<ImageN.dibHeader.width; j++) {
+            for(int k = 0; k<3; k++) { 
+                setP(&ImageN, i, j, k, 0);
+                //printf("[%d][%d][%d]: %d ",i,j,k, getP(&ImageN, i, j, k));
+            }
+        }
+    }
+    return ImageN;
+}
 
 
 
@@ -192,6 +217,17 @@ int main()
     /*for(int i =0; i<image.dibHeader.height * image.dibHeader.width * 3 && i<j; i++) {
         //printf("%d ", image.image[i]);
     }*/
+    /*printf("new");
+    Image nvimage = newBlankImageFrom(&image, 10, 10);
+    printf("\n \n \n");
+    for(int i = 0; i<nvimage.dibHeader.height; i++) {
+        for(int j = 0; j<nvimage.dibHeader.width; j++) {
+            for(int k = 0; k<3; k++) {
+                printf("[%d][%d][%d]: %d ",i,j,k, getP(&nvimage, i, j, k));
+            }
+        }
+    }
+    printf("fin");*/
 
     for(int i = 0; i<image.dibHeader.height; i++) {
         for(int j = 0; j<image.dibHeader.width; j++) {
