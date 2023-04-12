@@ -4,6 +4,8 @@
 #include <sys/types.h>
 
 
+
+
 typedef struct {
     char* type[2];
     int* size[4];
