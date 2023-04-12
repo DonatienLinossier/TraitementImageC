@@ -29,15 +29,18 @@ void affiche_image(int columns, int rows, int pixels[rows][columns][3]){
 }
 
 void noir_et_blanc(int columns, int rows, int pixels[rows][columns][3]){
-    printf("[\n");
-    for (int x = 0; x<columns; x++){
-        ;
+    int somme=0, rgb, m;
+     for (int x = 0; x<columns; x++){
         for (int y = 0; y<rows; y++){
-        ;
+            for (int rgb = 0; rgb<3; rgb++){
+                somme += pixels[0][0][rgb];
+            }
+                m=somme/3;
+                for (int rgb = 0; rgb<3; rgb++){
+                    pixels[y][x][rgb]=m;
+                }
         }
-        printf(" ]\n");
-    }
-    printf("]\n");
+    } 
 }
 
 
@@ -48,17 +51,23 @@ void main(void){
     pixels[0][0][0] = 255;
     pixels[0][0][1] = 0;
     pixels[0][0][2] = 0;
+
     pixels[0][1][0] = 0;
     pixels[0][1][1] = 0;
     pixels[0][1][2] = 0;
+
     pixels[1][0][0] = 255;
     pixels[1][0][1] = 255;
     pixels[1][0][2] = 0;
+
     pixels[1][1][0] = 128;
     pixels[1][1][1] = 128;
     pixels[1][1][2] = 128;
+
+
+
 affiche_image(columns, rows, pixels);
-inverse_image(columns, rows, pixels);
+noir_et_blanc(columns, rows, pixels);
 affiche_image(columns, rows, pixels);
 free(pixels);
 }
