@@ -101,7 +101,7 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
         for(int j = 0; j < SizeElementsDIBHeaders[i]; j++) {
             //printf("\nj : %d \n", j);
             caractereActuel = fgetc(fichier); // On lit le caractère
-            printf(" %d ", caractereActuel);
+            //printf(" %d ", caractereActuel);
             tab[j] = caractereActuel;
         }
         elementsDIBHeaders[i] = tab;
@@ -229,7 +229,7 @@ int main()
     }
     printf("fin");*/
 
-    for(int i = 0; i<image.dibHeader.height; i++) {
+    /*for(int i = 0; i<image.dibHeader.height; i++) {
         for(int j = 0; j<image.dibHeader.width; j++) {
             for(int k = 0; k<3; k++) {
                 if(getP(&image, i, j, k)>255 || getP(&image, i, j, k)<0) {
@@ -238,7 +238,7 @@ int main()
                 printf("%d ", getP(&image, i, j, k));
             }
         }
-    }
+    }*/
 
 
     //printf("\nDone\n");
