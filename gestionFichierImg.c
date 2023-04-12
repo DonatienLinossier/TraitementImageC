@@ -196,6 +196,9 @@ int main()
     fichier = fopen("bmp_24.bmp", "rb");
     //fichier = fopen("img.bmp", "rb");
 
+    //rajouter test pointeur NULL
+    //Idem dans la description .h
+
     Image image = getImageFromFile(fichier);
 
     fclose(fichier);
