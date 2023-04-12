@@ -3,6 +3,7 @@
 #include <math.h>
 #include <sys/types.h>
 
+// essai
 
 int decodageLittleEndian(int bytes[], int SIZE) {
     int resulttotal = 0;
