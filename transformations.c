@@ -41,6 +41,7 @@ void noir_et_blanc(int columns, int rows, int pixels[rows][columns][3]){
                 }
         }
     } 
+    
 }
 
 
@@ -51,23 +52,24 @@ void main(void){
     pixels[0][0][0] = 255;
     pixels[0][0][1] = 0;
     pixels[0][0][2] = 0;
-
+//rouge
     pixels[0][1][0] = 0;
     pixels[0][1][1] = 0;
     pixels[0][1][2] = 0;
-
+//noir
     pixels[1][0][0] = 255;
     pixels[1][0][1] = 255;
     pixels[1][0][2] = 0;
-
+//jaune
     pixels[1][1][0] = 128;
     pixels[1][1][1] = 128;
     pixels[1][1][2] = 128;
-
+//gris
 
 
 affiche_image(columns, rows, pixels);
 noir_et_blanc(columns, rows, pixels);
 affiche_image(columns, rows, pixels);
+
 free(pixels);
 }
