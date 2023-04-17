@@ -46,6 +46,7 @@ Recap:
 |                                                             |
 |                         AFFICHAGE                           |
 |afficherASCII           | Externe         | OK   |    OUI    | //Corrigé !
+|preRenduCouleur         | EXTERNE         |      |    NON    |
 |                                                             |
 |                    OPERATION SUR IMAGE                      |
 |getP                    | Externe         | OK   |    OUI    | //Corrigé !
@@ -464,6 +465,112 @@ void afficherASCII(Image* image) {
     }
 }
 
+//Affiche l'image en caractere ASCII avec " .:?#"
+void afficherASCIICouleur(Image* image) {
+        unsigned char tab[5];
+    tab[0] = ' ';
+    tab[1] = '.';
+    tab[2] = ':';
+    tab[3] = '?';
+    tab[4] = '#';
+    char* couleur[3];
+    for(int i = 0; i<image->dibHeader.height; i++) {
+        printf("\n");
+        for(int j = 0; j<image->dibHeader.width; j++) {
+            int r = getP(image, i, j, 0)/128 == 1;
+            int b = getP(image, i, j, 1)/128 == 1;
+            int g = getP(image, i, j, 2)/128 == 1;
+            if(r) {
+                if(b) {
+                    if(g) {
+                        //white
+                        //printf("\e[47m");
+                        printf("\e[0;37m");
+                    } else {
+                        //Magenta
+                        //printf("\e[45m");
+                        printf("\e[0;35m");
+                    }
+                } else if(g) {
+                    //Jaune
+                    printf("\e[0;33m");
+                    //printf("\e[43m");
+                } else {
+                    //rouge
+                    printf("\e[0;31m");
+                    //printf("\e[41m");
+                }
+
+            } else if (g) {
+                if(b) {
+                    //cyan
+                    //printf("\e[46m");
+                    printf("\e[0;36m");
+                } else {
+                    //vert
+                    //printf("\e[42m");
+                    printf("\e[0;32m");
+                }
+            } else if (b) {
+                //bleu
+                printf("\e[0;34m");
+                //printf("\e[44m");
+            } else {
+                //noir
+                printf("\e[0m");
+            }
+        
+    
+
+
+            int valueRgb = 0.2126 * getP(image, i, j, 0) + 0.7152 * getP(image, i, j, 1) + 0.0722 * getP(image, i, j, 1);
+            printf("%c", tab[valueRgb/(255/5)]);
+            printf("%c", tab[valueRgb/(255/5)]);
+            printf("\e[40m");
+        }
+    }
+            
+}
+
+
+void preRenduCouleur(Image* image) {
+
+    char* couleur[3];
+    for(int i = 0; i<image->dibHeader.height; i++) {
+        printf("\n");
+        for(int j = 0; j<image->dibHeader.width; j++) {
+            int r = getP(image, i, j, 0)/128 == 1;
+            int b = getP(image, i, j, 1)/128 == 1;
+            int g = getP(image, i, j, 2)/128 == 1;
+            if(r) {
+                if(b) {
+                    if(g) {
+                        printf("\e[47m");
+                    } else {
+                        printf("\e[45m");
+                    }
+                } else if(g) {
+                    printf("\e[43m");
+                } else {
+                    printf("\e[41m");
+                }
+
+            } else if (g) {
+                if(b) {
+                    printf("\e[46m");
+                } else {
+                    printf("\e[44m");
+                }
+            } else if (b) {
+                printf("\e[42m");
+            } else {
+                printf("\e[40m");
+            }
+            printf("  ");
+        }
+        printf("\e[40m");
+    }
+}
 
 
 void rogner(Image *image, int y, int x, int height, int width) {
@@ -521,7 +628,6 @@ void redimensioner(Image* image, int height, int width) {
             unsigned char RED = 0;      
             unsigned char GREEN = 0;                                   
             unsigned char BLUE = 0;
-
             for (int i =0; i<tailleBlocY; i+=1) {
                 for (int j =0; j<tailleBlocX; j+=1) {
                     RED += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 0);
@@ -530,7 +636,7 @@ void redimensioner(Image* image, int height, int width) {
                 }
             }
 
-
+           
             setP(image, h, w, 0, RED/((float) tailleBlocX*tailleBlocY));
             setP(image, h, w, 1, GREEN/((float) tailleBlocX*tailleBlocY));
             setP(image, h, w, 2, BLUE/((float) tailleBlocX*tailleBlocY));
@@ -556,7 +662,7 @@ int main()
 
     FILE* fichier = NULL;
 
-    fichier = fopen("Images/img.bmp", "rb");
+    fichier = fopen("Images/couleurTriangle.bmp", "rb");
 
     if(fichier == NULL) {
         printf("Erreur dans la lecture du fichier !");
@@ -570,10 +676,9 @@ int main()
 
 
 
-
-    afficherASCII(&image);
-
-
+    redimensioner(&image, 51, 51);
+    //afficherASCII(&image);
+    //preRenduCouleur(&image);
 
     FILE* fichierF = NULL;
     fichierF = fopen("testEcriture.bmp", "wb+");
