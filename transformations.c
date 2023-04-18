@@ -56,17 +56,21 @@ void affiche_image(Image img){
     printf("]\n");
 }
 
-int rota_90(int columns, int rows, int pixels[rows][columns][3]){
-    int (*pixels2)[rows][3] = malloc(columns * sizeof(*pixels2));
+int rota_90(Image *img){
+    Image copy_img = copy(img);
+    int rows = img->dibHeader.height;
+    int columns = img->dibHeader.width;
+    ClearAndRedimensioner(img,columns,rows);
     for (int x = 0; x<columns; x++){
         for (int y = 0; y<rows; y++){
             for (int rgb = 0; rgb<3; rgb++){
-                pixels2[y][x][rgb] = pixels[x][y][rgb];
+                setP(img, x, y, rgb, getP(&copy_img, y, x, rgb));
             }
         }
     }
-    //symetrie_y(rows, columns, pixels2);
-    //affiche_image(rows, columns, pixels2);
+    //affiche_image(*img);
+    symetrie_y(*img);
+    freeImage(&copy_img);
     
 }
 
@@ -82,8 +86,9 @@ void main(void){
     Image img = getImageFromFile(fichier);                                                                      
     fclose(fichier);                                       
 
-affiche_image(img);
-inverse_image(img);
-affiche_image(img);
-freeImage(&img);
+    affiche_image(img);
+    rota_90(&img);
+    affiche_image(img);
+    freeImage(&img);
+    printf("img");
 }
