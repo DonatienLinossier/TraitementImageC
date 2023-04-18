@@ -54,8 +54,7 @@ Recap:
 |copy                    | Externe         | OK   |    OUI    | //Corrigé !
 |freeImage               | Externe         | OK   |    OUI    | //Corrigé !
 |rogner                  | Externe         | OK   |    OUI    | //ajouter des verifs pour eviter erreur de segmentation
-|redimensioner           | Externe         | BOF  |    OUI    | //Aproximatif, à verif
-|ClearAndRedimensioner   | Externe         | OBS  |    NON    | //Remplacé par redimensioner, a suppr
+|ClearAndRedimensioner   | Externe         | OK   |    OUI    |
 |                                                             |
 |                           DEBUG                             |
 |affichageHeader         | Interne         | OK   |    X      |
@@ -382,26 +381,17 @@ Image getImageFromFile(FILE *fichier) {
 
 
 //Obsolete
-void ClearAndRedimensioner(Image *image, int height, int width, unsigned char value) {
+void ClearAndRedimensioner(Image *image, int height, int width) {
     free(image->image);
 
     image->dibHeader.height = height;
     image->dibHeader.width = width;
     image->padding = (4-(image->dibHeader.width*3)%4)%4;
 
-    image->image = calloc(height * width * 3, sizeof(unsigned char));
+    image->image = calloc(height * width * 3 + image->dibHeader.height * image->padding , sizeof(unsigned char));
     if(image->image == NULL) {
             printf("ERREUR ALLOCATION !");
             exit(0);
-    }
-
-
-    for(int i = 0; i<image->dibHeader.height; i++) {
-        for(int j = 0; j<image->dibHeader.width; j++) {
-            for(int k = 0; k<3; k++) { 
-                setP(image, i, j, k, value);
-            }
-        }
     }
 }
 
@@ -600,69 +590,13 @@ void rogner(Image *image, int y, int x, int height, int width) {
 }
 
 
-
-// A peaufiner, nottament sur l'agandissement
-//lisse toute l'image, voir le resultat en couleur
-void redimensioner(Image* image, int height, int width) {
-
-    Image copie = copy(image);
-    free(image->image);
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-
-
-
-    float tailleBlocY =(float) copie.dibHeader.height/height;
-    float tailleBlocX =(float) copie.dibHeader.width/width;
-
-    //Pour chaque pixel de la nouvelle image
-    for (int h =0; h<height; h+=1) {
-        for (int w =0; w<width; w+=1) {
-            unsigned char RED = 0;      
-            unsigned char GREEN = 0;                                   
-            unsigned char BLUE = 0;
-            for (int i =0; i<tailleBlocY; i+=1) {
-                for (int j =0; j<tailleBlocX; j+=1) {
-                    RED += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 0);
-                    GREEN += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 1);
-                    BLUE += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 2);
-                }
-            }
-
-           
-            setP(image, h, w, 0, RED/((float) tailleBlocX*tailleBlocY));
-            setP(image, h, w, 1, GREEN/((float) tailleBlocX*tailleBlocY));
-            setP(image, h, w, 2, BLUE/((float) tailleBlocX*tailleBlocY));
-        }
-    }
-
-    freeImage(&copie);
-
-
-
-}
-
-
-
-
-
-
-
-
-int main()
+/*int main()
 {
 
 
     FILE* fichier = NULL;
 
-    fichier = fopen("Images/couleurTriangle.bmp", "rb");
+    fichier = fopen("Images/cafe.bmp", "rb");
 
     if(fichier == NULL) {
         printf("Erreur dans la lecture du fichier !");
@@ -676,7 +610,7 @@ int main()
 
 
 
-    redimensioner(&image, 51, 51);
+    //redimensioner(&image, 50, 51);
     //afficherASCII(&image);
     //preRenduCouleur(&image);
 
@@ -700,82 +634,4 @@ int main()
    
     return 0;
     
-}
-
-
-
-/*
-|--------------------------------------------
-|NE PAS CONSIDERER LA SUITE (globalement utilisé comme corbeille)
-|--------------------------------------------
-void redimensioner(Image* image, int height, int width) {
-
-    Image copie = copy(image);
-    free(image->image);
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-
-
-
-    float tailleBlocY =(float) copie.dibHeader.height/height;
-    float tailleBlocX =(float) copie.dibHeader.width/width;
-
-
-    printf("CoefY %f; coefX: %f", tailleBlocY, tailleBlocX);
-    //Pour chaque pixel de la nouvelle image
-    for (int h =0; h<height; h+=1) {
-        for (int w =0; w<width; w+=1) {
-
-            int r =0;
-            int g =0;
-            int b=0;
-            for (int i =0; i<tailleBlocY; i+=1) {
-                for (int j =0; j<tailleBlocX; j+=1) {
-                    int tempr = getP(&copie, h*tailleBlocY + i, w*tailleBlocX + j, 0);
-                    int tempg = getP(&copie, h*tailleBlocY + i, w*tailleBlocX + j, 1);
-                    int tempb = getP(&copie, h*tailleBlocY + i, w*tailleBlocX + j, 2);
-
-                    if(i==0) {
-                        //printf("coef 0: %f", 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY)));
-                        tempr*= 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY));
-                        tempg*= 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY));
-                        tempb*= 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY));
-                    } else if (i+1>tailleBlocY) {
-                        printf("%f ", 1- (float) (i+1-tailleBlocY));
-                        tempr*= 1- (float) (i+1-tailleBlocY);
-                        tempg*= 1- (float) (i+1-tailleBlocY);
-                        tempb*= 1- (float) (i+1-tailleBlocY);
-                    }
-
-                    if(j==0) {
-                        tempr*= 1-((float) (w*tailleBlocX) - (int) (w*tailleBlocX));
-                        tempg*= 1-((float) (w*tailleBlocX) - (int) (w*tailleBlocX));
-                        tempb*= 1-((float) (w*tailleBlocX) - (int) (w*tailleBlocX));
-                    } else if (j+1>tailleBlocX) {
-                        tempr*= 1- (float) (j+1-tailleBlocX);
-                        tempg*= 1- (float) (j+1-tailleBlocX);
-                        tempb*= 1- (float) (j+1-tailleBlocX);
-                    }
-
-                    r+=tempr;
-                    g+=tempg;
-                    b+=tempb;
-                }   
-            }
-            setP(image, h, w, 0, r/(tailleBlocY*tailleBlocX));
-            setP(image, h, w, 1, g/(tailleBlocY*tailleBlocX));
-            setP(image, h, w, 2, b/(tailleBlocY*tailleBlocX));
-        }
-    }
-
-    freeImage(&copie);
-
-}
-*/
+}*/
