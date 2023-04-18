@@ -39,7 +39,7 @@ Pour accéder aux dimensions de l'image :
     - Hauteur : image.dibHeader.height
     - Largeur : image.dibHeader.width
 
-    /!\ Pour la hauteur comme la largeur, ne pas modifier les variables directement. Utiliser la fonction redimensioner() pour changer la taille de l'image. /!\
+    /!\ Pour la hauteur comme la largeur, ne pas modifier les variables directement. Utiliser la fonction Clearredimensioner() pour changer la taille de l'image. /!\
 
 
 
@@ -158,8 +158,8 @@ void setP(Image* image, int height, int width, int rgb, int value);
 //Permet de rogner une image
 void rogner(Image *image, int y, int x, int height, int width);
 
-//Permet de redimensioner l'image
-void redimensioner(Image* image, int height, int width);
+//Redimensionne l'image et affecte 
+void ClearAndRedimensioner(Image *image, int height, int width);
 
 //Affiche l'image en caractere ASCII avec " .:?#"
 void afficherASCII(Image* image);
