@@ -236,6 +236,26 @@ unsigned char getP(Image* image, int height,  int width, int rgb) {
     //(image->dibHeader.height-1-height) car l'image en encodé du bas vers le haut
     //((rgb-1)*-1)+1 permet de passer de bgr à rgb
     // + height * image.padding car il a un padding pour especter des octet de 4 par ligne
+    if(height>image->dibHeader.height) {
+        printf("Valeur trop de height trop haute");
+        return 0;
+    } else if (height<0) {
+        printf("Valeur de Height trop basse.");
+    }
+    if(width>image->dibHeader.width) {
+        printf("Valeur trop de width trop haute");
+        return 0;
+    } else if(width<0) {
+        printf("valeur de rgb trop basse.");
+        return 0;
+    }
+    if(rgb>2) {
+        printf("Valeur de rgb trop haute.");
+        return 0;
+    } else if (rgb<0) {
+        printf("Valeur de rgb trop basse");
+        return 0;
+    }
     return image->image[((image->dibHeader.height-1-height)*(image->dibHeader.width*3) + width *3 + ((rgb-1)*-1)+1 + (image->dibHeader.height-1-height) * image->padding)];
 }
 
@@ -244,6 +264,26 @@ void setP(Image* image, int height, int width, int rgb, int value) {
     //(image->dibHeader.height-1-height) car l'image en encodé du bas vers le haut
     //((rgb-1)*-1)+1 permet de passer de bgr à rgb
     // + height * image.padding car il a un padding pour especter des octet de 4 par ligne
+    if(height>image->dibHeader.height) {
+        printf("Valeur trop de height trop haute");
+        return;
+    } else if (height<0) {
+        printf("Valeur de Height trop basse.");
+    }
+    if(width>image->dibHeader.width) {
+        printf("Valeur trop de width trop haute");
+        return;
+    } else if(width<0) {
+        printf("valeur de rgb trop basse.");
+        return;
+    }
+    if(rgb>2) {
+        printf("Valeur de rgb trop haute.");
+        return;
+    } else if (rgb<0) {
+        printf("Valeur de rgb trop basse");
+        return;
+    }
     image->image[((image->dibHeader.height-1-height)*(image->dibHeader.width*3) + width *3 + ((rgb-1)*-1)+1 + (image->dibHeader.height-1-height) * image->padding)]=value;
 }
 
@@ -564,7 +604,22 @@ void preRenduCouleur(Image* image) {
 
 
 void rogner(Image *image, int y, int x, int height, int width) {
-
+    if(height+y>image->dibHeader.height) {
+        printf("Depassement de l'image");
+        return;
+    }
+    if(width+x>image->dibHeader.width) {
+        printf("Depassement de l'image");
+        return;
+    }
+    if(x<0) {
+        printf("Depassement de l'image");
+        return;
+    }
+    if(y<0) {
+        printf("Depassement de l'image");
+        return;
+    }
     Image copie = copy(image);
     free(image->image);
     image->dibHeader.height = height;
