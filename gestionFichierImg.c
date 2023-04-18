@@ -46,6 +46,7 @@ Recap:
 |                                                             |
 |                         AFFICHAGE                           |
 |afficherASCII           | Externe         | OK   |    OUI    | //Corrigé !
+|preRenduCouleur         | EXTERNE         |      |    NON    |
 |                                                             |
 |                    OPERATION SUR IMAGE                      |
 |getP                    | Externe         | OK   |    OUI    | //Corrigé !
@@ -53,8 +54,7 @@ Recap:
 |copy                    | Externe         | OK   |    OUI    | //Corrigé !
 |freeImage               | Externe         | OK   |    OUI    | //Corrigé !
 |rogner                  | Externe         | OK   |    OUI    | //ajouter des verifs pour eviter erreur de segmentation
-|redimensioner           | Externe         | BOF  |    OUI    | //Aproximatif, à verif
-|ClearAndRedimensioner   | Externe         | OBS  |    NON    | //Remplacé par redimensioner, a suppr
+|ClearAndRedimensioner   | Externe         | OK   |    OUI    |
 |                                                             |
 |                           DEBUG                             |
 |affichageHeader         | Interne         | OK   |    X      |
@@ -381,26 +381,17 @@ Image getImageFromFile(FILE *fichier) {
 
 
 //Obsolete
-void ClearAndRedimensioner(Image *image, int height, int width, unsigned char value) {
+void ClearAndRedimensioner(Image *image, int height, int width) {
     free(image->image);
 
     image->dibHeader.height = height;
     image->dibHeader.width = width;
     image->padding = (4-(image->dibHeader.width*3)%4)%4;
 
-    image->image = calloc(height * width * 3, sizeof(unsigned char));
+    image->image = calloc(height * width * 3 + image->dibHeader.height * image->padding , sizeof(unsigned char));
     if(image->image == NULL) {
             printf("ERREUR ALLOCATION !");
             exit(0);
-    }
-
-
-    for(int i = 0; i<image->dibHeader.height; i++) {
-        for(int j = 0; j<image->dibHeader.width; j++) {
-            for(int k = 0; k<3; k++) { 
-                setP(image, i, j, k, value);
-            }
-        }
     }
 }
 
@@ -464,6 +455,112 @@ void afficherASCII(Image* image) {
     }
 }
 
+//Affiche l'image en caractere ASCII avec " .:?#"
+void afficherASCIICouleur(Image* image) {
+        unsigned char tab[5];
+    tab[0] = ' ';
+    tab[1] = '.';
+    tab[2] = ':';
+    tab[3] = '?';
+    tab[4] = '#';
+    char* couleur[3];
+    for(int i = 0; i<image->dibHeader.height; i++) {
+        printf("\n");
+        for(int j = 0; j<image->dibHeader.width; j++) {
+            int r = getP(image, i, j, 0)/128 == 1;
+            int b = getP(image, i, j, 1)/128 == 1;
+            int g = getP(image, i, j, 2)/128 == 1;
+            if(r) {
+                if(b) {
+                    if(g) {
+                        //white
+                        //printf("\e[47m");
+                        printf("\e[0;37m");
+                    } else {
+                        //Magenta
+                        //printf("\e[45m");
+                        printf("\e[0;35m");
+                    }
+                } else if(g) {
+                    //Jaune
+                    printf("\e[0;33m");
+                    //printf("\e[43m");
+                } else {
+                    //rouge
+                    printf("\e[0;31m");
+                    //printf("\e[41m");
+                }
+
+            } else if (g) {
+                if(b) {
+                    //cyan
+                    //printf("\e[46m");
+                    printf("\e[0;36m");
+                } else {
+                    //vert
+                    //printf("\e[42m");
+                    printf("\e[0;32m");
+                }
+            } else if (b) {
+                //bleu
+                printf("\e[0;34m");
+                //printf("\e[44m");
+            } else {
+                //noir
+                printf("\e[0m");
+            }
+        
+    
+
+
+            int valueRgb = 0.2126 * getP(image, i, j, 0) + 0.7152 * getP(image, i, j, 1) + 0.0722 * getP(image, i, j, 1);
+            printf("%c", tab[valueRgb/(255/5)]);
+            printf("%c", tab[valueRgb/(255/5)]);
+            printf("\e[40m");
+        }
+    }
+            
+}
+
+
+void preRenduCouleur(Image* image) {
+
+    char* couleur[3];
+    for(int i = 0; i<image->dibHeader.height; i++) {
+        printf("\n");
+        for(int j = 0; j<image->dibHeader.width; j++) {
+            int r = getP(image, i, j, 0)/128 == 1;
+            int b = getP(image, i, j, 1)/128 == 1;
+            int g = getP(image, i, j, 2)/128 == 1;
+            if(r) {
+                if(b) {
+                    if(g) {
+                        printf("\e[47m");
+                    } else {
+                        printf("\e[45m");
+                    }
+                } else if(g) {
+                    printf("\e[43m");
+                } else {
+                    printf("\e[41m");
+                }
+
+            } else if (g) {
+                if(b) {
+                    printf("\e[46m");
+                } else {
+                    printf("\e[44m");
+                }
+            } else if (b) {
+                printf("\e[42m");
+            } else {
+                printf("\e[40m");
+            }
+            printf("  ");
+        }
+        printf("\e[40m");
+    }
+}
 
 
 void rogner(Image *image, int y, int x, int height, int width) {
@@ -493,70 +590,13 @@ void rogner(Image *image, int y, int x, int height, int width) {
 }
 
 
-
-// A peaufiner, nottament sur l'agandissement
-//lisse toute l'image, voir le resultat en couleur
-void redimensioner(Image* image, int height, int width) {
-
-    Image copie = copy(image);
-    free(image->image);
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-
-
-
-    float tailleBlocY =(float) copie.dibHeader.height/height;
-    float tailleBlocX =(float) copie.dibHeader.width/width;
-
-    //Pour chaque pixel de la nouvelle image
-    for (int h =0; h<height; h+=1) {
-        for (int w =0; w<width; w+=1) {
-            unsigned char RED = 0;      
-            unsigned char GREEN = 0;                                   
-            unsigned char BLUE = 0;
-
-            for (int i =0; i<tailleBlocY; i+=1) {
-                for (int j =0; j<tailleBlocX; j+=1) {
-                    RED += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 0);
-                    GREEN += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 1);
-                    BLUE += getP(&copie, (float) h*tailleBlocY + i, (float) w*tailleBlocX + j, 2);
-                }
-            }
-
-
-            setP(image, h, w, 0, RED/((float) tailleBlocX*tailleBlocY));
-            setP(image, h, w, 1, GREEN/((float) tailleBlocX*tailleBlocY));
-            setP(image, h, w, 2, BLUE/((float) tailleBlocX*tailleBlocY));
-        }
-    }
-
-    freeImage(&copie);
-
-
-
-}
-
-
-
-
-
-
-
-
-int main()
+/*int main()
 {
 
 
     FILE* fichier = NULL;
 
-    fichier = fopen("Images/img.bmp", "rb");
+    fichier = fopen("Images/cafe.bmp", "rb");
 
     if(fichier == NULL) {
         printf("Erreur dans la lecture du fichier !");
@@ -570,10 +610,9 @@ int main()
 
 
 
-
-    afficherASCII(&image);
-
-
+    //redimensioner(&image, 50, 51);
+    //afficherASCII(&image);
+    //preRenduCouleur(&image);
 
     FILE* fichierF = NULL;
     fichierF = fopen("testEcriture.bmp", "wb+");
@@ -595,82 +634,4 @@ int main()
    
     return 0;
     
-}
-
-
-
-/*
-|--------------------------------------------
-|NE PAS CONSIDERER LA SUITE (globalement utilisé comme corbeille)
-|--------------------------------------------
-void redimensioner(Image* image, int height, int width) {
-
-    Image copie = copy(image);
-    free(image->image);
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-
-
-
-    float tailleBlocY =(float) copie.dibHeader.height/height;
-    float tailleBlocX =(float) copie.dibHeader.width/width;
-
-
-    printf("CoefY %f; coefX: %f", tailleBlocY, tailleBlocX);
-    //Pour chaque pixel de la nouvelle image
-    for (int h =0; h<height; h+=1) {
-        for (int w =0; w<width; w+=1) {
-
-            int r =0;
-            int g =0;
-            int b=0;
-            for (int i =0; i<tailleBlocY; i+=1) {
-                for (int j =0; j<tailleBlocX; j+=1) {
-                    int tempr = getP(&copie, h*tailleBlocY + i, w*tailleBlocX + j, 0);
-                    int tempg = getP(&copie, h*tailleBlocY + i, w*tailleBlocX + j, 1);
-                    int tempb = getP(&copie, h*tailleBlocY + i, w*tailleBlocX + j, 2);
-
-                    if(i==0) {
-                        //printf("coef 0: %f", 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY)));
-                        tempr*= 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY));
-                        tempg*= 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY));
-                        tempb*= 1-((float) (h*tailleBlocY) - (int) (h*tailleBlocY));
-                    } else if (i+1>tailleBlocY) {
-                        printf("%f ", 1- (float) (i+1-tailleBlocY));
-                        tempr*= 1- (float) (i+1-tailleBlocY);
-                        tempg*= 1- (float) (i+1-tailleBlocY);
-                        tempb*= 1- (float) (i+1-tailleBlocY);
-                    }
-
-                    if(j==0) {
-                        tempr*= 1-((float) (w*tailleBlocX) - (int) (w*tailleBlocX));
-                        tempg*= 1-((float) (w*tailleBlocX) - (int) (w*tailleBlocX));
-                        tempb*= 1-((float) (w*tailleBlocX) - (int) (w*tailleBlocX));
-                    } else if (j+1>tailleBlocX) {
-                        tempr*= 1- (float) (j+1-tailleBlocX);
-                        tempg*= 1- (float) (j+1-tailleBlocX);
-                        tempb*= 1- (float) (j+1-tailleBlocX);
-                    }
-
-                    r+=tempr;
-                    g+=tempg;
-                    b+=tempb;
-                }   
-            }
-            setP(image, h, w, 0, r/(tailleBlocY*tailleBlocX));
-            setP(image, h, w, 1, g/(tailleBlocY*tailleBlocX));
-            setP(image, h, w, 2, b/(tailleBlocY*tailleBlocX));
-        }
-    }
-
-    freeImage(&copie);
-
-}
-*/
+}*/
