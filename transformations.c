@@ -74,7 +74,17 @@ int rota_90(Image *img){
     
 }
 
-
+int redimensionner(Image *img, unsigned float facteur){
+    Image copy_img = copy(img);
+    int rows = int(img.dibHeader.height * facteur);
+    int columns = int(img.dibHeader.width * facteur);
+    ClearAndRedimensioner(img,rows,columns);
+    for (int x = 0; x<columns; x++){
+        for (int y = 0; y<rows/2; y++){
+            
+        }
+    }
+}
 
 
 void main(void){
