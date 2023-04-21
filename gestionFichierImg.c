@@ -53,7 +53,7 @@ Recap:
 |setP                    | Externe         | OK   |    OUI    | //Corrigé !
 |copy                    | Externe         | OK   |    OUI    | //Corrigé !
 |freeImage               | Externe         | OK   |    OUI    | //Corrigé !
-|rogner                  | Externe         | OK   |    OUI    | //ajouter des verifs pour eviter erreur de segmentation
+|rogner                  | Externe         | OK   |    OUI    |
 |ClearAndRedimensioner   | Externe         | OK   |    OUI    |
 |                                                             |
 |                           DEBUG                             |
@@ -63,6 +63,12 @@ Recap:
 
 */
 
+
+//Bof nv pertinence, on peut vrm stocker peu, a moins de choisir la taille
+void ecriture_steganoCaché(Image* image) {
+    int octetslibres = image->padding * image->dibHeader.height;
+    printf("Il est possible de stocker %d caracteres, que voulez vous stocker ?(%d, %d)", octetslibres, image->padding, image->dibHeader.height);
+}
 
 
 
@@ -86,7 +92,7 @@ int decodageLittleEndian(int* bytes, int SIZE) {
     return resulttotal;
 }
 
-int encodageLittleEndian(int* bytesResult, int SIZE, int value) {
+void encodageLittleEndian(int* bytesResult, int SIZE, int value) {
     int i =0;
     int* binaire = calloc(SIZE*8, sizeof(int));
     //printf("]\n[Binaire:");
@@ -108,6 +114,34 @@ int encodageLittleEndian(int* bytesResult, int SIZE, int value) {
    
 
 }
+
+void decompositionBinaire(char* result, char value) {
+    int i = 0;
+    while(value!=0 && i<8) {
+        result[i] = value%2;
+        value/=2;
+        i++;
+    }
+}
+
+void ecriture_stegano(Image* image, char* value, int size) {
+    char v[4];
+    v[0] = 'T';
+    v[1] = 'E';
+    v[2] = 'S';
+    v[3] = 'T';
+
+
+    char** valuesb = calloc(8*size, sizeof(char));
+    for(int i =0; i< size; i++) {
+        decompositionBinaire(valuesb[i], v[i]);
+    }
+
+
+
+
+}
+
 
 void encoderHeader(FILE* fichier, Image* image) {
     int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
@@ -395,10 +429,6 @@ void getImg(FILE* fichier, Image* image) {
         image->image[i] = caractereActuel;
         i++;
     }
-    // A enlever, est juste la au cas ou pour verifier
-    if(caractereActuel == EOF) {
-        printf("nop");
-    }
 }
 
 //Fonction regroupant le nécessaire pour creer une image à partir d'un fichier
@@ -420,7 +450,7 @@ Image getImageFromFile(FILE *fichier) {
 }
 
 
-//Obsolete
+
 void ClearAndRedimensioner(Image *image, int height, int width) {
     free(image->image);
 
@@ -645,13 +675,13 @@ void rogner(Image *image, int y, int x, int height, int width) {
 }
 
 
-/*int main()
+int main()
 {
 
 
     FILE* fichier = NULL;
 
-    fichier = fopen("Images/cafe.bmp", "rb");
+    fichier = fopen("Images/couleurCarre.bmp", "rb");
 
     if(fichier == NULL) {
         printf("Erreur dans la lecture du fichier !");
@@ -662,8 +692,9 @@ void rogner(Image *image, int y, int x, int height, int width) {
     
     fclose(fichier);
 
+    char *p;
 
-
+    ecriture_stegano(&image, p, 0);
 
     //redimensioner(&image, 50, 51);
     //afficherASCII(&image);
@@ -689,4 +720,4 @@ void rogner(Image *image, int y, int x, int height, int width) {
    
     return 0;
     
-}*/
+}
