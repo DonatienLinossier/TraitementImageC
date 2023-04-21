@@ -159,7 +159,7 @@ void setP(Image* image, int height, int width, int rgb, int value);
 void rogner(Image *image, int y, int x, int height, int width);
 
 //Redimensionne l'image et affecte 
-void ClearAndRedimensioner(Image *image, int height, int width);
+void clearAndResize(Image *image, int height, int width);
 
 //Affiche l'image en caractere ASCII avec " .:?#"
 void afficherASCII(Image* image);

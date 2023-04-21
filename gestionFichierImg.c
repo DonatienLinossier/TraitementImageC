@@ -115,33 +115,67 @@ void encodageLittleEndian(int* bytesResult, int SIZE, int value) {
 
 }
 
-void decompositionBinaire(char* result, char value) {
+void decompositionBinaire8Bit(char* result, char value) {
     int i = 0;
-    while(value!=0 && i<8) {
-        result[i] = value%2;
+    //printf("%c :", value);
+    while(i<8) {
+        result[8-1-i] = value%2;
+        //printf("%d ", result[8-1-i]);
         value/=2;
         i++;
     }
 }
 
-void ecriture_stegano(Image* image, char* value, int size) {
-    char v[4];
-    v[0] = 'T';
-    v[1] = 'E';
-    v[2] = 'S';
-    v[3] = 'T';
+int bin8bitToInt(char* bin) {
+    for(int i = 0; i<8; ) {
 
-
-    char** valuesb = calloc(8*size, sizeof(char));
-    for(int i =0; i< size; i++) {
-        decompositionBinaire(valuesb[i], v[i]);
     }
-
-
-
-
 }
 
+void ecriture_stegano(Image* image, char* value, int size) {
+
+    char textBin[size][8];
+    for(int i =0; i< size; i++) {
+        decompositionBinaire8Bit(textBin[i], value[i]);
+        printf("\n", i);
+    }
+
+    int i =0;
+    int height =0;
+    int width = 0;
+    int rgb = 0;
+    int bit = 0;
+
+    char decompt[8];
+    decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+
+    printf("aff");
+    //Inverser -> boucle sur huateur, width, rgb, bit avec incrementation i et j
+    for(int i = 0; i<size; i++) {
+        for(int j = 0; i<8; j++) {
+            decompt[7-bit] = textBin[i][j];
+
+            bit++;
+            if(bit>1) {
+                bit=0;
+                //passer en valeur
+                //setP(image, height, width, rgb, 0);
+                rgb++;
+                if(rgb>2) {
+                    rgb=0;
+                    width++;
+                    if(width>image->dibHeader.width) {
+                        width=0;
+                        height++;
+                        if(height>image->dibHeader.height) {
+                            printf("Fin de l'écriture du message, vous avez atteint la fin de l'image");
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 void encoderHeader(FILE* fichier, Image* image) {
     int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
@@ -451,7 +485,7 @@ Image getImageFromFile(FILE *fichier) {
 
 
 
-void ClearAndRedimensioner(Image *image, int height, int width) {
+void clearAndResize(Image *image, int height, int width) {
     free(image->image);
 
     image->dibHeader.height = height;
@@ -681,7 +715,7 @@ int main()
 
     FILE* fichier = NULL;
 
-    fichier = fopen("Images/couleurCarre.bmp", "rb");
+    fichier = fopen("Images/cafeGrand.bmp", "rb");
 
     if(fichier == NULL) {
         printf("Erreur dans la lecture du fichier !");
@@ -692,9 +726,14 @@ int main()
     
     fclose(fichier);
 
-    char *p;
+    char *p = calloc(2, sizeof(char));
+    p[0] = 'T';
+    p[1] = 'E';
+    p[2] = 'S';
+    p[3] = 'T';
 
-    ecriture_stegano(&image, p, 0);
+
+    //ecriture_stegano(&image, p, 4);
 
     //redimensioner(&image, 50, 51);
     //afficherASCII(&image);
