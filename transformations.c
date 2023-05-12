@@ -84,8 +84,18 @@ int redimensionner(Image *img, float facteur){
     ClearAndRedimensioner(img,max_y,max_x);
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
+            float dx = x/facteur_x;
+            float dy = y/facteur_y;
+            int new_x = (int)dx;
+            int new_y = (int)dy;
             for (int rgb = 0; rgb<3; rgb++){
-                setP(img, x, y, rgb, getP(&copy_img, (int)(x/facteur_x), (int)(y/facteur_y), rgb));
+                int delta_x = getP(&copy_img,new_y,new_x+1,rgb)-getP(&copy_img,new_y,new_x,rgb);
+                int delta_y = getP(&copy_img,new_y+1,new_x,rgb)-getP(&copy_img,new_y,new_x,rgb);
+                int delta_xy = getP(&copy_img,new_y,new_x,rgb)+getP(&copy_img,new_y+1,new_x,rgb+1)-getP(&copy_img,new_y,new_x+1,rgb)-getP(&copy_img,new_y+1,new_x,rgb);
+                int valeur = delta_x * dx + delta_y * dy + delta_xy * dx * dy + getP(&copy_img,new_y,new_x,rgb);
+                setP(img,y,x,rgb,valeur);
+
+                //setP(img, y, x, rgb, getP(&copy_img, (int)(y/facteur_y), (int)(x/facteur_x), rgb));
             }
             printf("(%d,%d) ",(int)(x/facteur_x),(int)(y/facteur_y));
         }
@@ -105,7 +115,7 @@ void main(void){
     fclose(fichier);
 
     //affiche_image(img);
-    redimensionner(&img,2);
+    redimensionner(&img,10);
     //affiche_image(img);
 
     fichier = NULL;
@@ -117,5 +127,5 @@ void main(void){
     writeFileFromImage(fichier, &img);
     fclose(fichier);
     freeImage(&img);
-    printf("bien");
+    printf("bien\n");
 }
