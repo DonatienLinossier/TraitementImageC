@@ -1,0 +1,52 @@
+#define GESTIONFICHIERIMG_H
+#define GESTIONFICHIERIMG_H
+
+#include <stdio.h>
+//Structure du Header du fichier .bmp
+typedef struct {
+    char type[2];
+    int size;
+    int createdBy;
+    int createdByBis;
+    int offset;  
+} Header;
+
+
+typedef struct {
+    int sizeHeader;
+    int width;
+    int height;
+    int nbColorplane; //must be 1
+    int nbBitByPixel;
+    int compressionMethod;
+    int imageSize;
+    int horizontalResolution;
+    int verticalResolution;
+    int nbColorInPalette;
+    int nbOfImportantColorUsed;
+} DibHeader;
+
+typedef struct {
+    Header header;
+    DibHeader dibHeader;
+    int* image;
+} Image;
+
+int getP(Image* image, int height,  int width, int rgb);
+//Récuperer la valeur de la composante (rgb) de la ligne (height) à la colonne (width) de l'image (*image)
+
+
+void noir_et_blanc(int width, int height, int pixels[height][width][3]){
+    int somme=0, rgb, m;
+     for (int x = 0; x<width; x++){
+        for (int y = 0; y<height; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                somme += pixels[0][0][rgb];
+             }
+                m=somme/3;
+                for (int rgb = 0; rgb<3; rgb++){
+                    pixels[y][x][rgb]=m;
+                }
+        }
+    } 
+}
