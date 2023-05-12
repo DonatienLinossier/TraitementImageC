@@ -119,6 +119,7 @@ void decompositionBinaire8Bit(char* result, char value) {
     int i = 0;
     //printf("%c :", value);
     while(i<8) {
+        printf("%d", 8-1-i);
         result[8-1-i] = value%2;
         //printf("%d ", result[8-1-i]);
         value/=2;
@@ -137,7 +138,7 @@ void ecriture_stegano(Image* image, char* value, int size) {
     char textBin[size][8];
     for(int i =0; i< size; i++) {
         decompositionBinaire8Bit(textBin[i], value[i]);
-        printf("\n", i);
+        printf("\n", textBin[i]);
     }
 
     int i =0;
