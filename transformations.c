@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h> 
+#include "gestionFichierImg.h"
 
 
 
@@ -29,16 +30,21 @@ void affiche_image(int columns, int rows, int pixels[rows][columns][3]){
 }
 
 void noir_et_blanc(int columns, int rows, int pixels[rows][columns][3]){
-    printf("[\n");
-    for (int x = 0; x<columns; x++){
-        ;
+    int somme=0, rgb, m;
+     for (int x = 0; x<columns; x++){
         for (int y = 0; y<rows; y++){
-        ;
+            for (int rgb = 0; rgb<3; rgb++){
+                somme += pixels[0][0][rgb];
+            }
+                m=somme/3;
+                for (int rgb = 0; rgb<3; rgb++){
+                    pixels[y][x][rgb]=m;
+                }
         }
-        printf(" ]\n");
-    }
-    printf("]\n");
+    } 
+    
 }
+
 
 
 void main(void){
