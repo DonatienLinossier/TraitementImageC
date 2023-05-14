@@ -28,13 +28,13 @@
 
 Recap:
 |-------------------------------------------------------------|
-|fonction                | Interne/Externe | Etat | accesible |
+|Fonction                | Interne/Externe | Etat | accesible |
 |-------------------------------------------------------------|
 |                          DECODAGE                           |
-|getImageFromFile        | Externe         | OK   |    OUI    | //Corrigé !
+|getImageFromFile        | Externe         | OK   |    OUI    |
 |decoderANDgetHeader     | Interne         | OK   |    X      |
-|decoderANDgetDIBHeader  | Interne         | OK   |    X      | //Corrigé !
-|getImg                  | Interne         | OK   |    X      | //Corrigé !
+|decoderANDgetDIBHeader  | Interne         | OK   |    X      |
+|getImg                  | Interne         | OK   |    X      |
 |decodageLittleEndian    | Interne         | OK   |    X      |
 |                                                             |
 |                          ENCODAGE                           |
@@ -45,14 +45,13 @@ Recap:
 |encodageLittleEndian    | Interne         | OK   |    X      |
 |                                                             |
 |                         AFFICHAGE                           |
-|afficherASCII           | Externe         | OK   |    OUI    | //Corrigé !
-|preRenduCouleur         | EXTERNE         |      |    NON    |
+|afficherASCII           | Externe         | OK   |    OUI    |
 |                                                             |
 |                    OPERATION SUR IMAGE                      |
-|getP                    | Externe         | OK   |    OUI    | //Corrigé !
-|setP                    | Externe         | OK   |    OUI    | //Corrigé !
-|copy                    | Externe         | OK   |    OUI    | //Corrigé !
-|freeImage               | Externe         | OK   |    OUI    | //Corrigé !
+|getP                    | Externe         | OK   |    OUI    | 
+|setP                    | Externe         | OK   |    OUI    | 
+|copy                    | Externe         | OK   |    OUI    | 
+|freeImage               | Externe         | OK   |    OUI    | 
 |rogner                  | Externe         | OK   |    OUI    |
 |ClearAndRedimensioner   | Externe         | OK   |    OUI    |
 |                                                             |
@@ -65,7 +64,7 @@ Recap:
 
 
 //Bof nv pertinence, on peut vrm stocker peu, a moins de choisir la taille
-void ecriture_steganoCaché(Image* image) {
+void ecriture_steganoCache(Image* image) {
     int octetslibres = image->padding * image->dibHeader.height;
     printf("Il est possible de stocker %d caracteres, que voulez vous stocker ?(%d, %d)", octetslibres, image->padding, image->dibHeader.height);
 }
@@ -119,7 +118,7 @@ void decompositionBinaire8Bit(char* result, char value) {
     int i = 0;
     //printf("%c :", value);
     while(i<8) {
-        printf("%d", 8-1-i);
+        //printf("%d ", value%2);
         result[8-1-i] = value%2;
         //printf("%d ", result[8-1-i]);
         value/=2;
@@ -135,10 +134,17 @@ int bin8bitToInt(char* bin) {
 
 void ecriture_stegano(Image* image, char* value, int size) {
 
-    char textBin[size][8];
+    
+    //Tableau 1D de tout les nombres binaires a écrire.
+    char *textBin = NULL;
+    calloc(size * 8, sizeof(char));
     for(int i =0; i< size; i++) {
-        decompositionBinaire8Bit(textBin[i], value[i]);
-        printf("\n", textBin[i]);
+        //printf("%d \n", value[i]);
+        decompositionBinaire8Bit(textBin + i * 8, value[i]);
+        /*for(int j =0; j<8; j++) {
+            printf("%d", textBin[i * 8 + j]);
+        }
+        printf("\n");*/
     }
 
     int i =0;
@@ -147,35 +153,44 @@ void ecriture_stegano(Image* image, char* value, int size) {
     int rgb = 0;
     int bit = 0;
 
+
+    //
     char decompt[8];
+    
     decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
 
-    printf("aff");
     //Inverser -> boucle sur huateur, width, rgb, bit avec incrementation i et j
-    for(int i = 0; i<size; i++) {
-        for(int j = 0; i<8; j++) {
-            decompt[7-bit] = textBin[i][j];
+    /* Approche :
+        Tant qu'il y a des caracteres a écrire :
+            
+    */
 
-            bit++;
-            if(bit>1) {
-                bit=0;
-                //passer en valeur
-                //setP(image, height, width, rgb, 0);
-                rgb++;
-                if(rgb>2) {
-                    rgb=0;
-                    width++;
-                    if(width>image->dibHeader.width) {
-                        width=0;
-                        height++;
-                        if(height>image->dibHeader.height) {
-                            printf("Fin de l'écriture du message, vous avez atteint la fin de l'image");
-                        }
+    //Pour chaque lettre a inscrire
+    for(int i = 0; i<size * 8; i++) {
+        //printf("%d", i);
+        decompt[7-bit] = textBin[i];
+        bit++;
+        if(bit>1) {
+            bit=0;
+            //passer en valeur
+            //setP(image, height, width, rgb, 0);
+            rgb++;
+            if(rgb>2) {
+                rgb=0;
+                width++;
+                if(width>image->dibHeader.width) {
+                    width=0;
+                    height++;
+                    if(height>image->dibHeader.height) {
+                        printf("Fin de l'écriture du message, vous avez atteint la fin de l'image");
+                        break;
                     }
                 }
             }
+            decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
         }
     }
+    printf("Fin de l'ecriture du message.");
 }
 
 void encoderHeader(FILE* fichier, Image* image) {
@@ -560,114 +575,6 @@ void afficherASCII(Image* image) {
     }
 }
 
-//Affiche l'image en caractere ASCII avec " .:?#"
-void afficherASCIICouleur(Image* image) {
-        unsigned char tab[5];
-    tab[0] = ' ';
-    tab[1] = '.';
-    tab[2] = ':';
-    tab[3] = '?';
-    tab[4] = '#';
-    char* couleur[3];
-    for(int i = 0; i<image->dibHeader.height; i++) {
-        printf("\n");
-        for(int j = 0; j<image->dibHeader.width; j++) {
-            int r = getP(image, i, j, 0)/128 == 1;
-            int b = getP(image, i, j, 1)/128 == 1;
-            int g = getP(image, i, j, 2)/128 == 1;
-            if(r) {
-                if(b) {
-                    if(g) {
-                        //white
-                        //printf("\e[47m");
-                        printf("\e[0;37m");
-                    } else {
-                        //Magenta
-                        //printf("\e[45m");
-                        printf("\e[0;35m");
-                    }
-                } else if(g) {
-                    //Jaune
-                    printf("\e[0;33m");
-                    //printf("\e[43m");
-                } else {
-                    //rouge
-                    printf("\e[0;31m");
-                    //printf("\e[41m");
-                }
-
-            } else if (g) {
-                if(b) {
-                    //cyan
-                    //printf("\e[46m");
-                    printf("\e[0;36m");
-                } else {
-                    //vert
-                    //printf("\e[42m");
-                    printf("\e[0;32m");
-                }
-            } else if (b) {
-                //bleu
-                printf("\e[0;34m");
-                //printf("\e[44m");
-            } else {
-                //noir
-                printf("\e[0m");
-            }
-        
-    
-
-
-            int valueRgb = 0.2126 * getP(image, i, j, 0) + 0.7152 * getP(image, i, j, 1) + 0.0722 * getP(image, i, j, 1);
-            printf("%c", tab[valueRgb/(255/5)]);
-            printf("%c", tab[valueRgb/(255/5)]);
-            printf("\e[40m");
-        }
-    }
-            
-}
-
-
-void preRenduCouleur(Image* image) {
-
-    char* couleur[3];
-    for(int i = 0; i<image->dibHeader.height; i++) {
-        printf("\n");
-        for(int j = 0; j<image->dibHeader.width; j++) {
-            int r = getP(image, i, j, 0)/128 == 1;
-            int b = getP(image, i, j, 1)/128 == 1;
-            int g = getP(image, i, j, 2)/128 == 1;
-            if(r) {
-                if(b) {
-                    if(g) {
-                        printf("\e[47m");
-                    } else {
-                        printf("\e[45m");
-                    }
-                } else if(g) {
-                    printf("\e[43m");
-                } else {
-                    printf("\e[41m");
-                }
-
-            } else if (g) {
-                if(b) {
-                    printf("\e[46m");
-                } else {
-                    printf("\e[44m");
-                }
-            } else if (b) {
-                printf("\e[42m");
-            } else {
-                printf("\e[40m");
-            }
-            printf("  ");
-        }
-        printf("\e[40m");
-    }
-}
-
-
 void rogner(Image *image, int y, int x, int height, int width) {
     if(height+y>image->dibHeader.height) {
         printf("Depassement de l'image");
@@ -727,7 +634,8 @@ int main()
     
     fclose(fichier);
 
-    char *p = calloc(2, sizeof(char));
+    char *p = calloc(100, sizeof(char));
+    //scanf("%s", p);
     p[0] = 'T';
     p[1] = 'E';
     p[2] = 'S';
