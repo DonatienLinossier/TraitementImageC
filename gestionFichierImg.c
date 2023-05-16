@@ -126,26 +126,25 @@ void decompositionBinaire8Bit(char* result, char value) {
     }
 }
 
-int bin8bitToInt(char* bin) {
-    for(int i = 0; i<8; ) {
-
+char bin8bitToInt(char* bin) {
+    int result = 0;
+    for(int i = 0; i<8; i++) {
+        result+= bin[i] * pow(2, 8-1-i);
     }
+    //printf("%c", result);
+    return result;
 }
 
-void ecriture_stegano(Image* image, char* value, int size) {
 
-    
-    //Tableau 1D de tout les nombres binaires a écrire.
-    char *textBin = NULL;
-    calloc(size * 8, sizeof(char));
-    for(int i =0; i< size; i++) {
-        //printf("%d \n", value[i]);
-        decompositionBinaire8Bit(textBin + i * 8, value[i]);
-        /*for(int j =0; j<8; j++) {
-            printf("%d", textBin[i * 8 + j]);
-        }
-        printf("\n");*/
+
+char* lectureStegano(Image* image) {
+    char* hiddenTextbin = NULL;
+    hiddenTextbin = calloc(image->dibHeader.height *  image->dibHeader.width * 3 * 2, sizeof(char));
+    if(hiddenTextbin==NULL) {
+        exit(0);
     }
+
+
 
     int i =0;
     int height =0;
@@ -154,26 +153,118 @@ void ecriture_stegano(Image* image, char* value, int size) {
     int bit = 0;
 
 
-    //
     char decompt[8];
     
     decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
 
-    //Inverser -> boucle sur huateur, width, rgb, bit avec incrementation i et j
-    /* Approche :
-        Tant qu'il y a des caracteres a écrire :
-            
-    */
 
     //Pour chaque lettre a inscrire
-    for(int i = 0; i<size * 8; i++) {
-        //printf("%d", i);
+    char *hiddenText = NULL;
+    int lenght = (image->dibHeader.height *  image->dibHeader.width * 3 * 2)/8;
+    
+    for(int i = 0; i<image->dibHeader.height *  image->dibHeader.width * 3 * 2; i++) {
+
+        //detecter fin de chaine de caractere(si somme nb binaire = 0, signifie tout les bits = 0, en ASCII on a donc /0, donc fin de chaine)
+        //printf("%d ", i);
+        if(i%8==7) {
+            int somme = 0;
+            for (int t = 0; t < 8; t++)
+            {
+                somme += hiddenTextbin[i-t];
+            }
+            if(somme==0) {
+                lenght = (i+1)/8;
+                hiddenText = calloc(lenght, sizeof(char));
+                if(hiddenText == NULL) {
+                    exit(0);
+                }
+                break;
+            }
+        }
+
+        hiddenTextbin[i] =  decompt[7-bit];
+        bit++;
+        if(bit>1) {
+            bit=0;
+            rgb++;
+            if(rgb>2) {
+                rgb=0;
+                width++;
+                if(width>image->dibHeader.width) {
+                    width=0;
+                    height++;
+                    if(height>image->dibHeader.height) {
+                        printf("Fin de la lecture du message, vous avez atteint la fin de l'image");
+                        break;
+                    }
+                }
+            }
+            decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+        }
+    }
+    
+    if(hiddenText=NULL) {
+        printf("Aucun message trouvé, ou le message n'a pas pu etre correctement encodé. Trop long ?"); //Attention au cas ou le /0 serait apres la fin du fichier
+        hiddenText = calloc(3, sizeof(char));
+        if(hiddenText == NULL) {
+            exit(0);
+            hiddenText[0] = 'N';
+            hiddenText[1] = 'U';
+            hiddenText[2] = 'L';
+            hiddenText[3] = 'L';
+        }
+        return hiddenText;
+    }
+    printf("finfonc");
+    printf("%d", lenght);
+    for(int i =0; i< lenght; i++) {
+        printf("test");
+        hiddenText[i] = bin8bitToInt(hiddenTextbin + i*8);
+        printf("%c",  bin8bitToInt(hiddenTextbin + i*8));
+    }
+    
+    return hiddenText;
+}
+
+
+
+
+
+void ecriture_stegano(Image* image, char* value, int size) {
+
+    
+    //Tableau 1D de tout les nombres binaires a écrire.
+    char *textBin = NULL;
+    textBin = calloc((size +1) * 8, sizeof(char)); //le +1 puor ajouter le caractere /0(fin de chaine), qui est encodé en ascii par 00000000
+    if (textBin == NULL) {
+        exit(0);
+    }
+
+    for(int i =0; i< size; i++) {
+        //printf("%d \n", value[i]);
+        decompositionBinaire8Bit(textBin + i * 8, value[i]);
+        /*for(int j =0; j<8; j++) {
+            printf("%d", textBin[i * 8 + j]);
+        }
+        printf("\n");*/
+    }
+    int i =0;
+    int height =0;
+    int width = 0;
+    int rgb = 0;
+    int bit = 0;
+
+
+    char decompt[8];
+    
+    decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+
+    for(int i = 0; i<(size+1) * 8; i++) {
         decompt[7-bit] = textBin[i];
         bit++;
         if(bit>1) {
             bit=0;
-            //passer en valeur
-            //setP(image, height, width, rgb, 0);
+            setP(image, height, width, rgb, bin8bitToInt(decompt));
             rgb++;
             if(rgb>2) {
                 rgb=0;
@@ -190,7 +281,6 @@ void ecriture_stegano(Image* image, char* value, int size) {
             decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
         }
     }
-    printf("Fin de l'ecriture du message.");
 }
 
 void encoderHeader(FILE* fichier, Image* image) {
@@ -383,7 +473,7 @@ void decoderANDgetHeader(FILE* fichier, Image* image) {
         int* tab = NULL;
         tab = calloc(SizeElementsHeaders[i], sizeof(char));
         if(tab == NULL) {
-            printf("ERREUR ALLOCATION !");
+            printf("ERREUR ALLOCATION decoderANDgetHeader!");
             exit(0);
         }
         for(int j = 0; j< SizeElementsHeaders[i]; j++) {
@@ -427,7 +517,7 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
         int* tab;
         tab = calloc(SizeElementsDIBHeaders[i], sizeof(char));
         if(tab == NULL) {
-            printf("ERREUR ALLOCATION !");
+            printf("ERREUR ALLOCATION decoderANDgetDIBHeader 1!");
             exit(0);
         }
 
@@ -453,7 +543,7 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
     //récuperer le reste, sans le décoder
     image->dibHeader.reste = calloc((image->header.offset-14-4-4-4), sizeof(unsigned char));
     if(image->dibHeader.reste == NULL) {
-            printf("ERREUR ALLOCATION !");
+            printf("ERREUR ALLOCATION decoderANDgetDIBHeader 2!");
             exit(0);
     }
 
@@ -468,7 +558,7 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
 void getImg(FILE* fichier, Image* image) {
     image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
     if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
+            printf("ERREUR ALLOCATION getImg!");
             exit(0);
     }
 
@@ -510,7 +600,7 @@ void clearAndResize(Image *image, int height, int width) {
 
     image->image = calloc(height * width * 3 + image->dibHeader.height * image->padding , sizeof(unsigned char));
     if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
+            printf("ERREUR ALLOCATION clearAndResize!");
             exit(0);
     }
 }
@@ -527,7 +617,7 @@ Image copy(Image *image) {
 
     NewImage.dibHeader.reste = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
     if(NewImage.dibHeader.reste == NULL) {
-        printf("ERREUR ALLOCATION !");
+        printf("ERREUR ALLOCATION copy!");
         exit(0);
     }
     for(int i =0; i< NewImage.header.offset-14-4-4-4; i++) {
@@ -537,7 +627,7 @@ Image copy(Image *image) {
 
     NewImage.image = calloc((NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding ), sizeof(unsigned char));
     if(NewImage.image == NULL) {
-        printf("ERREUR ALLOCATION !");
+        printf("ERREUR ALLOCATION copy!");
         exit(0);
     }
     for(int i = 0; i<NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding; i++) {
@@ -600,7 +690,7 @@ void rogner(Image *image, int y, int x, int height, int width) {
 
     image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
     if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
+            printf("ERREUR ALLOCATION ROGNER!");
             exit(0);
     }  
 
@@ -620,13 +710,13 @@ void rogner(Image *image, int y, int x, int height, int width) {
 int main()
 {
 
-
+    //ouverture
     FILE* fichier = NULL;
 
     fichier = fopen("Images/cafeGrand.bmp", "rb");
 
     if(fichier == NULL) {
-        printf("Erreur dans la lecture du fichier !");
+        printf("Erreur dans la lecture du fichier 1!");
         exit(0);
     }
 
@@ -636,36 +726,43 @@ int main()
 
     char *p = calloc(100, sizeof(char));
     //scanf("%s", p);
-    p[0] = 'T';
+    p[0] = 'P';
     p[1] = 'E';
     p[2] = 'S';
     p[3] = 'T';
-
-
-    //ecriture_stegano(&image, p, 4);
-
-    //redimensioner(&image, 50, 51);
-    //afficherASCII(&image);
-    //preRenduCouleur(&image);
-
+    p[4] = 'O';
+    printf("ecriture stegano\n");
+    ecriture_stegano(&image, p, 5);
+    //printf("lecture stegano\n");
+    //printf("%s", lectureStegano(&image));
+    printf("save File stegano\n");
     FILE* fichierF = NULL;
     fichierF = fopen("testEcriture.bmp", "wb+");
  
     if(fichierF == NULL) {
-        printf("Erreur dans l'ouverture du fichier !");
+        printf("Erreur dans l'ouverture du fichier 2!");
         exit(0);
     }
 
     writeFileFromImage(fichierF, &image);
     fclose(fichierF);
 
-
-
     freeImage(&image);
 
 
 
-   
-    return 0;
-    
+    printf("lecture File stegano\n");
+    FILE* fichierLecture = NULL;
+    fichierLecture = fopen("testEcriture.bmp", "rb");
+
+    if(fichierLecture == NULL) {
+        printf("Erreur dans la lecture du fichier 3!");
+        exit(0);
+    }
+
+    Image image2 = getImageFromFile(fichierLecture);
+    fclose(fichierLecture);
+    printf("lecture");
+    printf("%s", lectureStegano(&image2));    
+    printf("fin");
 }

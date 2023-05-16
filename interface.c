@@ -48,23 +48,35 @@ FILE* fileChoice() {
     //Faire les vérifs
     scanf("%d", &choice);
 
-
+    int lengthMAx=0;
     d = opendir(rep);
     if (d)
     {
         int j = 0;
-                while (j < choice && (dir = readdir(d)) != NULL)
+        while (j < choice && (dir = readdir(d)) != NULL)
         {
             int length = strlen(dir->d_name);
+            if (length>lengthMAx) {
+                lengthMAx = length;
+            }
             if(!(dir->d_name[length-4] == '.' && dir->d_name[length-3] == 'b' && dir->d_name[length-2] == 'm' && dir->d_name[length-1] == 'p')) {
                 continue;
             }
-        	//printf("%d: %s \n", j, dir->d_name);
             j++;
         }
-        char * name = dir->d_name;
-        activeFile = fopen(name, "wb+");
-        //printf("%s opened!\n", name);
+        char * name = NULL;
+        name = calloc(lengthMAx, sizeof(char));
+        if (name == NULL) {
+            exit(0);
+        }
+        strcat(name, "Images/");
+        strcat(name, dir->d_name);
+        activeFile = fopen(name, "rb+");
+        if(activeFile == NULL) {
+            printf("Erreur dans l'ouverture du fichier !");
+            exit(0);
+        }
+        printf("%s opened!\n", name);
         closedir(d);
     }
 
@@ -104,12 +116,17 @@ void inverserCouleursInterface() {
 void symetrieInterface() {
     
 }
+
+void steganographieInterface() {
+
+}
+
 void saveImageInterface() {
     
 }
 
 void changeImageInterface(FILE* activeFile, Image* img) {
-    printf("Etes-vous sur de vouloir changer d'image ? Vos modifications non enregistrés seront effacés (Y/N)");
+    printf("Etes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N)");
     char input = ' ';
     while(input!='y'&& input!='Y' && input!='N' && input!='n') {
         //Faire vérif input
@@ -149,32 +166,32 @@ int choixManipulationImage() {
     printf("     9 - Binariser l'image\n");
     printf("    10 - Inverser les couleurs\n");
     printf("    11 - Effectuer une symetrie\n");
-    printf("    12 - Enregistrer l'image\n");
-    printf("    13 - Changer d'image (Abandonne les modfications)\n");
-    printf("    14 - Fermer le programme (Abandonne les modifications)\n");
+    printf("    12 - Steganographie\n");
+    printf("    13 - Enregistrer l'image\n");
+    printf("    14 - Changer d'image (Abandonne les modfications)\n");
+    printf("    15 - Fermer le programme (Abandonne les modifications)\n");
     scanf("%d", &choice);
     return choice;
 
 }
 
 void main() {
-    printf("Bienvenu sur CYImage\n");
-    printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
 
     FILE* activeFile = NULL;
 
+    printf("Bienvenu sur CYImage\n");
+    printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
+
+    
+
     activeFile = fileChoice();
-    if(activeFile == NULL) {
-        printf("Erreur dans l'ouverture du fichier !");
-        exit(0);
-    }
 
     Image img = getImageFromFile(activeFile);
     fclose(activeFile); 
 
     int choice =0;
 
-    while(choice!=14) {
+    while(choice!=15) {
         choice = choixManipulationImage();
         switch(choice) {
             case 1:
@@ -211,19 +228,14 @@ void main() {
                 symetrieInterface();
                 break;
             case 12:
-                saveImageInterface();
+                steganographieInterface();
                 break;
             case 13:
+                saveImageInterface();
+                break;
+            case 14:
                 changeImageInterface(activeFile, &img);
                 break;
         }
-    
-
-
-
-
     }
-    
-
-
 }
