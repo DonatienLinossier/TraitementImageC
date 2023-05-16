@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "gestionFichierImg.h"
-#include <dirent.h> //Pas nativement sur windows
+#include <dirent.h> //Pas nativement sur windows ?
 #include <string.h>
 
 
@@ -12,19 +12,21 @@ FILE* fileChoice() {
     DIR *d;
     struct dirent *dir;
 
-    //récupérer repertoire actuel(A faire à CYtech pour etre sur de la compatibilité)
+    /*
+    Focntionnement :
+        Recuperer dossier actuel
+        Ouvrir le dossier Images
+        Lister les fichier .bmp
+        Recuperer choix user
+        ouvrir fichier
+        renvoyer fichier
+    
+    */
     char *rep;
     rep=(char *)malloc(100*sizeof(char));
     getcwd(rep,100);
-    //printf("\n %s \n",rep);
 
-    /*
-    Stocker tout les noms dans un tableau dynamique de chaine de caractere dynamique
-    Afficher tout les fichier .bmp
-    Récuperer le choix de l'utilisateur
-    Ouvrir l'image(avec le tabl dynamque)
-    Choix des opérations sur cette image ...
-    */
+
     strcat(rep, "/Images");
     d = opendir(rep);
     if (d)
@@ -170,6 +172,7 @@ int choixManipulationImage() {
     printf("    13 - Enregistrer l'image\n");
     printf("    14 - Changer d'image (Abandonne les modfications)\n");
     printf("    15 - Fermer le programme (Abandonne les modifications)\n");
+    //Verif inputs
     scanf("%d", &choice);
     return choice;
 

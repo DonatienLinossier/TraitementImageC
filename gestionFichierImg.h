@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 //---------------------------
-//Utilisation de Image 
+//Utilisation de Image (16/05/2023)
 //---------------------------
 /*
 - - - CREATION DE IMAGE - - - 
@@ -39,10 +39,7 @@ Pour accéder aux dimensions de l'image :
     - Hauteur : image.dibHeader.height
     - Largeur : image.dibHeader.width
 
-    /!\ Pour la hauteur comme la largeur, ne pas modifier les variables directement. Utiliser la fonction Clearredimensioner() pour changer la taille de l'image. /!\
-
-
-
+    /!\ Pour la hauteur comme la largeur, ne pas modifier les variables directement. Utiliser la fonction clearAndResize() pour changer la taille de l'image. /!\
 
 - - - PIXEL DE IMAGE - - -
 Pour acceder et modifer les pixels de l'image :
@@ -56,29 +53,10 @@ Pour acceder et modifer les pixels de l'image :
 - - - AFFICHAGE DE IMAGE - - - 
 Pour afficher l'image et avoir un premier rendu il est possible d'utiliser afficherASCII(Image* image).
 
-    |!| Pour les images dépassant de la console, il est préférable d'afficher une copie redimensionée de l'image : |!|
-        |-----------------------------------------------------------|
-        |                                                           |
-        |    Image affichage = copy(&image));                       |
-        |    redimensioner(&affichage, 50, 50);                     | /!\ NE PAS UTILISER POUR L'INSTANT, fonction redimensioner marche moyennement bien
-        |    afficherASCII(&affichage);                             |
-        |    freeImage(&affichage);                                 |
-        |                                                           |
-        |-----------------------------------------------------------|
-
-
-
 - - - ROGNER UNE IMAGE - - - 
 Pour rogner une image il suffit d'utiliser la foncion rogner(&image, int PosYCoinSupérieurGauche,  int PosXCoinSupérieurGauche, int hauteur, int longueur)
 
     /!\ Attention à ne pas deborder de l'image /!\
-
-
-WIP - - - REDIMENSIONER UNE IMAGE - - -  WIP
-Pour redimensioner une image il suffit d'utiliser la fonction redimensioner(&image, int hauteur, int longueur)
-
-    /WIP\ Opérationel sur les dimensions de l'image, mais de maniere approximative sur le rendu redimensioner de l'image.(potentiellement un flou et création de blanc lors d'un agrandissement)
-
 
 - - -  SUPRESSION DE IMAGE  - - -
 Une partie de l'image est alloué de maniere dynamique, il est important d'utiliser freeImage(&image) dès qu'on ne se sert plus de l'image.
@@ -166,6 +144,13 @@ void afficherASCII(Image* image);
 
 //Libere l'espace mémoire alloué dynamiquement de l'image
 void freeImage(Image *image);
+
+//cache le msg value dans l'image image
+void ecriture_stegano(Image* image, char* value);
+
+//Retourne un texte caché dans l'image. Si il n'y a pas de message, des mots randoms peuvent etre renvoyés. 
+char* lectureStegano(Image* image);
+
 
 
 #endif
