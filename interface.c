@@ -2,8 +2,11 @@
 #include <stdio.h>
 #include <math.h>
 #include "gestionFichierImg.h"
-#include <dirent.h> //Pas nativement sur windows ?
+#include <dirent.h> //Pas nativement sur windows ? 
+ // les fonctions FindFirst / FindNext / FindClose peuvent remplacer opendir / readdir / closedir sauf si ça marche sur linux 
 #include <string.h>
+
+#include "transformations.c" 
 
 
 
@@ -29,6 +32,7 @@ FILE* fileChoice() {
 
     strcat(rep, "/Images");
     d = opendir(rep);
+
     if (d)
     {
         printf("\n");
@@ -49,6 +53,7 @@ FILE* fileChoice() {
     int choice;
     //Faire les vérifs
     scanf("%d", &choice);
+    // fscanf( activeFile,"%d", &choice);
 
     int lengthMAx=0;
     d = opendir(rep);
@@ -85,9 +90,15 @@ FILE* fileChoice() {
     return activeFile;
 } 
 
-void redimensionerInterface() {
-
+void redimensionerInterface(FILE* activeFile, Image* img ) {
+    // facteur de redimension = ratio en pourcentage
+    float facteur;
+    printf("De quel facteur voulez-vous redimensionner l'image ?");
+    scanf("%f", &facteur);
+    printf("Votre image sera redimensioner de %f %", facteur);
+    redimensionner(Image *img, float facteur);
 }
+
 void rognerInterface() {
     
 }
@@ -97,8 +108,10 @@ void affichageASCIIInterface() {
 void noirEtBlancInterface() {
     
 }
-void rotationInterface() {
-    
+
+void rotationInterface(FILE* activeFile) {
+    printf("Votre image va effectuer une rotation de 90 degrés:");
+    rota_90(activeFile);
 }
 void luminositeInterface() {
     
@@ -113,11 +126,15 @@ void BinariserInterface() {
     
 }
 void inverserCouleursInterface() {
-    
+    printf(" L'inversion des couleurs rendra")
+    inverse_image(Image img)
 }
+
+
 void symetrieInterface() {
     
 }
+
 
 void steganographieInterface() {
 
@@ -128,7 +145,7 @@ void saveImageInterface() {
 }
 
 void changeImageInterface(FILE* activeFile, Image* img) {
-    printf("Etes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N)");
+    printf("Etes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effacées (Y/N)");
     char input = ' ';
     while(input!='y'&& input!='Y' && input!='N' && input!='n') {
         //Faire vérif input
@@ -148,6 +165,7 @@ void changeImageInterface(FILE* activeFile, Image* img) {
     }
 
     freeImage(img);
+    
     *img = getImageFromFile(activeFile);
     fclose(activeFile); 
 
