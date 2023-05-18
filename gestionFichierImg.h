@@ -51,7 +51,7 @@ Pour acceder et modifer les pixels de l'image :
 
 
 - - - AFFICHAGE DE IMAGE - - - 
-Pour afficher l'image et avoir un premier rendu il est possible d'utiliser afficherASCII(Image* image).
+Pour afficher l'image et avoir un premier rendu il est possible d'utiliser printASCII(Image* image).
 
 - - - ROGNER UNE IMAGE - - - 
 Pour rogner une image il suffit d'utiliser la foncion rogner(&image, int PosYCoinSupérieurGauche,  int PosXCoinSupérieurGauche, int hauteur, int longueur)
@@ -105,7 +105,7 @@ typedef struct {
     int sizeHeader;
     int width;
     int height;
-    unsigned char* reste;
+    unsigned char* rest;
 } DibHeader;
 
 //Structure du fichier image
@@ -119,10 +119,10 @@ typedef struct {
 
 
 //Fonction permettant de récuperer une structure image à partir d'un fichier donné
-Image getImageFromFile(FILE *fichier);
+Image getImageFromFile(FILE *file);
 
 //Fonction permettant d'écrire une image dans un fichier
-void writeFileFromImage(FILE* fichier, Image* image);
+void writeFileFromImage(FILE* file, Image* image);
 
 //Crée une copie de l'image(qui est indépendante de l'image)
 Image copy(Image *image);
@@ -140,16 +140,16 @@ void rogner(Image *image, int y, int x, int height, int width);
 void clearAndResize(Image *image, int height, int width);
 
 //Affiche l'image en caractere ASCII avec " .:?#"
-void afficherASCII(Image* image);
+void printASCII(Image* image);
 
 //Libere l'espace mémoire alloué dynamiquement de l'image
 void freeImage(Image *image);
 
 //cache le msg value dans l'image image
-void ecriture_stegano(Image* image, char* value);
+void steganoWriting(Image* image, char* value);
 
 //Retourne un texte caché dans l'image. Si il n'y a pas de message, des mots randoms peuvent etre renvoyés. 
-char* lectureStegano(Image* image);
+char* steganoReading(Image* image);
 
 
 
