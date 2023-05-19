@@ -55,6 +55,9 @@ int choice;
     printf(" 2\n");
     printf(" 3\n");
     printf(" 4 \n");
+    printf(" 5 \n");
+    printf(" 6 \n");
+    printf(" 7 \n");
     scanf("%d", &choice);
     return choice;
 //récuperer avec un switch case ?
