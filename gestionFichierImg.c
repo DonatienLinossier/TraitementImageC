@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "gestionFichierImg.h"
 
 
@@ -28,13 +29,13 @@
 
 Recap:
 |-------------------------------------------------------------|
-|fonction                | Interne/Externe | Etat | accesible |
+|Fonction                | Interne/Externe | Etat | accesible |
 |-------------------------------------------------------------|
 |                          DECODAGE                           |
-|getImageFromFile        | Externe         | OK   |    OUI    | //Corrigé !
+|getImageFromFile        | Externe         | OK   |    OUI    |
 |decoderANDgetHeader     | Interne         | OK   |    X      |
-|decoderANDgetDIBHeader  | Interne         | OK   |    X      | //Corrigé !
-|getImg                  | Interne         | OK   |    X      | //Corrigé !
+|decoderANDgetDIBHeader  | Interne         | OK   |    X      |
+|getImg                  | Interne         | OK   |    X      |
 |decodageLittleEndian    | Interne         | OK   |    X      |
 |                                                             |
 |                          ENCODAGE                           |
@@ -45,27 +46,37 @@ Recap:
 |encodageLittleEndian    | Interne         | OK   |    X      |
 |                                                             |
 |                         AFFICHAGE                           |
-|afficherASCII           | Externe         | OK   |    OUI    | //Corrigé !
-|preRenduCouleur         | EXTERNE         |      |    NON    |
+|afficherASCII           | Externe         | OK   |    OUI    |
 |                                                             |
 |                    OPERATION SUR IMAGE                      |
-|getP                    | Externe         | OK   |    OUI    | //Corrigé !
-|setP                    | Externe         | OK   |    OUI    | //Corrigé !
-|copy                    | Externe         | OK   |    OUI    | //Corrigé !
-|freeImage               | Externe         | OK   |    OUI    | //Corrigé !
-|rogner                  | Externe         | OK   |    OUI    | //ajouter des verifs pour eviter erreur de segmentation
+|getP                    | Externe         | OK   |    OUI    | 
+|setP                    | Externe         | OK   |    OUI    | 
+|copy                    | Externe         | OK   |    OUI    | 
+|freeImage               | Externe         | OK   |    OUI    | 
+|rogner                  | Externe         | OK   |    OUI    |
 |ClearAndRedimensioner   | Externe         | OK   |    OUI    |
+|                                                             |
+|                       STEGANOGRAPHIE                        |
+|affichageHeader         | Externe         | OK   |    NON    |
+|ecriture_stegano        | Externe         | OK   |    NON    |
+|ecriture_steganoCache   | Externe         |abdon?|    NON    |
 |                                                             |
 |                           DEBUG                             |
 |affichageHeader         | Interne         | OK   |    X      |
 |affichageDIBHeader      | Interne         | OK   |    X      |
+|                                                             |
+|                          BINAIRE                            |
+|decodageLittleEndian    | Interne         | OK   |    X      |
+|encodageLittleEndian    | Interne         | OK   |    X      |
+|decompositionBinaire8Bit| Interne         | OK   |    X      |
+|bin8bitToInt            | Interne         | OK   |    X      |
 |-------------------------------------------------------------|
 
 */
 
-
-
-
+//--------------------------------
+//Manipulation binaire
+//--------------------------------
 
 //Permet de décoder les infos dans les headers stockées en little Endian(La casi totalité des infos).
 int decodageLittleEndian(int* bytes, int SIZE) {
@@ -76,7 +87,6 @@ int decodageLittleEndian(int* bytes, int SIZE) {
         int decomposition[8];
         for(int h=0; h<8; h++) {  
                 decomposition[h] = nb%2;  
-                //printf("%d ",decomposition[h] );
                 result += decomposition[h] * pow(2, h) * pow(2, 8*i);
                 nb = nb/2;
         }
@@ -85,14 +95,11 @@ int decodageLittleEndian(int* bytes, int SIZE) {
     } 
     return resulttotal;
 }
-
-int encodageLittleEndian(int* bytesResult, int SIZE, int value) {
+void encodageLittleEndian(int* bytesResult, int SIZE, int value) {
     int i =0;
     int* binaire = calloc(SIZE*8, sizeof(int));
-    //printf("]\n[Binaire:");
     while(i < SIZE*8) {
         binaire[i] = value%2;
-        //printf("%d ",binaire[i]);
         value = value/2;
         i++;
     }
@@ -103,11 +110,305 @@ int encodageLittleEndian(int* bytesResult, int SIZE, int value) {
             result += binaire[i*8 +j] * pow(2, j);
         }
         bytesResult[i] = result;
-        //printf("(Total %d : Character %c) ",  bytesResult[i], bytesResult[i]);
     }
    
 
 }
+void decompositionBinaire8Bit(char* result, char value) {
+    int i = 0;
+    while(i<8) {
+        result[8-1-i] = value%2;
+        value/=2;
+        i++;
+    }
+}
+char bin8bitToInt(char* bin) {
+    char result = 0;
+    for(int i = 0; i<8; i++) {
+        result+= bin[i] * pow(2, 8-1-i);
+    }
+    return result;
+}
+
+
+
+//--------------------------------
+//Steganographie
+//--------------------------------
+
+//Bof nv pertinence, on peut vrm stocker peu, a moins de choisir la taille
+void ecriture_steganoCache(Image* image) {
+    int octetslibres = image->padding * image->dibHeader.height;
+    printf("Il est possible de stocker %d caracteres, que voulez vous stocker ?(%d, %d)", octetslibres, image->padding, image->dibHeader.height);
+}
+
+char* lectureStegano(Image* image) {
+    char* hiddenTextbin = NULL;
+    hiddenTextbin = calloc(image->dibHeader.height *  image->dibHeader.width * 3 * 2, sizeof(char));
+    if(hiddenTextbin==NULL) {
+        exit(0);
+    }
+
+    int height =0;
+    int width = 0;
+    int rgb = 0;
+    int bit = 0;
+
+
+    char decompt[8];
+    
+    decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+
+
+    //Pour chaque lettre a inscrire
+    char *hiddenText = NULL;
+
+    int lenght = (image->dibHeader.height *  image->dibHeader.width * 3 * 2)/8;
+    
+    for(int i = 0; i<image->dibHeader.height *  image->dibHeader.width * 3 * 2; i++) {
+
+        //detecter fin de chaine de caractere(si somme nb binaire = 0, signifie tout les bits = 0, en ASCII on a donc /0, donc fin de chaine)
+        if(i%8==7) {
+            int isEOS = 0; //Boolean de si on est a la fin de la chaine (isEndOfString)
+            for (int t = 0; t < 8; t++)
+            {
+                if(hiddenTextbin[i-t]==1) {
+                    isEOS = 1;
+                    break;
+                }
+            }
+            if(!isEOS) {
+                lenght = (i+1)/8;
+                hiddenText = calloc(lenght, sizeof(char));
+                if(hiddenText == NULL) {
+                    exit(0);
+                }
+                break;
+            }
+        }
+
+        hiddenTextbin[i] =  decompt[7-bit];
+        bit++;
+        if(bit>1) {
+            bit=0;
+            rgb++;
+            if(rgb>2) {
+                rgb=0;
+                width++;
+                if(width>image->dibHeader.width) {
+                    width=0;
+                    height++;
+                    if(height>image->dibHeader.height) {
+                        printf("Fin de la lecture du message, vous avez atteint la fin de l'image");
+                        break;
+                    }
+                }
+            }
+            decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+        }
+    }
+    
+    if(hiddenText==NULL) {
+        printf("Aucun message trouvé, ou le message n'a pas pu etre correctement encodé. Trop long ?"); //Attention au cas ou le /0 serait apres la fin du fichier
+        hiddenText = calloc(4, sizeof(char));
+        if(hiddenText == NULL) {
+            exit(0);
+        }
+        hiddenText[0] = 'N';
+        hiddenText[1] = 'U';
+        hiddenText[2] = 'L';
+        hiddenText[3] = 'L';
+        return hiddenText;
+    }
+    for(int t =0; t< lenght; t++) {
+        hiddenText[t] = bin8bitToInt(hiddenTextbin + t*8);
+    }
+    
+    return hiddenText;
+}
+
+
+
+
+
+void ecriture_stegano(Image* image, char* value) {
+
+    //Tableau 1D de tout les nombres binaires a écrire.
+    int size = strlen(value);
+    char *textBin = NULL;
+    textBin = calloc((size +1) * 8, sizeof(char)); //le +1 puor ajouter le caractere /0(fin de chaine), qui est encodé en ascii par 00000000
+    if (textBin == NULL) {
+        exit(0);
+    }
+
+    for(int i =0; i< size; i++) {
+        decompositionBinaire8Bit(textBin + i * 8, value[i]);
+    }
+
+    int height =0;
+    int width = 0;
+    int rgb = 0;
+    int bit = 0;
+
+
+    char decompt[8];
+    
+    decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+
+    for(int i = 0; i<(size+1) * 8; i++) {
+        decompt[7-bit] = textBin[i];
+        bit++;
+        if(bit>1) {
+            bit=0;
+            setP(image, height, width, rgb, bin8bitToInt(decompt));
+            rgb++;
+            if(rgb>2) {
+                rgb=0;
+                width++;
+                if(width>image->dibHeader.width) {
+                    width=0;
+                    height++;
+                    if(height>image->dibHeader.height) {
+                        printf("Fin de l'écriture du message, vous avez atteint la fin de l'image");
+                        break;
+                    }
+                }
+            }
+            decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+        }
+    }
+}
+
+
+//--------------------------------
+//Decodage
+//--------------------------------
+void decoderANDgetHeader(FILE* fichier, Image* image) {
+    int caractereActuel;
+    int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
+    for(int i =0; i<5; i++) {
+        int* tab = NULL;
+        tab = calloc(SizeElementsHeaders[i], sizeof(char));
+        if(tab == NULL) {
+            printf("ERREUR ALLOCATION decoderANDgetHeader!");
+            exit(0);
+        }
+        for(int j = 0; j< SizeElementsHeaders[i]; j++) {
+            caractereActuel = fgetc(fichier);
+            tab[j] = caractereActuel;
+        }
+        switch(i) {
+            case 0: 
+                image->header.type[0] = tab[0];
+                image->header.type[1] = tab[1];
+                break;
+            case 1:
+                image->header.size = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                break;
+            case 2:
+                image->header.createdBy = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                break;
+            case 3: 
+                image->header.createdByBis = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                break;
+            case 4:
+                image->header.offset = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                break;
+        }
+        free(tab);
+    }
+    
+}
+
+/*
+On recupere que la taille du DIBHeader, ainsi que la width et la height de l'image
+Le fin du DIB Header depend de son type, on preferera donc ne pas le decoder pour permettre une compatibilité avec tout les types de DIBHeader
+*/
+void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
+    int caractereActuel;
+    int SizeElementsDIBHeaders[3] = {4, 4, 4};
+    for(int i = 0; i<3; i++) {
+        int* tab;
+        tab = calloc(SizeElementsDIBHeaders[i], sizeof(char));
+        if(tab == NULL) {
+            printf("ERREUR ALLOCATION decoderANDgetDIBHeader 1!");
+            exit(0);
+        }
+
+        for(int j = 0; j < SizeElementsDIBHeaders[i]; j++) {
+            caractereActuel = fgetc(fichier);
+            tab[j] = caractereActuel;
+        }
+        switch(i) {
+            case 0:
+                image->dibHeader.sizeHeader = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
+                break;
+            case 1:
+                image->dibHeader.width = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
+                break;
+            case 2:
+                image->dibHeader.height = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
+                break;
+        }
+        free(tab);
+    }
+
+    
+    //récuperer le reste, sans le décoder
+    image->dibHeader.reste = calloc((image->header.offset-14-4-4-4), sizeof(unsigned char));
+    if(image->dibHeader.reste == NULL) {
+            printf("ERREUR ALLOCATION decoderANDgetDIBHeader 2!");
+            exit(0);
+    }
+
+    for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
+        caractereActuel = fgetc(fichier);
+        image->dibHeader.reste[i] = caractereActuel;
+    }
+}
+
+
+//Décoder et stocker l'image
+void getImg(FILE* fichier, Image* image) {
+    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
+    if(image->image == NULL) {
+            printf("ERREUR ALLOCATION getImg!");
+            exit(0);
+    }
+
+    int caractereActuel;
+    int i = 0;
+    while(caractereActuel != EOF && i<3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding) {
+        caractereActuel = fgetc(fichier);
+        image->image[i] = caractereActuel;
+        i++;
+    }
+}
+
+//Fonction regroupant le nécessaire pour creer une image à partir d'un fichier
+Image getImageFromFile(FILE *fichier) {
+    Image image;
+    image.dibHeader.reste = NULL;
+    image.image = NULL;
+
+    decoderANDgetHeader(fichier, &image);
+
+    decoderANDgetDIBHeader(fichier, &image);
+
+    image.padding = (4-(image.dibHeader.width*3)%4)%4;//surement une meilleur formule
+
+    getImg(fichier, &image);
+
+
+    return image;
+}
+
+
+
+
+//--------------------------------
+//Encodage
+//--------------------------------
 
 void encoderHeader(FILE* fichier, Image* image) {
     int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
@@ -205,7 +506,172 @@ void writeFileFromImage(FILE* fichier, Image* image)
 
 }
 
+//--------------------------------
+//Manipulation pixel
+//--------------------------------
+//Récuperer la valeur de la composante (rgb) de la ligne (height) à la colonne (width) de l'image (*image)
+unsigned char getP(Image* image, int height,  int width, int rgb) {
+    //(image->dibHeader.height-1-height) car l'image en encodé du bas vers le haut
+    //((rgb-1)*-1)+1 permet de passer de bgr à rgb
+    // + height * image.padding car il a un padding pour especter des octet de 4 par ligne
+    if(height>image->dibHeader.height) {
+        printf("Valeur trop de height trop haute");
+        return 0;
+    } else if (height<0) {
+        printf("Valeur de Height trop basse.");
+    }
+    if(width>image->dibHeader.width) {
+        printf("Valeur trop de width trop haute");
+        return 0;
+    } else if(width<0) {
+        printf("valeur de rgb trop basse.");
+        return 0;
+    }
+    if(rgb>2) {
+        printf("Valeur de rgb trop haute.");
+        return 0;
+    } else if (rgb<0) {
+        printf("Valeur de rgb trop basse");
+        return 0;
+    }
+    return image->image[((image->dibHeader.height-1-height)*(image->dibHeader.width*3) + width *3 + ((rgb-1)*-1)+1 + (image->dibHeader.height-1-height) * image->padding)];
+}
 
+//Mettre la valeur de la composante (rgb) de la ligne (height) à la colonne (width) de l'image (*image) à (valeur)
+void setP(Image* image, int height, int width, int rgb, int value) {
+    //(image->dibHeader.height-1-height) car l'image en encodé du bas vers le haut
+    //((rgb-1)*-1)+1 permet de passer de bgr à rgb
+    // + height * image.padding car il a un padding pour especter des octet de 4 par ligne
+    if(height>image->dibHeader.height) {
+        printf("Valeur trop de height trop haute");
+        return;
+    } else if (height<0) {
+        printf("Valeur de Height trop basse.");
+    }
+    if(width>image->dibHeader.width) {
+        printf("Valeur trop de width trop haute");
+        return;
+    } else if(width<0) {
+        printf("valeur de rgb trop basse.");
+        return;
+    }
+    if(rgb>2) {
+        printf("Valeur de rgb trop haute.");
+        return;
+    } else if (rgb<0) {
+        printf("Valeur de rgb trop basse");
+        return;
+    }
+    image->image[((image->dibHeader.height-1-height)*(image->dibHeader.width*3) + width *3 + ((rgb-1)*-1)+1 + (image->dibHeader.height-1-height) * image->padding)]=value;
+}
+
+
+
+
+
+
+//--------------------------------
+//Manipulation d'image
+//--------------------------------
+void clearAndResize(Image *image, int height, int width) {
+    free(image->image);
+
+    image->dibHeader.height = height;
+    image->dibHeader.width = width;
+    image->padding = (4-(image->dibHeader.width*3)%4)%4;
+
+    image->image = calloc(height * width * 3 + image->dibHeader.height * image->padding , sizeof(unsigned char));
+    if(image->image == NULL) {
+            printf("ERREUR ALLOCATION clearAndResize!");
+            exit(0);
+    }
+}
+
+//Créé une copie de image. Les deux images deviennent indépendantes.
+Image copy(Image *image) {
+    Image NewImage;
+    NewImage.header = image->header;
+    NewImage.dibHeader = image->dibHeader;
+    NewImage.dibHeader.reste = NULL;
+    NewImage.image = NULL;
+    NewImage.padding = image->padding;
+
+
+    NewImage.dibHeader.reste = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
+    if(NewImage.dibHeader.reste == NULL) {
+        printf("ERREUR ALLOCATION copy!");
+        exit(0);
+    }
+    for(int i =0; i< NewImage.header.offset-14-4-4-4; i++) {
+        NewImage.dibHeader.reste[i] = image->dibHeader.reste[i];
+    }
+
+
+    NewImage.image = calloc((NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding ), sizeof(unsigned char));
+    if(NewImage.image == NULL) {
+        printf("ERREUR ALLOCATION copy!");
+        exit(0);
+    }
+    for(int i = 0; i<NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding; i++) {
+        NewImage.image[i] = image->image[i];
+    }
+    return NewImage;
+}
+
+//Libere l'espace alloué dynamiquement par image
+void freeImage(Image* image) {
+    free(image->image);
+    image->image = NULL;
+    free(image->dibHeader.reste);
+    image->dibHeader.reste = NULL;
+}
+
+void rogner(Image *image, int y, int x, int height, int width) {
+    if(height+y>image->dibHeader.height) {
+        printf("Depassement de l'image");
+        return;
+    }
+    if(width+x>image->dibHeader.width) {
+        printf("Depassement de l'image");
+        return;
+    }
+    if(x<0) {
+        printf("Depassement de l'image");
+        return;
+    }
+    if(y<0) {
+        printf("Depassement de l'image");
+        return;
+    }
+    Image copie = copy(image);
+    free(image->image);
+    image->dibHeader.height = height;
+    image->dibHeader.width = width;
+    image->padding = (4-(image->dibHeader.width*3)%4)%4;
+
+    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
+    if(image->image == NULL) {
+            printf("ERREUR ALLOCATION ROGNER!");
+            exit(0);
+    }  
+
+
+    for(int i =0; i<height; i++) {
+        for(int j = 0; j<width; j++) {
+            for(int k =0; k<3; k++) {
+                setP(image, i, j, k, getP(&copie, y + i, x + j, k));
+            }
+        }
+    }
+
+    freeImage(&copie);
+}
+
+
+
+//--------------------------------
+//Debug/Affichage
+//--------------------------------
 
 //Afficher les infos du headers
 void affichageHeader(Header header) {
@@ -230,211 +696,6 @@ void affichageDIBHeader(DibHeader dibHeader) {
     }
 }
 
-
-//Récuperer la valeur de la composante (rgb) de la ligne (height) à la colonne (width) de l'image (*image)
-unsigned char getP(Image* image, int height,  int width, int rgb) {
-    //(image->dibHeader.height-1-height) car l'image en encodé du bas vers le haut
-    //((rgb-1)*-1)+1 permet de passer de bgr à rgb
-    // + height * image.padding car il a un padding pour especter des octet de 4 par ligne
-    return image->image[((image->dibHeader.height-1-height)*(image->dibHeader.width*3) + width *3 + ((rgb-1)*-1)+1 + (image->dibHeader.height-1-height) * image->padding)];
-}
-
-//Mettre la valeur de la composante (rgb) de la ligne (height) à la colonne (width) de l'image (*image) à (valeur)
-void setP(Image* image, int height, int width, int rgb, int value) {
-    //(image->dibHeader.height-1-height) car l'image en encodé du bas vers le haut
-    //((rgb-1)*-1)+1 permet de passer de bgr à rgb
-    // + height * image.padding car il a un padding pour especter des octet de 4 par ligne
-    image->image[((image->dibHeader.height-1-height)*(image->dibHeader.width*3) + width *3 + ((rgb-1)*-1)+1 + (image->dibHeader.height-1-height) * image->padding)]=value;
-}
-
-
-
-
-
-
-void decoderANDgetHeader(FILE* fichier, Image* image) {
-    int caractereActuel;
-    int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
-    for(int i =0; i<5; i++) {
-        int* tab = NULL;
-        tab = calloc(SizeElementsHeaders[i], sizeof(char));
-        if(tab == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-        }
-        for(int j = 0; j< SizeElementsHeaders[i]; j++) {
-            caractereActuel = fgetc(fichier);
-            tab[j] = caractereActuel;
-        }
-        switch(i) {
-            case 0: 
-                image->header.type[0] = tab[0];
-                image->header.type[1] = tab[1];
-                break;
-            case 1:
-                image->header.size = decodageLittleEndian(tab, SizeElementsHeaders[i]);
-                break;
-            case 2:
-                image->header.createdBy = decodageLittleEndian(tab, SizeElementsHeaders[i]);
-                break;
-            case 3: 
-                image->header.createdByBis = decodageLittleEndian(tab, SizeElementsHeaders[i]);
-                break;
-            case 4:
-                image->header.offset = decodageLittleEndian(tab, SizeElementsHeaders[i]);
-                break;
-        }
-        free(tab);
-    }
-    
-}
-
-
-
-
-/*
-On recupere que la taille du DIBHeader, ainsi que la width et la height de l'image
-Le fin du DIB Header depend de son type, on preferera donc ne pas le decoder pour permettre une compatibilité avec tout les types de DIBHeader
-*/
-void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
-    int caractereActuel;
-    int SizeElementsDIBHeaders[3] = {4, 4, 4};
-    for(int i = 0; i<3; i++) {
-        int* tab;
-        tab = calloc(SizeElementsDIBHeaders[i], sizeof(char));
-        if(tab == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-        }
-
-        for(int j = 0; j < SizeElementsDIBHeaders[i]; j++) {
-            caractereActuel = fgetc(fichier);
-            tab[j] = caractereActuel;
-        }
-        switch(i) {
-            case 0:
-                image->dibHeader.sizeHeader = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 1:
-                image->dibHeader.width = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-            case 2:
-                image->dibHeader.height = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
-                break;
-        }
-        free(tab);
-    }
-
-    
-    //récuperer le reste, sans le décoder
-    image->dibHeader.reste = calloc((image->header.offset-14-4-4-4), sizeof(unsigned char));
-    if(image->dibHeader.reste == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-
-    for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
-        caractereActuel = fgetc(fichier);
-        image->dibHeader.reste[i] = caractereActuel;
-    }
-}
-
-
-//Décoder et stocker l'image
-void getImg(FILE* fichier, Image* image) {
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-
-    int caractereActuel;
-    int i = 0;
-    while(caractereActuel != EOF && i<3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding) {
-        caractereActuel = fgetc(fichier);
-        image->image[i] = caractereActuel;
-        i++;
-    }
-    // A enlever, est juste la au cas ou pour verifier
-    if(caractereActuel == EOF) {
-        printf("nop");
-    }
-}
-
-//Fonction regroupant le nécessaire pour creer une image à partir d'un fichier
-Image getImageFromFile(FILE *fichier) {
-    Image image;
-    image.dibHeader.reste = NULL;
-    image.image = NULL;
-
-    decoderANDgetHeader(fichier, &image);
-
-    decoderANDgetDIBHeader(fichier, &image);
-
-    image.padding = (4-(image.dibHeader.width*3)%4)%4;//surement une meilleur formule
-
-    getImg(fichier, &image);
-
-
-    return image;
-}
-
-
-//Obsolete
-void ClearAndRedimensioner(Image *image, int height, int width) {
-    free(image->image);
-
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc(height * width * 3 + image->dibHeader.height * image->padding , sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }
-}
-
-//Créé une copie de image. Les deux images deviennent indépendantes.
-Image copy(Image *image) {
-    Image NewImage;
-    NewImage.header = image->header;
-    NewImage.dibHeader = image->dibHeader;
-    NewImage.dibHeader.reste = NULL;
-    NewImage.image = NULL;
-    NewImage.padding = image->padding;
-
-
-    NewImage.dibHeader.reste = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
-    if(NewImage.dibHeader.reste == NULL) {
-        printf("ERREUR ALLOCATION !");
-        exit(0);
-    }
-    for(int i =0; i< NewImage.header.offset-14-4-4-4; i++) {
-        NewImage.dibHeader.reste[i] = image->dibHeader.reste[i];
-    }
-
-
-    NewImage.image = calloc((NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding ), sizeof(unsigned char));
-    if(NewImage.image == NULL) {
-        printf("ERREUR ALLOCATION !");
-        exit(0);
-    }
-    for(int i = 0; i<NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding; i++) {
-        NewImage.image[i] = image->image[i];
-    }
-    return NewImage;
-}
-
-//Libere l'espace alloué dynamiquement par image
-void freeImage(Image* image) {
-    free(image->image);
-    image->image = NULL;
-    free(image->dibHeader.reste);
-    image->dibHeader.reste = NULL;
-}
-
-
 //Affiche l'image en caractere ASCII avec " .:?#"
 void afficherASCII(Image* image) {
     unsigned char tab[5];
@@ -455,151 +716,21 @@ void afficherASCII(Image* image) {
     }
 }
 
-//Affiche l'image en caractere ASCII avec " .:?#"
-void afficherASCIICouleur(Image* image) {
-        unsigned char tab[5];
-    tab[0] = ' ';
-    tab[1] = '.';
-    tab[2] = ':';
-    tab[3] = '?';
-    tab[4] = '#';
-    char* couleur[3];
-    for(int i = 0; i<image->dibHeader.height; i++) {
-        printf("\n");
-        for(int j = 0; j<image->dibHeader.width; j++) {
-            int r = getP(image, i, j, 0)/128 == 1;
-            int b = getP(image, i, j, 1)/128 == 1;
-            int g = getP(image, i, j, 2)/128 == 1;
-            if(r) {
-                if(b) {
-                    if(g) {
-                        //white
-                        //printf("\e[47m");
-                        printf("\e[0;37m");
-                    } else {
-                        //Magenta
-                        //printf("\e[45m");
-                        printf("\e[0;35m");
-                    }
-                } else if(g) {
-                    //Jaune
-                    printf("\e[0;33m");
-                    //printf("\e[43m");
-                } else {
-                    //rouge
-                    printf("\e[0;31m");
-                    //printf("\e[41m");
-                }
-
-            } else if (g) {
-                if(b) {
-                    //cyan
-                    //printf("\e[46m");
-                    printf("\e[0;36m");
-                } else {
-                    //vert
-                    //printf("\e[42m");
-                    printf("\e[0;32m");
-                }
-            } else if (b) {
-                //bleu
-                printf("\e[0;34m");
-                //printf("\e[44m");
-            } else {
-                //noir
-                printf("\e[0m");
-            }
-        
-    
 
 
-            int valueRgb = 0.2126 * getP(image, i, j, 0) + 0.7152 * getP(image, i, j, 1) + 0.0722 * getP(image, i, j, 1);
-            printf("%c", tab[valueRgb/(255/5)]);
-            printf("%c", tab[valueRgb/(255/5)]);
-            printf("\e[40m");
-        }
-    }
-            
-}
 
-
-void preRenduCouleur(Image* image) {
-
-    char* couleur[3];
-    for(int i = 0; i<image->dibHeader.height; i++) {
-        printf("\n");
-        for(int j = 0; j<image->dibHeader.width; j++) {
-            int r = getP(image, i, j, 0)/128 == 1;
-            int b = getP(image, i, j, 1)/128 == 1;
-            int g = getP(image, i, j, 2)/128 == 1;
-            if(r) {
-                if(b) {
-                    if(g) {
-                        printf("\e[47m");
-                    } else {
-                        printf("\e[45m");
-                    }
-                } else if(g) {
-                    printf("\e[43m");
-                } else {
-                    printf("\e[41m");
-                }
-
-            } else if (g) {
-                if(b) {
-                    printf("\e[46m");
-                } else {
-                    printf("\e[44m");
-                }
-            } else if (b) {
-                printf("\e[42m");
-            } else {
-                printf("\e[40m");
-            }
-            printf("  ");
-        }
-        printf("\e[40m");
-    }
-}
-
-
-void rogner(Image *image, int y, int x, int height, int width) {
-
-    Image copie = copy(image);
-    free(image->image);
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION !");
-            exit(0);
-    }  
-
-
-    for(int i =0; i<height; i++) {
-        for(int j = 0; j<width; j++) {
-            for(int k =0; k<3; k++) {
-                setP(image, i, j, k, getP(&copie, y + i, x + j, k));
-            }
-        }
-    }
-
-    freeImage(&copie);
-}
 
 
 /*int main()
 {
 
-
+    //Ouverture fichier
     FILE* fichier = NULL;
 
-    fichier = fopen("Images/cafe.bmp", "rb");
+    fichier = fopen("Images/cafeGrand.bmp", "rb");
 
     if(fichier == NULL) {
-        printf("Erreur dans la lecture du fichier !");
+        printf("Erreur dans la lecture du fichier 1!");
         exit(0);
     }
 
@@ -607,31 +738,43 @@ void rogner(Image *image, int y, int x, int height, int width) {
     
     fclose(fichier);
 
+    //Ecriture stegano
+    char *p = NULL;
+    p = calloc(100, sizeof(char));
+    if(p==NULL) {
+        exit(0);
+    }
+    printf("Quel msg voulez vous cacher ?");
+    scanf("%s", p);
+    ecriture_stegano(&image, p);
 
-
-
-    //redimensioner(&image, 50, 51);
-    //afficherASCII(&image);
-    //preRenduCouleur(&image);
-
+    //Ecriture fichier
     FILE* fichierF = NULL;
     fichierF = fopen("testEcriture.bmp", "wb+");
  
     if(fichierF == NULL) {
-        printf("Erreur dans l'ouverture du fichier !");
+        printf("Erreur dans l'ouverture du fichier 2!");
         exit(0);
     }
 
     writeFileFromImage(fichierF, &image);
     fclose(fichierF);
 
-
-
     freeImage(&image);
 
 
+    //Ouverture fichier avec msg caché
+    FILE* fichierLecture = NULL;
+    fichierLecture = fopen("testEcriture.bmp", "rb");
 
-   
-    return 0;
-    
+    if(fichierLecture == NULL) {
+        printf("Erreur dans la lecture du fichier 3!");
+        exit(0);
+    }
+
+    Image image2 = getImageFromFile(fichierLecture);
+    fclose(fichierLecture);
+    //lecture stegano
+    printf("Le msg suivant a ete trouve :\n");
+    printf("%s", lectureStegano(&image2));    
 }*/
