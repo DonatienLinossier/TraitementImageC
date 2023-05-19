@@ -1,40 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "gestionFichierImg.h"
 
 
 
-void inverse_image(Image img){
-    int max_y = img.dibHeader.height;
-    int max_x = img.dibHeader.width;
+void inverse_image(Image *img){
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
             for (int rgb = 0; rgb<3; rgb++){
-                setP(&img, y, x, rgb, 255-getP(&img, y, x, rgb));
+                setP(img, y, x, rgb, 255-getP(img, y, x, rgb));
             }
         }
     }
 }
-void swap(Image img, int x1, int y1, int x2, int y2){
+
+void swap(Image *img, int x1, int y1, int x2, int y2){
     for (int rgb = 0; rgb<3; rgb++){
-        unsigned char temp = getP(&img, y1, x1, rgb);
-        setP(&img, y1, x1, rgb, getP(&img, y2, x2, rgb));
-        setP(&img, y2, x2, rgb, temp);
+        unsigned char temp = getP(img, y1, x1, rgb);
+        setP(img, y1, x1, rgb, getP(img, y2, x2, rgb));
+        setP(img, y2, x2, rgb, temp);
     }
 }
 
-void symetrie_y(Image img){
-    int max_y = img.dibHeader.height;
-    int max_x = img.dibHeader.width;
+void symetrie_y(Image *img){
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
     for (int x = 0; x<max_x/2; x++){
         for (int y = 0; y<max_y; y++){
             swap(img, x, y, max_x-x-1, y);
         }
     }
 }
-void symetrie_x(Image img){
-    int max_y = img.dibHeader.height;
-    int max_x = img.dibHeader.width;
+
+void symetrie_x(Image *img){
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y/2; y++){
             swap(img, x, y, x, max_y-y-1);
@@ -42,14 +45,14 @@ void symetrie_x(Image img){
     }
 }
 
-void affiche_image(Image img){
-    int max_y = img.dibHeader.height;
-    int max_x = img.dibHeader.width;
+void affiche_image(Image *img){
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
     printf("[\n");
     for (int y = 0; y<max_y; y++){
         printf("    [ ");
         for (int x = 0; x<max_x; x++){
-            printf("[%3d, %3d, %3d],",getP(&img, y, x, 0),getP(&img, y, x, 1),getP(&img, y, x, 2));
+            printf("[%3d, %3d, %3d],",getP(img, y, x, 0),getP(img, y, x, 1),getP(img, y, x, 2));
         }
         printf(" ]\n");
     }
@@ -69,10 +72,71 @@ int rota_90(Image *img){
         }
     }
     //affiche_image(*img);
-    symetrie_y(*img);
+    symetrie_y(img);
     freeImage(&copy_img);
     
 }
+
+int flou(Image *img, int force){
+    if (force%2 != 1 || force<0){
+        printf("1\n");
+        exit(1);
+    }
+    printf("start\n");
+    Image copy_img = copy(img);
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    for (int x = 0; x<max_x; x++){
+        for (int y = 0; y<max_y; y++){
+            int min_iy=force/-2, max_iy=force+min_iy, min_ix=min_iy, max_ix=max_iy;
+            
+            if (x + min_ix < 0){
+                min_ix-=(x + min_ix);
+            }
+            else if(x + max_ix > max_x){
+                max_ix-=(x + max_x);
+            }
+            if (y + min_iy < 0){
+                min_iy-=(x + min_iy);
+            }
+            else if(y + max_iy > max_y){
+                max_iy-=(x + max_y);
+            }
+            for (int rgb = 0; rgb<3; rgb++){
+                float valeur = 0;
+                for(int ix = min_ix; ix < max_ix; ix++){
+                    for(int iy = min_iy; iy < max_iy; iy++){
+                        valeur += getP(&copy_img,y+iy,x+ix,rgb);
+                        
+                    }
+                }
+                valeur /= force*force;
+                setP(img, y, x, rgb, (int)valeur);
+                //printf("%d ", (int)valeur);
+            }
+            //printf("%d %d\n", x, y);
+        }
+    }
+    freeImage(&copy_img);
+}
+
+/*
+int rogner(Image *img, int new_x, int new_y){
+    if (new_x > img->dibHeader.width || new_y > img->dibHeader.height){
+        exit(1);
+    }
+    Image copy_img = copy(img);
+    ClearAndRedimensioner(img,new_y,new_x);
+    for (int x = 0; x<new_x; x++){
+        for (int y = 0; y<new_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                setP(img, y, x, rgb, getP(&copy_img, y, x, rgb));
+            }
+        }
+    }
+
+}
+*/
 
 int redimensionner(Image *img, float facteur){
     Image copy_img = copy(img);
@@ -106,26 +170,26 @@ int redimensionner(Image *img, float facteur){
 
 void main(void){
     FILE* fichier = NULL;
-    fichier = fopen("./test.bmp", "rb+");
+    fichier = fopen("./Images/couleurTriangle.bmp", "rb+");
     if(fichier == NULL) {
-        printf("0");
+        printf("0\n");
         exit(0);
     }                                                                                                            
     Image img = getImageFromFile(fichier);                                                                      
     fclose(fichier);
 
-    //affiche_image(img);
-    redimensionner(&img,10);
-    //affiche_image(img);
-
+    //affiche_image(&img);
+    flou(&img,3);
+    //affiche_image(&img);
+    printf("mid\n");
     fichier = NULL;
     fichier = fopen("./EcritureImg.bmp", "wb+");
     if(fichier == NULL) {
-        printf("1");
+        printf("1\n");
         exit(0);
     }
     writeFileFromImage(fichier, &img);
     fclose(fichier);
     freeImage(&img);
-    printf("bien\n");
+    printf("end\n");
 }
