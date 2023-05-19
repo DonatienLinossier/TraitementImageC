@@ -77,7 +77,9 @@ int rota_90(Image *img){
     
 }
 
+
 int flou(Image *img, int force){
+    //Ne marche pas encore
     if (force%2 != 1 || force<0){
         printf("1\n");
         exit(1);
@@ -165,31 +167,4 @@ int redimensionner(Image *img, float facteur){
         }
     }
     freeImage(&copy_img);
-}
-
-
-void main(void){
-    FILE* fichier = NULL;
-    fichier = fopen("./Images/couleurTriangle.bmp", "rb+");
-    if(fichier == NULL) {
-        printf("0\n");
-        exit(0);
-    }                                                                                                            
-    Image img = getImageFromFile(fichier);                                                                      
-    fclose(fichier);
-
-    //affiche_image(&img);
-    flou(&img,3);
-    //affiche_image(&img);
-    printf("mid\n");
-    fichier = NULL;
-    fichier = fopen("./EcritureImg.bmp", "wb+");
-    if(fichier == NULL) {
-        printf("1\n");
-        exit(0);
-    }
-    writeFileFromImage(fichier, &img);
-    fclose(fichier);
-    freeImage(&img);
-    printf("end\n");
 }
