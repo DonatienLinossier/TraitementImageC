@@ -6,9 +6,9 @@
 
 FILE* fileChoice();
 void resizeInterface();
-void rognerInterface();
+//void rognerInterface();
 void affichageASCIIInterface(Image* image);
-void BlackAndWhiteInterface();
+//void BlackAndWhiteInterface();
 void rotationInterface();
 void luminositeInterface();
 void contrasteInterface();

@@ -10,6 +10,13 @@
 /* Points d'attention :
     - Ouverture fichier. Le programme s'est arrété une fois en voulant ouvrir une image qui venait d'etre crée.
     - La steganographie ne marche pas tout le temps ?    
+
+    if (activeFile == NULL){
+        printf("Ouverture du fichier impossible \n");
+        printf("code d'erreur = %d n", errno );
+        printf("Message d'erreur = %s \n", strerror(errno));
+        exit(1);
+    }
 */
 
 
@@ -190,20 +197,20 @@ FILE* fileChoice() {
 
 } 
 
-void resizeInterface() {
+void resizeInterface() {}
 
-void redimensionerInterface(FILE* activeFile, float factor ) {
+/*void redimensionerInterface(FILE* activeFile, float factor ) {
     // facteur de redimension = ratio en pourcentage
     printf("Redimensionner l'image revient à choisir un pourcentage de redimension.\n");
     printf("De quel facteur voulez-vous redimensionner l'image ?\n");
     scanf("%f", &factor);
     printf("Votre image sera redimensioner de %f %", factor);
     redimensionner(&activeFile, factor);
-}
+}*/
 
 
 
-void rognerInterface(FILE* activeFile) {
+/*void rognerInterface(FILE* activeFile) {
     int option1;
     printf("Quel est le format choisi pour rogner votre image ?");
     printf("    1 - rapport 1:1\n");
@@ -240,7 +247,10 @@ void rognerInterface(FILE* activeFile) {
         }
     }
 
-}
+}*/
+
+
+
 void affichageASCIIInterface(Image* image) {
     printf("Voici l'image affichée en ASCII(Attention a la taille de l'image)\n");
     printASCII(image);
@@ -248,12 +258,12 @@ void affichageASCIIInterface(Image* image) {
 }
 
 
-void noirEtBlancInterface(FILE* activeFile) {
+/*void BlackAndWhiteInterface(FILE* activeFile) {
     char answer[4];
     printf("Vous avez choisi de rendre l'image noire et blanche\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
+    if(strcmp(answer, "oui") == 0){
         getP(image.Dibheader , height, width, rgb)
         noir_et_blanc(width, height, pixels[height][width][3]);
     }
@@ -265,16 +275,16 @@ void noirEtBlancInterface(FILE* activeFile) {
         printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
     }
 
-}
+}*/
 
 
-void rotationInterface(FILE* activeFile) { 
+void rotationInterface(Image* image) { 
     char answer[4];
     printf("Votre image va effectuer une rotation de 90 degrés \n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
-        rota_90(activeFile);
+    if(strcmp(answer, "oui") == 0){
+        //rota_90(image);
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -287,12 +297,12 @@ void rotationInterface(FILE* activeFile) {
 
 
 
-void luminositeInterface(FILE* activeFile) {
+void luminositeInterface(Image* image) {
     char answer[4];
     printf(" Vous avez choisi de modifier la luminosité de l'image\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
+    if(strcmp(answer, "oui") == 0){
         // fonction à mettre dans le header transformations
     }
     else if(strcmp(answer, "non")==0){
@@ -306,12 +316,12 @@ void luminositeInterface(FILE* activeFile) {
 
 
 
-void contrasteInterface(FILE* activeFile) {
+void contrasteInterface(Image* image) {
     char answer[4];
     printf(" Vous avez choisi de modifier la contrsaste de l'image\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
+    if(strcmp(answer, "oui")  == 0){
         // fonction contraste à mettre dans le header transformations
     }
     else if(strcmp(answer, "non")==0){
@@ -325,14 +335,14 @@ void contrasteInterface(FILE* activeFile) {
 
 
 
-void flouInterface(FILE* activeFile) {
+void flouInterface(Image* image) {
     char answer[4];
     int strength; // comment défnir la force
     printf("Votre image va être floutée \n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
-        flou(activeFile, strength);
+    if(strcmp(answer, "oui") == 0){
+        //flou(activeFile, strength);
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -345,27 +355,18 @@ void flouInterface(FILE* activeFile) {
 
 
 
-void BinariserInterface(FILE* activeFile) {
-      FILE* activeFile = NULL;
-    // ouverture du fichier en lecture/écriture
-    activeFile =fopen ("test.txt", "rb+");
-    if (activeFile == NULL){
-        printf("Ouverture du fichier impossible \n");
-        printf("code d'erreur = %d n", errno );
-        printf("Message d'erreur = %s \n", strerror(errno));
-        exit(1);
-    }
-    fclose(activeFile);
+void BinariserInterface(Image* image) {
+    //binariser
 }
 
 
-void inverserCouleursInterface(FILE* activeFile) {
+void inverserCouleursInterface(Image* image) {
     char answer[4];
     printf(" Vous avez choisi d'inverser les couleurs de l'image.\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
-         inverse_image(activeFile);
+    if(strcmp(answer, "oui")== 0){
+        //inverse_image(image);
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -377,14 +378,14 @@ void inverserCouleursInterface(FILE* activeFile) {
 }
 
 
-void symetrieInterface(FILE* activeFile) {
+void symetrieInterface(Image* image) {
 char answer[4];
     printf(" Vous avez choisi d'effectuer une symétrie\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
-    if(strcmp(answer, "oui" == 0)){
-        symetrie_y(activeFile);
-        symetrie_x(activeFile);
+    if(strcmp(answer, "oui") == 0){
+        //symetrie_y(image);
+        //symetrie_x(image);
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");

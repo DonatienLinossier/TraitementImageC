@@ -34,13 +34,13 @@ void main() {
                 resizeInterface();
                 break;
             case 2:
-                rognerInterface();
+                //rognerInterface();
                 break;
             case 3:
                 affichageASCIIInterface(&img);
                 break;
             case 4:
-                BlackAndWhiteInterface();
+                //BlackAndWhiteInterface();
                 break;
             case 5:
                 rotationInterface();
