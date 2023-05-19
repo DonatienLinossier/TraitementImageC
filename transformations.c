@@ -8,7 +8,6 @@ void grayscale(Image *img){
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
     int sum,average;
-
      for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
             sum=0;
@@ -187,30 +186,4 @@ int resize(Image *img, float factor){
         }
     }
     freeImage(&copy_img);
-}
-
-void main(void){
-    FILE* fichier = NULL;
-    fichier = fopen("./Images/couleurTriangle.bmp", "rb+");
-    if(fichier == NULL) {
-        printf("0\n");
-        exit(0);
-    }                                                                                                            
-    Image img = getImageFromFile(fichier);                                                                      
-    fclose(fichier);
-
-    //affiche_image(&img);
-    grayscale(&img);
-    //affiche_image(&img);
-    printf("mid\n");
-    fichier = NULL;
-    fichier = fopen("./EcritureImg.bmp", "wb+");
-    if(fichier == NULL) {
-        printf("1\n");
-        exit(0);
-    }
-    writeFileFromImage(fichier, &img);
-    fclose(fichier);
-    freeImage(&img);
-    printf("end\n");
 }

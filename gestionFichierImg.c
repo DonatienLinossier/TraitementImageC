@@ -36,14 +36,12 @@ Recap:
 |decoderANDgetHeader     | Interne         | OK   |    X      |
 |decoderANDgetDIBHeader  | Interne         | OK   |    X      |
 |getImg                  | Interne         | OK   |    X      |
-|decodageLittleEndian    | Interne         | OK   |    X      |
 |                                                             |
 |                          ENCODAGE                           |
 |writeFileFromImage      | Externe         | OK   |    OUI    |
 |encoderHeader           | Interne         | OK   |    X      |
 |encoderDIBHeader        | Interne         | OK   |    X      |
 |ImgToFile               | Interne         | OK   |    X      |
-|encodageLittleEndian    | Interne         | OK   |    X      |
 |                                                             |
 |                         AFFICHAGE                           |
 |afficherASCII           | Externe         | OK   |    OUI    |
@@ -67,7 +65,7 @@ Recap:
 |                                                             |
 |                          BINAIRE                            |
 |decodageLittleEndian    | Interne         | OK   |    X      |
-|encodageLittleEndian    | Interne         | OK   |    X      |
+|littleEndianEncoding    | Interne         | OK   |    X      |
 |decompositionBinaire8Bit| Interne         | OK   |    X      |
 |bin8bitToInt            | Interne         | OK   |    X      |
 |-------------------------------------------------------------|
@@ -79,10 +77,10 @@ Recap:
 //--------------------------------
 
 //Permet de décoder les infos dans les headers stockées en little Endian(La casi totalité des infos).
-int decodageLittleEndian(int* bytes, int SIZE) {
-    int resulttotal = 0;
+int littleEndianDecoding(int* bits, int SIZE) {
+    int resultFinal = 0;
     for (int i =0; i<SIZE; i++) {
-        int nb = bytes[i];
+        int nb = bits[i];
         int result = 0;
         int decomposition[8];
         for(int h=0; h<8; h++) {  
@@ -90,14 +88,19 @@ int decodageLittleEndian(int* bytes, int SIZE) {
                 result += decomposition[h] * pow(2, h) * pow(2, 8*i);
                 nb = nb/2;
         }
-        resulttotal+= result;
+        resultFinal+= result;
         
     } 
-    return resulttotal;
+    return resultFinal;
 }
-void encodageLittleEndian(int* bytesResult, int SIZE, int value) {
+
+void littleEndianEncoding(int* bitsResult, int SIZE, int value) {
     int i =0;
-    int* binaire = calloc(SIZE*8, sizeof(int));
+    int* binaire = NULL;
+    binaire = calloc(SIZE*8, sizeof(int));
+    if(binaire==NULL) {
+        exit(0);
+    }
     while(i < SIZE*8) {
         binaire[i] = value%2;
         value = value/2;
@@ -109,12 +112,11 @@ void encodageLittleEndian(int* bytesResult, int SIZE, int value) {
         for (int j=0; j<8; j++) {
             result += binaire[i*8 +j] * pow(2, j);
         }
-        bytesResult[i] = result;
+        bitsResult[i] = result;
     }
-   
-
 }
-void decompositionBinaire8Bit(char* result, char value) {
+
+void intTo8bitBinary(char* result, char value) {
     int i = 0;
     while(i<8) {
         result[8-1-i] = value%2;
@@ -122,6 +124,8 @@ void decompositionBinaire8Bit(char* result, char value) {
         i++;
     }
 }
+
+//Recupere la valeur int contenu dans un octet
 char bin8bitToInt(char* bin) {
     char result = 0;
     for(int i = 0; i<8; i++) {
@@ -135,14 +139,7 @@ char bin8bitToInt(char* bin) {
 //--------------------------------
 //Steganographie
 //--------------------------------
-
-//Bof nv pertinence, on peut vrm stocker peu, a moins de choisir la taille
-void ecriture_steganoCache(Image* image) {
-    int octetslibres = image->padding * image->dibHeader.height;
-    printf("Il est possible de stocker %d caracteres, que voulez vous stocker ?(%d, %d)", octetslibres, image->padding, image->dibHeader.height);
-}
-
-char* lectureStegano(Image* image) {
+char* steganoReading(Image* image) {
     char* hiddenTextbin = NULL;
     hiddenTextbin = calloc(image->dibHeader.height *  image->dibHeader.width * 3 * 2, sizeof(char));
     if(hiddenTextbin==NULL) {
@@ -155,12 +152,10 @@ char* lectureStegano(Image* image) {
     int bit = 0;
 
 
-    char decompt[8];
+    char decomposition[8];
     
-    decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+    intTo8bitBinary(decomposition, getP(image, height, width, rgb));
 
-
-    //Pour chaque lettre a inscrire
     char *hiddenText = NULL;
 
     int lenght = (image->dibHeader.height *  image->dibHeader.width * 3 * 2)/8;
@@ -169,15 +164,15 @@ char* lectureStegano(Image* image) {
 
         //detecter fin de chaine de caractere(si somme nb binaire = 0, signifie tout les bits = 0, en ASCII on a donc /0, donc fin de chaine)
         if(i%8==7) {
-            int isEOS = 0; //Boolean de si on est a la fin de la chaine (isEndOfString)
+            int EOS = 0; //Boolean de si on est a la fin de la chaine (EndOfString)
             for (int t = 0; t < 8; t++)
             {
                 if(hiddenTextbin[i-t]==1) {
-                    isEOS = 1;
+                    EOS = 1;
                     break;
                 }
             }
-            if(!isEOS) {
+            if(!EOS) {
                 lenght = (i+1)/8;
                 hiddenText = calloc(lenght, sizeof(char));
                 if(hiddenText == NULL) {
@@ -187,7 +182,7 @@ char* lectureStegano(Image* image) {
             }
         }
 
-        hiddenTextbin[i] =  decompt[7-bit];
+        hiddenTextbin[i] =  decomposition[7-bit];
         bit++;
         if(bit>1) {
             bit=0;
@@ -199,12 +194,12 @@ char* lectureStegano(Image* image) {
                     width=0;
                     height++;
                     if(height>image->dibHeader.height) {
-                        printf("Fin de la lecture du message, vous avez atteint la fin de l'image");
+                        printf("Vous etes arrive au bout de l'image lors de la lecture d'un potentiel message cache. Il se peut que le message soit stocke sur plusieurs fichier, ou tout simplement qu'il n'y ait pas de message cache.\n");
                         break;
                     }
                 }
             }
-            decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+            intTo8bitBinary(decomposition, getP(image, height, width, rgb));
         }
     }
     
@@ -231,9 +226,10 @@ char* lectureStegano(Image* image) {
 
 
 
-void ecriture_stegano(Image* image, char* value) {
+void steganoWriting(Image* image, char* value) {
 
     //Tableau 1D de tout les nombres binaires a écrire.
+    printf("Message a cacher : %s", value);
     int size = strlen(value);
     char *textBin = NULL;
     textBin = calloc((size +1) * 8, sizeof(char)); //le +1 puor ajouter le caractere /0(fin de chaine), qui est encodé en ascii par 00000000
@@ -242,7 +238,7 @@ void ecriture_stegano(Image* image, char* value) {
     }
 
     for(int i =0; i< size; i++) {
-        decompositionBinaire8Bit(textBin + i * 8, value[i]);
+        intTo8bitBinary(textBin + i * 8, value[i]);
     }
 
     int height =0;
@@ -253,7 +249,7 @@ void ecriture_stegano(Image* image, char* value) {
 
     char decompt[8];
     
-    decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+    intTo8bitBinary(decompt, getP(image, height, width, rgb));
 
     for(int i = 0; i<(size+1) * 8; i++) {
         decompt[7-bit] = textBin[i];
@@ -265,16 +261,16 @@ void ecriture_stegano(Image* image, char* value) {
             if(rgb>2) {
                 rgb=0;
                 width++;
-                if(width>image->dibHeader.width) {
+                if(width>=image->dibHeader.width) {
                     width=0;
                     height++;
-                    if(height>image->dibHeader.height) {
-                        printf("Fin de l'écriture du message, vous avez atteint la fin de l'image");
+                    if(height>=image->dibHeader.height) {
+                        printf("Votre est message n'a pas pu etre inscrit en entier. Votre message est trop long par rapport a la taille de votre image.\nEssayer avec une image plus grande ou un message plus court pour inscrire l'integralite de votre message.\n");
                         break;
                     }
                 }
             }
-            decompositionBinaire8Bit(decompt, getP(image, height, width, rgb));
+            intTo8bitBinary(decompt, getP(image, height, width, rgb));
         }
     }
 }
@@ -283,7 +279,7 @@ void ecriture_stegano(Image* image, char* value) {
 //--------------------------------
 //Decodage
 //--------------------------------
-void decoderANDgetHeader(FILE* fichier, Image* image) {
+void decoderANDgetHeader(FILE* file, Image* image) {
     int caractereActuel;
     int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
     for(int i =0; i<5; i++) {
@@ -294,7 +290,7 @@ void decoderANDgetHeader(FILE* fichier, Image* image) {
             exit(0);
         }
         for(int j = 0; j< SizeElementsHeaders[i]; j++) {
-            caractereActuel = fgetc(fichier);
+            caractereActuel = fgetc(file);
             tab[j] = caractereActuel;
         }
         switch(i) {
@@ -303,16 +299,16 @@ void decoderANDgetHeader(FILE* fichier, Image* image) {
                 image->header.type[1] = tab[1];
                 break;
             case 1:
-                image->header.size = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                image->header.size = littleEndianDecoding(tab, SizeElementsHeaders[i]);
                 break;
             case 2:
-                image->header.createdBy = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                image->header.createdBy = littleEndianDecoding(tab, SizeElementsHeaders[i]);
                 break;
             case 3: 
-                image->header.createdByBis = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                image->header.createdByBis = littleEndianDecoding(tab, SizeElementsHeaders[i]);
                 break;
             case 4:
-                image->header.offset = decodageLittleEndian(tab, SizeElementsHeaders[i]);
+                image->header.offset = littleEndianDecoding(tab, SizeElementsHeaders[i]);
                 break;
         }
         free(tab);
@@ -324,30 +320,30 @@ void decoderANDgetHeader(FILE* fichier, Image* image) {
 On recupere que la taille du DIBHeader, ainsi que la width et la height de l'image
 Le fin du DIB Header depend de son type, on preferera donc ne pas le decoder pour permettre une compatibilité avec tout les types de DIBHeader
 */
-void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
+void decoderANDgetDIBHeader(FILE* file, Image* image) {
     int caractereActuel;
-    int SizeElementsDIBHeaders[3] = {4, 4, 4};
+    int sizeElementsDIBHeaders[3] = {4, 4, 4};
     for(int i = 0; i<3; i++) {
         int* tab;
-        tab = calloc(SizeElementsDIBHeaders[i], sizeof(char));
+        tab = calloc(sizeElementsDIBHeaders[i], sizeof(char));
         if(tab == NULL) {
             printf("ERREUR ALLOCATION decoderANDgetDIBHeader 1!");
             exit(0);
         }
 
-        for(int j = 0; j < SizeElementsDIBHeaders[i]; j++) {
-            caractereActuel = fgetc(fichier);
+        for(int j = 0; j < sizeElementsDIBHeaders[i]; j++) {
+            caractereActuel = fgetc(file);
             tab[j] = caractereActuel;
         }
         switch(i) {
             case 0:
-                image->dibHeader.sizeHeader = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
+                image->dibHeader.sizeHeader = littleEndianDecoding(tab, sizeElementsDIBHeaders[i]);
                 break;
             case 1:
-                image->dibHeader.width = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
+                image->dibHeader.width = littleEndianDecoding(tab, sizeElementsDIBHeaders[i]);
                 break;
             case 2:
-                image->dibHeader.height = decodageLittleEndian(tab, SizeElementsDIBHeaders[i]);
+                image->dibHeader.height = littleEndianDecoding(tab, sizeElementsDIBHeaders[i]);
                 break;
         }
         free(tab);
@@ -355,21 +351,21 @@ void decoderANDgetDIBHeader(FILE* fichier, Image* image) {
 
     
     //récuperer le reste, sans le décoder
-    image->dibHeader.reste = calloc((image->header.offset-14-4-4-4), sizeof(unsigned char));
-    if(image->dibHeader.reste == NULL) {
+    image->dibHeader.rest = calloc((image->header.offset-14-4-4-4), sizeof(unsigned char));
+    if(image->dibHeader.rest == NULL) {
             printf("ERREUR ALLOCATION decoderANDgetDIBHeader 2!");
             exit(0);
     }
 
     for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
-        caractereActuel = fgetc(fichier);
-        image->dibHeader.reste[i] = caractereActuel;
+        caractereActuel = fgetc(file);
+        image->dibHeader.rest[i] = caractereActuel;
     }
 }
 
 
 //Décoder et stocker l'image
-void getImg(FILE* fichier, Image* image) {
+void getImg(FILE* file, Image* image) {
     image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
     if(image->image == NULL) {
             printf("ERREUR ALLOCATION getImg!");
@@ -379,25 +375,25 @@ void getImg(FILE* fichier, Image* image) {
     int caractereActuel;
     int i = 0;
     while(caractereActuel != EOF && i<3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding) {
-        caractereActuel = fgetc(fichier);
+        caractereActuel = fgetc(file);
         image->image[i] = caractereActuel;
         i++;
     }
 }
 
-//Fonction regroupant le nécessaire pour creer une image à partir d'un fichier
-Image getImageFromFile(FILE *fichier) {
+//Fonction regroupant le nécessaire pour creer une image à partir d'un file
+Image getImageFromFile(FILE *file) {
     Image image;
-    image.dibHeader.reste = NULL;
+    image.dibHeader.rest = NULL;
     image.image = NULL;
 
-    decoderANDgetHeader(fichier, &image);
+    decoderANDgetHeader(file, &image);
 
-    decoderANDgetDIBHeader(fichier, &image);
+    decoderANDgetDIBHeader(file, &image);
 
     image.padding = (4-(image.dibHeader.width*3)%4)%4;//surement une meilleur formule
 
-    getImg(fichier, &image);
+    getImg(file, &image);
 
 
     return image;
@@ -410,40 +406,35 @@ Image getImageFromFile(FILE *fichier) {
 //Encodage
 //--------------------------------
 
-void encoderHeader(FILE* fichier, Image* image) {
-    int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
+void encoderHeader(FILE* file, Image* image) {
+    int sizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
     int size;   
     for(int i =0; i<5; i++) {
-        size = SizeElementsHeaders[i];
+        size = sizeElementsHeaders[i];
         int* result = calloc(size, sizeof(int));
         switch(i) {
             case 0: 
-            //printf("B");
-                encodageLittleEndian(result, 1, image->header.type[0]);
-                encodageLittleEndian(result, 1, image->header.type[1]);
-                //printf("result :%c", result[0]);
-                //printf("B");
-                fputc(image->header.type[0], fichier); 
-                fputc(image->header.type[1], fichier); 
+                littleEndianEncoding(result, 1, image->header.type[0]);
+                littleEndianEncoding(result, 1, image->header.type[1]);
+                fputc(image->header.type[0], file); 
+                fputc(image->header.type[1], file); 
                 break;
             case 1:
-                encodageLittleEndian(result, SizeElementsHeaders[i], image->header.size);
-                //printf("result 1 : %c", result[0]);
+                littleEndianEncoding(result, sizeElementsHeaders[i], image->header.size);
                 break;
             case 2:
-                encodageLittleEndian(result, SizeElementsHeaders[i], image->header.createdBy);
+                littleEndianEncoding(result, sizeElementsHeaders[i], image->header.createdBy);
                 break;
             case 3: 
-                encodageLittleEndian(result, SizeElementsHeaders[i], image->header.createdByBis);
+                littleEndianEncoding(result, sizeElementsHeaders[i], image->header.createdByBis);
                 break;
             case 4:
-                encodageLittleEndian(result, SizeElementsHeaders[i], image->header.offset);
+                littleEndianEncoding(result, sizeElementsHeaders[i], image->header.offset);
                 break;
         }
         if(i!=0) {
-            for(int j = 0; j< SizeElementsHeaders[i]; j++) {
-                //printf("%c",result[j]);
-                fputc(result[j], fichier);
+            for(int j = 0; j< sizeElementsHeaders[i]; j++) {
+                fputc(result[j], file);
             }
         }
 
@@ -453,17 +444,17 @@ void encoderHeader(FILE* fichier, Image* image) {
     
 }
 
-void ImgToFile(FILE* fichier, Image* image) {
+void ImgToFile(FILE* file, Image* image) {
     int caractereActuel;
     int i = 0;
     while(i<3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding) {
-        fputc(image->image[i], fichier);
+        fputc(image->image[i], file);
         i++;
     }
 }
 
 
-void encoderDIBHeader(FILE* fichier, Image* image) {
+void encoderDIBHeader(FILE* file, Image* image) {
     int SizeElementsDIBHeaders[3] = {4, 4, 4}; 
     int size;   
     for(int i =0; i<3; i++) {
@@ -471,37 +462,37 @@ void encoderDIBHeader(FILE* fichier, Image* image) {
         int* result = calloc(size, sizeof(int));
         switch(i) {
             case 0:
-                encodageLittleEndian(result, SizeElementsDIBHeaders[i], image->dibHeader.sizeHeader);
+                littleEndianEncoding(result, SizeElementsDIBHeaders[i], image->dibHeader.sizeHeader);
                 break;
             case 1:
-                encodageLittleEndian(result, SizeElementsDIBHeaders[i], image->dibHeader.width);
+                littleEndianEncoding(result, SizeElementsDIBHeaders[i], image->dibHeader.width);
                 break;
             case 2: 
-                encodageLittleEndian(result, SizeElementsDIBHeaders[i], image->dibHeader.height);
+                littleEndianEncoding(result, SizeElementsDIBHeaders[i], image->dibHeader.height);
                 break;
         }
 
         for(int j = 0; j< SizeElementsDIBHeaders[i]; j++) {
-            fputc(result[j], fichier);
+            fputc(result[j], file);
         }
         free(result);
     }
 
 
     for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
-        fputc(image->dibHeader.reste[i] ,fichier);
+        fputc(image->dibHeader.rest[i] ,file);
     }
     
 }
 
 
-void writeFileFromImage(FILE* fichier, Image* image)
+void writeFileFromImage(FILE* file, Image* image)
 {
 
 
-    encoderHeader(fichier, image);
-    encoderDIBHeader(fichier, image);
-    ImgToFile(fichier, image);
+    encoderHeader(file, image);
+    encoderDIBHeader(file, image);
+    ImgToFile(file, image);
  
 
 }
@@ -592,18 +583,18 @@ Image copy(Image *image) {
     Image NewImage;
     NewImage.header = image->header;
     NewImage.dibHeader = image->dibHeader;
-    NewImage.dibHeader.reste = NULL;
+    NewImage.dibHeader.rest = NULL;
     NewImage.image = NULL;
     NewImage.padding = image->padding;
 
 
-    NewImage.dibHeader.reste = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
-    if(NewImage.dibHeader.reste == NULL) {
+    NewImage.dibHeader.rest = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
+    if(NewImage.dibHeader.rest == NULL) {
         printf("ERREUR ALLOCATION copy!");
         exit(0);
     }
     for(int i =0; i< NewImage.header.offset-14-4-4-4; i++) {
-        NewImage.dibHeader.reste[i] = image->dibHeader.reste[i];
+        NewImage.dibHeader.rest[i] = image->dibHeader.rest[i];
     }
 
 
@@ -622,25 +613,25 @@ Image copy(Image *image) {
 void freeImage(Image* image) {
     free(image->image);
     image->image = NULL;
-    free(image->dibHeader.reste);
-    image->dibHeader.reste = NULL;
+    free(image->dibHeader.rest);
+    image->dibHeader.rest = NULL;
 }
 
 void rogner(Image *image, int y, int x, int height, int width) {
     if(height+y>image->dibHeader.height) {
-        printf("Depassement de l'image");
+        printf("Depassement y de l'image");
         return;
     }
     if(width+x>image->dibHeader.width) {
-        printf("Depassement de l'image");
+        printf("Depassement x de l'image");
         return;
     }
     if(x<0) {
-        printf("Depassement de l'image");
+        printf("Depassement x de l'image");
         return;
     }
     if(y<0) {
-        printf("Depassement de l'image");
+        printf("Depassement y de l'image");
         return;
     }
     Image copie = copy(image);
@@ -692,12 +683,12 @@ void affichageDIBHeader(DibHeader dibHeader) {
 
     printf("    reste : ");
     for(int i=0; i<dibHeader.sizeHeader -4-4-4; i++ ) {
-        printf("%d ", dibHeader.reste[i]);
+        printf("%d ", dibHeader.rest[i]);
     }
 }
 
 //Affiche l'image en caractere ASCII avec " .:?#"
-void afficherASCII(Image* image) {
+void printASCII(Image* image) {
     unsigned char tab[5];
     tab[0] = ' ';
     tab[1] = '.';
@@ -724,19 +715,19 @@ void afficherASCII(Image* image) {
 /*int main()
 {
 
-    //Ouverture fichier
-    FILE* fichier = NULL;
+    //Ouverture file
+    FILE* file = NULL;
 
-    fichier = fopen("Images/cafeGrand.bmp", "rb");
+    file = fopen("Images/cafeGrand.bmp", "rb");
 
-    if(fichier == NULL) {
-        printf("Erreur dans la lecture du fichier 1!");
+    if(file == NULL) {
+        printf("Erreur dans la lecture du file 1!");
         exit(0);
     }
 
-    Image image = getImageFromFile(fichier);
+    Image image = getImageFromFile(file);
     
-    fclose(fichier);
+    fclose(file);
 
     //Ecriture stegano
     char *p = NULL;
@@ -748,32 +739,32 @@ void afficherASCII(Image* image) {
     scanf("%s", p);
     ecriture_stegano(&image, p);
 
-    //Ecriture fichier
-    FILE* fichierF = NULL;
-    fichierF = fopen("testEcriture.bmp", "wb+");
+    //Ecriture file
+    FILE* fileF = NULL;
+    fileF = fopen("testEcriture.bmp", "wb+");
  
-    if(fichierF == NULL) {
-        printf("Erreur dans l'ouverture du fichier 2!");
+    if(fileF == NULL) {
+        printf("Erreur dans l'ouverture du file 2!");
         exit(0);
     }
 
-    writeFileFromImage(fichierF, &image);
-    fclose(fichierF);
+    writeFileFromImage(fileF, &image);
+    fclose(fileF);
 
     freeImage(&image);
 
 
-    //Ouverture fichier avec msg caché
-    FILE* fichierLecture = NULL;
-    fichierLecture = fopen("testEcriture.bmp", "rb");
+    //Ouverture file avec msg caché
+    FILE* fileLecture = NULL;
+    fileLecture = fopen("testEcriture.bmp", "rb");
 
-    if(fichierLecture == NULL) {
-        printf("Erreur dans la lecture du fichier 3!");
+    if(fileLecture == NULL) {
+        printf("Erreur dans la lecture du file 3!");
         exit(0);
     }
 
-    Image image2 = getImageFromFile(fichierLecture);
-    fclose(fichierLecture);
+    Image image2 = getImageFromFile(fileLecture);
+    fclose(fileLecture);
     //lecture stegano
     printf("Le msg suivant a ete trouve :\n");
     printf("%s", lectureStegano(&image2));    
