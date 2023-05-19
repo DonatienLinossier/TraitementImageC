@@ -169,23 +169,6 @@ int flou(Image *img, int force){
 }
 
 
-int rogner(Image *img, int new_x, int new_y){
-    if (new_x > img->dibHeader.width || new_y > img->dibHeader.height){
-        exit(1);
-    }
-    Image copy_img = copy(img);
-    ClearAndRedimensioner(img,new_y,new_x);
-    for (int x = 0; x<new_x; x++){
-        for (int y = 0; y<new_y; y++){
-            for (int rgb = 0; rgb<3; rgb++){
-                setP(img, y, x, rgb, getP(&copy_img, y, x, rgb));
-            }
-        }
-    }
-
-}
-
-
 
 void main(void){
     FILE* fichier = NULL;
