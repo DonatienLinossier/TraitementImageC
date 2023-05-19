@@ -5,9 +5,6 @@
 #include <time.h> 
 #include "gestionFichierImg.h"
 
-int getP(Image* image, int height,  int width, int rgb);
-//Récuperer la valeur de la composante (rgb) de la ligne (height) à la colonne (width) de l'image (*image)
-
 
 void noir_et_blanc(int width, int height, int pixels[height][width][3]){
     int somme=0, rgb, m;
