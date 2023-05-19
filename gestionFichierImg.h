@@ -151,6 +151,4 @@ void steganoWriting(Image* image, char* value);
 //Retourne un texte caché dans l'image. Si il n'y a pas de message, des mots randoms peuvent etre renvoyés. 
 char* steganoReading(Image* image);
 
-
-
 #endif

@@ -324,7 +324,7 @@ void decoderANDgetDIBHeader(FILE* file, Image* image) {
     int caractereActuel;
     int sizeElementsDIBHeaders[3] = {4, 4, 4};
     for(int i = 0; i<3; i++) {
-        int* tab;
+        int* tab = NULL;
         tab = calloc(sizeElementsDIBHeaders[i], sizeof(char));
         if(tab == NULL) {
             printf("ERREUR ALLOCATION decoderANDgetDIBHeader 1!");
@@ -432,6 +432,7 @@ void encoderHeader(FILE* file, Image* image) {
                 littleEndianEncoding(result, sizeElementsHeaders[i], image->header.offset);
                 break;
         }
+
         if(i!=0) {
             for(int j = 0; j< sizeElementsHeaders[i]; j++) {
                 fputc(result[j], file);
@@ -480,7 +481,7 @@ void encoderDIBHeader(FILE* file, Image* image) {
 
 
     for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
-        fputc(image->dibHeader.rest[i] ,file);
+        fputc(image->dibHeader.rest[i] , file);
     }
     
 }
@@ -706,66 +707,3 @@ void printASCII(Image* image) {
         
     }
 }
-
-
-
-
-
-
-/*int main()
-{
-
-    //Ouverture file
-    FILE* file = NULL;
-
-    file = fopen("Images/cafeGrand.bmp", "rb");
-
-    if(file == NULL) {
-        printf("Erreur dans la lecture du file 1!");
-        exit(0);
-    }
-
-    Image image = getImageFromFile(file);
-    
-    fclose(file);
-
-    //Ecriture stegano
-    char *p = NULL;
-    p = calloc(100, sizeof(char));
-    if(p==NULL) {
-        exit(0);
-    }
-    printf("Quel msg voulez vous cacher ?");
-    scanf("%s", p);
-    ecriture_stegano(&image, p);
-
-    //Ecriture file
-    FILE* fileF = NULL;
-    fileF = fopen("testEcriture.bmp", "wb+");
- 
-    if(fileF == NULL) {
-        printf("Erreur dans l'ouverture du file 2!");
-        exit(0);
-    }
-
-    writeFileFromImage(fileF, &image);
-    fclose(fileF);
-
-    freeImage(&image);
-
-
-    //Ouverture file avec msg caché
-    FILE* fileLecture = NULL;
-    fileLecture = fopen("testEcriture.bmp", "rb");
-
-    if(fileLecture == NULL) {
-        printf("Erreur dans la lecture du file 3!");
-        exit(0);
-    }
-
-    Image image2 = getImageFromFile(fileLecture);
-    fclose(fileLecture);
-    //lecture stegano
-    printf("Le msg suivant a ete trouve :\n");
-    printf("%s", lectureStegano(&image2));    
-}*/
