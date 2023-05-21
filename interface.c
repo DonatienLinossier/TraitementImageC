@@ -3,7 +3,6 @@
 #include <math.h>
 #include "gestionFichierImg.h"
 #include <dirent.h> //Pas nativement sur windows ? 
- // les fonctions FindFirst / FindNext / FindClose peuvent remplacer opendir / readdir / closedir (pas besoin si ça marche sur linux) 
 #include <string.h>
 
 
@@ -280,11 +279,14 @@ void affichageASCIIInterface(Image* image) {
 
 void rotationInterface(Image* image) { 
     char answer[4];
+    int tours;
     printf("Votre image va effectuer une rotation de 90 degrés \n");
+    printf("Veuillez saisir le nombre de rotations à effectuer : ");
+    scanf("%d", &tours);
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui") == 0){
-        //rota_90(image);
+        //rota_90(image)*tours ;
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
