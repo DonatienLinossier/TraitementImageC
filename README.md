@@ -9,7 +9,7 @@ Ce projet a pour but de créer un programme en C permettant le traitement d'imag
 
 * [Informations générales](#informations-générales)
 * [Guides des commandes](#guides-des-commandes)
-* [Options du code](#option-du-code)
+* [Options du code](#options-du-code)
 
 ## Informations générales
 
