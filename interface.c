@@ -10,6 +10,7 @@
 /* Points d'attention :
     - Ouverture fichier. Le programme s'est arrété une fois en voulant ouvrir une image qui venait d'etre crée.
     - La steganographie ne marche pas tout le temps ?    
+    -Verifier si le fichier n'existe pas deja avant écriture
 
     if (activeFile == NULL){
         printf("Ouverture du fichier impossible \n");

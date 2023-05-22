@@ -229,7 +229,7 @@ char* steganoReading(Image* image) {
 void steganoWriting(Image* image, char* value) {
 
     //Tableau 1D de tout les nombres binaires a écrire.
-    printf("Message a cacher : %s", value);
+    //printf("Message a cacher : %s", value);
     int size = strlen(value);
     char *textBin = NULL;
     textBin = calloc((size +1) * 8, sizeof(char)); //le +1 puor ajouter le caractere /0(fin de chaine), qui est encodé en ascii par 00000000
@@ -707,3 +707,19 @@ void printASCII(Image* image) {
         
     }
 }
+
+/*int main() {
+    FILE* fichier = NULL;
+    fichier = fopen("Images/cafe.bmp", "rb");
+    if(fichier == NULL) {  
+        exit(0);  
+    }
+
+    Image image = getImageFromFile(fichier);
+    fclose(fichier);
+
+    char* test;
+    scanf("%s", test);
+    steganoWriting(&image, test);
+    printf("resutat : %s", steganoReading(&image));
+ }*/

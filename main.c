@@ -13,7 +13,7 @@ void main() {
 
 
     //corps de la fonction
-    printf("Bienvenu sur CYImage\n");
+    printf("Bienvenue sur CYImage\n");
     printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
 
 
