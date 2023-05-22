@@ -15,7 +15,7 @@ void main() {
     //corps de la fonction
     printf("Bienvenu sur CYImage\n");
     printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
-
+ 
 
     
     activeFile = fileChoice(); //Selection et ouverture du fichier image

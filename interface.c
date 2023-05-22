@@ -307,7 +307,7 @@ void brightnessInterface (Image *img){
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui") == 0){
-        brightness (Image *img);
+     //   brightness (Image *img);
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -326,7 +326,7 @@ void contrastInterface(Image* img) {
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui")  == 0){
-        contrast(Image* img);
+     //   contrast(Image* img);
         }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -498,11 +498,12 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
     void exitInterface(){
         int *choice1 = NULL;
+        char answer;
         printf("Etes-vous sûr de vouloir fermer le programme et abandonner les modifications apportées ? \n");
         scanf("%s", answer);
         while(!(*choice1)){
                     if(strcmp(answer, "oui")== 0){
-                        *choice1 = 1 //true;
+                        *choice1 = 1; //true;
                         free(choice1);
                         return 0;
                     }
