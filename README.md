@@ -11,6 +11,17 @@ Ce projet a pour but de créer un programme en C permettant le traitement d'imag
 * [Guides des commandes](#technologies)
 * [Options du code](#setup)
 ## Informations générales
+
+L'utilisateur peut choisir un filtre à apposer sur l'image parmi la liste suivante :
+ 
+ * Passer l'image en noir et blanc.
+ * Inverser les couleurs de l'image
+ * Effectuer une rotation (90°, 180° ou 270°)
+* Effectueur une symétrie selon l'axe horizontal ou vertical
+* Reidmensionner l'image
+* Gérer la luminosité de l'image
+* Gérer le contraste de l'image
+* Flouter l'image
 ## Guides des commandes
 ## Options du code
 ## Authors
