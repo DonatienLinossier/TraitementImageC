@@ -5,7 +5,7 @@
 #include "interface.h"
 #include <string.h>
 
-void main() {
+int main() {
     //Déclaration
     Image img;
     FILE* activeFile = NULL;
@@ -74,4 +74,6 @@ void main() {
                 break;
         }
     }
+
+    return 0;
 }

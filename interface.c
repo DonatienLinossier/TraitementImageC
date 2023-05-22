@@ -2,12 +2,19 @@
 #include <stdio.h>
 #include <math.h>
 #include "gestionFichierImg.h"
+#include "transformations.h"
 #include <dirent.h> //Pas nativement sur windows ? 
  // les fonctions FindFirst / FindNext / FindClose peuvent remplacer opendir / readdir / closedir (pas besoin si ça marche sur linux) 
 #include <string.h>
+#include <unistd.h>
 
 
-/* Points d'attention :
+/* Reste à faire :
+        -Verif fichier (ouverture)
+        -Verif fichier (ecriture)
+        -Verif stegano ()
+
+    Points d'attention :
     - Ouverture fichier. Le programme s'est arrété une fois en voulant ouvrir une image qui venait d'etre crée.
     - La steganographie ne marche pas tout le temps ?    
     -Verifier si le fichier n'existe pas deja avant écriture

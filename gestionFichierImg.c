@@ -704,7 +704,6 @@ void printASCII(Image* image) {
             printf("%c", tab[valueRgb/(255/5)]);
             printf("%c", tab[valueRgb/(255/5)]);
         }
-        
     }
 }
 

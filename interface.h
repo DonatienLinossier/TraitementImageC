@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "gestionFichierImg.h"
 
+
 FILE* fileChoice();
 void resizeInterface();
 //void rognerInterface();
