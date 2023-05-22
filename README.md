@@ -7,9 +7,10 @@ Ce projet a pour but de créer un programme en C permettant le traitement d'imag
 ## Sommaire
 
 
-* [Informations générales](#general-info)
-* [Guides des commandes](#technologies)
-* [Options du code](#setup)
+* [Informations générales](#informations-générales)
+* [Guides des commandes](#guides-des-commandes)
+* [Options du code](#option-du-code)
+
 ## Informations générales
 
 L'utilisateur peut choisir un filtre à apposer sur l'image parmi la liste suivante :
