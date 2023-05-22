@@ -6,6 +6,50 @@
 #include "gestionFichierImg.h"
 
 
+
+void brightness (Image *img, float percentage){
+    int l_rgb;
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    for (int x = 0; x<max_x; x++){
+        for (int y = 0; y<max_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                //on muttiplie chaque composantes rgb au facteur de luminosité choisi
+                l_rgb = rgb * percentage;
+                setP(img, y, x, rgb, l_rgb);
+             }
+        }   
+    }
+}
+
+/*void contrast(Image *img){
+    int rgb;
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    int rgbDark = rgb;
+    int rgbClear = rgb;
+    for (int x = 0; x<max_x; x++){
+        for (int y = 0; y<max_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                if(rgb>rgbDark){
+                    rgbDark=rgb;
+                }
+                if(rgb<rgbClear){
+                    rgbClear=rgb;
+                }
+            }
+                setP(img, y, x, rgb, value);
+
+                //comparer les composantes rgb pour prendre la plus sombre et la plus claire
+                 rgbDark = rgbDark * 0.7;
+                 rgbClear= rgbClear * 0.3;
+
+                setP(img, y, x, rgb, );
+        }
+    }        
+}*/
+
+
 void noir_et_blanc(int width, int height, int pixels[height][width][3]){
     int somme=0, rgb, m;
      for (int x = 0; x<width; x++){
@@ -79,7 +123,7 @@ int rota_90(Image *img){
     Image copy_img = copy(img);
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
-    ClearAndRedimensioner(img,max_x,max_y);
+    clearAndResize(img,max_x,max_y);
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
             for (int rgb = 0; rgb<3; rgb++){
@@ -100,7 +144,7 @@ int redimensionner(Image *img, float facteur){
     float facteur_x = max_x/img->dibHeader.width;
     float facteur_y = max_y/img->dibHeader.height;
     printf("%d %d",max_x,max_y);
-    ClearAndRedimensioner(img,max_y,max_x);
+    clearAndResize(img,max_y,max_x);
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
             float dx = x/facteur_x;

@@ -279,14 +279,14 @@ void affichageASCIIInterface(Image* image) {
 
 void rotationInterface(Image* image) { 
     char answer[4];
-    int tours;
+    int round;
     printf("Votre image va effectuer une rotation de 90 degrés \n");
     printf("Veuillez saisir le nombre de rotations à effectuer : ");
-    scanf("%d", &tours);
+    scanf("%d", &round);
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui") == 0){
-        //rota_90(image)*tours ;
+        rota_90(image)*round;
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -299,13 +299,15 @@ void rotationInterface(Image* image) {
 
 
 
-void luminositeInterface(Image* image) {
+void brightnessInterface (Image *img){
     char answer[4];
-    printf(" Vous avez choisi de modifier la luminosité de l'image\n");
+    float percentage;
+    printf("Veuillez saisir le pourcentage de luminosité que vous souhaité appliquer à votre image ");
+    scanf("%f", &percentage);
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui") == 0){
-        // fonction à mettre dans le header transformations
+        brightness (Image *img);
     }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
@@ -313,19 +315,19 @@ void luminositeInterface(Image* image) {
     }
     else{
         printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    }    
+    }
 }
 
 
 
-void contrasteInterface(Image* image) {
+void contrastInterface(Image* img) {
     char answer[4];
     printf(" Vous avez choisi de modifier la contrsaste de l'image\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui")  == 0){
-        // fonction contraste à mettre dans le header transformations
-    }
+        contrast(Image* img);
+        }
     else if(strcmp(answer, "non")==0){
         printf("0\n");
         exit(0);
@@ -458,6 +460,7 @@ void saveImageInterface(Image* image) {
     printf("Votre image a ete sauvegarde dans le fichier output/%s.bmp\n", filename);
 }
 
+
 void changeImageInterface(FILE* activeFile, Image* img) {
     //Déclaration
     char input = ' ';
@@ -490,6 +493,28 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
 
 }
+
+
+
+    void exitInterface(){
+        int *choice1 = NULL;
+        printf("Etes-vous sûr de vouloir fermer le programme et abandonner les modifications apportées ? \n");
+        scanf("%s", answer);
+        while(!(*choice1)){
+                    if(strcmp(answer, "oui")== 0){
+                        *choice1 = 1 //true;
+                        free(choice1);
+                        return 0;
+                    }
+                    else if(strcmp(answer, "non")==0){
+                        printf("0\n");
+                        exit(0);
+                    }
+                    else{
+                        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
+                    }
+        }
+    }
 
 int choiceImageManipulation() {
     int choice = 0;
