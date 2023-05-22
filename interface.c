@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "interface.h"
 #include "gestionFichierImg.h"
 #include "transformations.h"
 #include <dirent.h> //Pas nativement sur windows ? 
@@ -16,6 +17,8 @@
 
     Points d'attention :
     - Ouverture fichier. Le programme s'est arrété une fois en voulant ouvrir une image qui venait d'etre crée.
+    - Le programme s'arrete parfois quand on change d'image
+    - L'image couleurTriangle ne s'ouvre pas..
     - La steganographie ne marche pas tout le temps ?    
     -Verifier si le fichier n'existe pas deja avant écriture
 
@@ -193,10 +196,13 @@ FILE* fileChoice() {
     }
 
     //ouvrir le fichier image selection
+    printf("Db ouverture");
     activeFile = fopen(name, "rb+");
     if(activeFile == NULL) {
-        printf("Erreur dans l'ouverture du fichier !");
-        exit(0);
+        printf("Ouverture du fichier impossible \n");
+        printf("code d'erreur = %d n", errno );
+        printf("Message d'erreur = %s \n", strerror(errno));
+        exit(1);
     }
     printf("%s opened!\n", name);
     return activeFile;
