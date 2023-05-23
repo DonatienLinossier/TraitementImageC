@@ -31,7 +31,7 @@ int main() {
         choice = choiceImageManipulation(); //Affiche les possibilités à l'utilisateur et retourne son choix
         switch(choice) {
             case 1:
-                resizeInterface();
+                resizeInterface(&img);
                 break;
             case 2:
                 //rognerInterface();
