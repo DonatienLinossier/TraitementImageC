@@ -8,6 +8,16 @@
  // les fonctions FindFirst / FindNext / FindClose peuvent remplacer opendir / readdir / closedir (pas besoin si ça marche sur linux) 
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
+
+void clearBuffer()
+{
+    int c = 0;
+    while (c != '\n' && c != EOF)
+    {
+        c = getchar();
+    }
+}
 
 
 /* Reste à faire :
@@ -61,9 +71,9 @@ int isBMP(char* filename) {
 //Permet à l'uilisateur de choisir son fichier dans Image dans Images et/ou Output et retourne le fichier ouvert
 FILE* fileChoice() {
     FILE* activeFile = NULL;
-    char *repertory;
-    DIR *imageRepertory;
-    struct dirent *file;
+    char *repertory = NULL;
+    DIR *imageRepertory = NULL;
+    struct dirent *file = NULL;
     char * name = NULL;
 
 
@@ -100,18 +110,16 @@ FILE* fileChoice() {
 
 
     //recuperer le choix de l'utilisateur
-    //Faire les vérifs
     int choice = 0;
     int ret;
     do {
         ret = scanf("%d", &choice);
-        rewind(stdin);
+        clearBuffer();
     } while(choice<1 || choice>iFile || ret!=1);
 
 
     if(choice!=iFile) {
-        //Si un es fichier dans Images a été choisi 
-        //int lengthMAx=0;
+        //Si un fichier dans Images a été choisi 
         imageRepertory = opendir(repertory);
         if (imageRepertory)
         {
@@ -136,7 +144,7 @@ FILE* fileChoice() {
             strcat(name, file->d_name);
         }
     } else {
-        //Si l'utilisateur a prefere une image dans le dossier Output
+        //Si l'utilisateur a preferé une image dans le dossier Output
         printf("Quelle image voulez-vous selectionner ? (1/2/3/...)");
 
 
@@ -164,11 +172,10 @@ FILE* fileChoice() {
             closedir(imageRepertory);
         }
         int choice = 0;
-        //Faire les vérifs
         int ret;
         do {
             ret = scanf("%d", &choice);
-            rewind(stdin);
+            clearBuffer();
         } while(choice<1 || choice>iFile || ret!=1);
 
         imageRepertory = opendir(repertory);
@@ -195,13 +202,13 @@ FILE* fileChoice() {
         }
     }
 
-    //ouvrir le fichier image selection
-    printf("Db ouverture");
-    activeFile = fopen(name, "rb+");
+    //ouvrir le fichier image selectionné 
+    printf("'%s'", name);
+    activeFile = fopen(name, "rb");
     if(activeFile == NULL) {
         printf("Ouverture du fichier impossible \n");
-        /*printf("code d'erreur = %d n", errno );
-        printf("Message d'erreur = %s \n", strerror(errno));*/
+        printf("code d'erreur = %d \n", errno );
+        printf("Message d'erreur = %s \n", strerror(errno));
         exit(1);
     }
     printf("%s opened!\n", name);
@@ -300,7 +307,7 @@ void rotationInterface(Image* image) {
     int ret;
     do {
         ret = scanf("%3s", answer);
-        rewind(stdin);
+        clearBuffer();
     } while(ret!=1);
 
     if(strcmp(answer, "oui") == 0){
@@ -324,7 +331,7 @@ void luminositeInterface(Image* image) {
     int ret;
     do {
         ret = scanf("%3s", answer);
-        rewind(stdin);
+        clearBuffer();
     } while(ret!=1);
     if(strcmp(answer, "oui") == 0){
         // fonction à mettre dans le header transformations
@@ -347,7 +354,7 @@ void contrasteInterface(Image* image) {
     int ret;
     do {
         ret = scanf("%3s", answer);
-        rewind(stdin);
+        clearBuffer();
     } while(ret!=1);
     if(strcmp(answer, "oui")  == 0){
         // fonction contraste à mettre dans le header transformations
@@ -371,7 +378,7 @@ void flouInterface(Image* image) {
     int ret;
     do {
         ret = scanf("%3s", answer);
-        rewind(stdin);
+        clearBuffer();
     } while(ret!=1);
     if(strcmp(answer, "oui") == 0){
         //flou(activeFile, strength);
@@ -399,7 +406,7 @@ void inverserCouleursInterface(Image* image) {
     int ret;
     do {
         ret = scanf("%3s", answer);
-        rewind(stdin);
+        clearBuffer();
     } while(ret!=1);
     if(strcmp(answer, "oui")== 0){
         //inverse_image(image);
@@ -421,7 +428,7 @@ char answer[4];
     int ret;
     do {
         ret = scanf("%3s", answer);
-        rewind(stdin);
+        clearBuffer();
     } while(ret!=1);
     if(strcmp(answer, "oui") == 0){
         //symetrie_y(image);
@@ -449,9 +456,8 @@ void steganographieInterface(Image* image) {
         //printf("    3 - Cacher un message au prelablement enregistre dans un fichier dans l'image (Ecrasera un potentiel message deja cache)\n");
         printf("    3 - Revenir au menu principal.\n");
         //Sécuriser
-        rewind(stdin);
         ret = scanf("%1d", &choice);
-        rewind(stdin);
+        clearBuffer();
     } while(choice<1 || choice>3 || ret!=1);
     switch (choice)
     {
@@ -465,7 +471,7 @@ void steganographieInterface(Image* image) {
         int ret;
         do {
             ret = scanf("%s", message);
-            rewind(stdin);
+            clearBuffer();
         } while(ret!=1);
         steganoWriting(image, message);
         printf("Le message a ete inscrit dans l'image.\n");
@@ -485,7 +491,7 @@ void saveImageInterface(Image* image) {
 
         //    /!\ A SECURISER  /!/
         scanf("%90s", filename);
-        rewind(stdin);
+        clearBuffer();
     } while(!isFilenameValid(filename));
     strcat(finalFilename, filename);
     strcat(finalFilename, ".bmp");
@@ -513,7 +519,7 @@ void changeImageInterface(FILE* activeFile, Image* img) {
         printf("Etes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N) ");
         //Faire vérif input
         scanf("%c", &input);
-        rewind(stdin);
+        clearBuffer();
     } while(input!='y'&& input!='Y' && input!='N' && input!='n');
 
     if(input=='n' || input == 'N') {
@@ -558,7 +564,7 @@ int choiceImageManipulation() {
         printf("    15 - Fermer le programme (Abandonne les modifications)\n");
         
         ret = scanf("%2d", &choice);
-        rewind(stdin);
+        clearBuffer();
     } while(choice<1 || choice>15 || ret!=1);
 
     return choice;
