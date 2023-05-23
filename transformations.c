@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include "transformations.h"
 #include "gestionFichierImg.h"
 #include "transformations.h"
 
@@ -9,7 +10,7 @@ void grayscale(Image *img){
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
     int sum,average;
-     for (int x = 0; x<max_x; x++){
+    for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
             sum=0;
             for (int rgb = 0; rgb<3; rgb++){
@@ -22,6 +23,26 @@ void grayscale(Image *img){
             }
         }
     } 
+}
+
+void binary(Image *img){
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    int value;
+    grayscale(img);
+    for (int x = 0; x<max_x; x++){
+        for (int y = 0; y<max_y; y++){
+            if (getP(img,y,x,0)<128){
+                value = 0;
+            }
+            else {
+                value = 255;
+            }
+            for (int rgb = 0; rgb<3; rgb++){
+                setP(img, y, x, rgb, value);
+            }
+        }
+    }
 }
 
 //Fonction qui inverse les couleurs de l'image
@@ -67,7 +88,7 @@ void symmetry_y(Image *img){
     }
 }
 
-//Fonction qui fait une symetrie de l'image selon l'axe x
+//Fonctiongi qui fait une symetrie de l'image selon l'axe x
 void symmetry_x(Image *img){
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
@@ -95,12 +116,12 @@ void display_image(Image *img){
 }
 
 //Fonction qui effectue une rotation de l'image de 90 degrés dans le sens horaire
-int rotate_90(Image *img){
+void rotate_90(Image *img){
     Image copy_img = copy(img);
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
     clearAndResize(img,max_x,max_y);
-    //On inverse l'image selon l'axe diagonal en inversant les pixels (x,y)
+    //On inverse l'image selon l'axe diagonal en échangeant les pixels (x,y) avec les pixels (y,x)
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
             for (int rgb = 0; rgb<3; rgb++){
@@ -115,76 +136,119 @@ int rotate_90(Image *img){
 }
 
 //Fonction qui floute l'image selon un facteur
-int blur(Image *img, int factor){
-    //Ne marche pas encore
-    if (factor%2 != 1 || factor<0){
+void blur(Image *img, int range){
+    if (range%2 != 1 || range<0){
         printf("1\n");
         exit(1);
     }
-    printf("start\n");
     Image copy_img = copy(img);
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
+
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
-            int min_iy=factor/-2, max_iy=factor+min_iy, min_ix=min_iy, max_ix=max_iy;
-            
+
+            //On crée les coordonnées des coins de la matrice flou qu'on applique à l'image
+            int min_iy=range/-2, max_iy=range+min_iy, min_ix=min_iy, max_ix=max_iy;
+            // On rectifie ces coordonnées pour éviter les valeurs hors de l'image
             if (x + min_ix < 0){
-                min_ix-=(x + min_ix);
+                min_ix -= (x + min_ix);
             }
             else if(x + max_ix > max_x){
-                max_ix-=(x + max_x);
+                max_ix = max_x - x;
             }
             if (y + min_iy < 0){
-                min_iy-=(x + min_iy);
+                min_iy -= (y + min_iy);
             }
             else if(y + max_iy > max_y){
-                max_iy-=(x + max_y);
+                max_iy = max_y - y;
             }
             for (int rgb = 0; rgb<3; rgb++){
-                float value = 0;
+                float sum = 0;
                 for(int ix = min_ix; ix < max_ix; ix++){
                     for(int iy = min_iy; iy < max_iy; iy++){
-                        value += getP(&copy_img,y+iy,x+ix,rgb);
-                        
+                        //On ajoute les valeurs de tous les pixels autour
+                        sum += getP(&copy_img,y+iy,x+ix,rgb);
                     }
                 }
-                value /= factor*factor;
-                setP(img, y, x, rgb, (int)value);
-                //printf("%d ", (int)value);
+                //On divise cette somme par le nombre de cases de la matrice
+                sum /= range*range;
+                setP(img, y, x, rgb, (int)sum);
             }
-            //printf("%d %d\n", x, y);
         }
     }
     freeImage(&copy_img);
 }
 
 //Fonctions qui redimensionne l'image selon un facteur
-int resize(Image *img, float factor){
+void resize(Image *img, int new_x, int new_y){
     Image copy_img = copy(img);
-    int max_x = (int)img->dibHeader.width * factor;
-    int max_y = (int)img->dibHeader.height * factor;
-    float factor_x = max_x/img->dibHeader.width;
-    float factor_y = max_y/img->dibHeader.height;
-    printf("%d %d",max_x,max_y);
-    clearAndResize(img,max_y,max_x);
-    for (int x = 0; x<max_x; x++){
-        for (int y = 0; y<max_y; y++){
-            float dx = x/factor_x;
-            float dy = y/factor_y;
-            int new_x = (int)dx;
-            int new_y = (int)dy;
-            for (int rgb = 0; rgb<3; rgb++){
-                int delta_x = getP(&copy_img,new_y,new_x+1,rgb)-getP(&copy_img,new_y,new_x,rgb);
-                int delta_y = getP(&copy_img,new_y+1,new_x,rgb)-getP(&copy_img,new_y,new_x,rgb);
-                int delta_xy = getP(&copy_img,new_y,new_x,rgb)+getP(&copy_img,new_y+1,new_x,rgb+1)-getP(&copy_img,new_y,new_x+1,rgb)-getP(&copy_img,new_y+1,new_x,rgb);
-                int value = delta_x * dx + delta_y * dy + delta_xy * dx * dy + getP(&copy_img,new_y,new_x,rgb);
-                setP(img,y,x,rgb,value);
-
-                //setP(img, y, x, rgb, getP(&copy_img, (int)(y/factor_y), (int)(x/factor_x), rgb));
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    float facteur_x = (float)new_x / (float)max_x;
+    float facteur_y = (float)new_y / (float)max_y;
+    int x_floor, x_ceil, y_floor, y_ceil;
+    float old_x, old_y, dx, dy;
+    float weights[4], val[4];
+    clearAndResize(img,new_y,new_x);
+    for (int x = 0; x<new_x; x++){
+        for (int y = 0; y<new_y; y++){
+            old_x = x / facteur_x;
+            old_y = y / facteur_y;
+            x_floor = (int)floor(old_x);
+            x_ceil = (int)ceil(old_x);
+            y_floor = (int)floor(old_y);
+            y_ceil = (int)ceil(old_y);
+            dx = old_x - x_floor;
+            dy = old_y - y_floor;
+            weights[0] = (1 - dx) * (1 - dy);
+            weights[1] = dx * (1 - dy);
+            weights[2] = (1 - dx) * dy;
+            weights[3] = dx * dy;
+            if(x_ceil==max_x){
+                x_ceil-=1;
             }
-            printf("(%d,%d) ",(int)(x/factor_x),(int)(y/factor_y));
+            if(y_ceil==max_y){
+                y_ceil-=1;
+            }
+            printf("%d %d %d %d\n",x_floor,x_ceil,y_floor,y_ceil);
+            for (int rgb = 0; rgb<3; rgb++){
+                val[0] = getP(&copy_img, y_floor, x_floor,rgb) * weights[0];
+                val[1] = getP(&copy_img, y_floor, x_ceil, rgb) * weights[1];
+                val[2] = getP(&copy_img, y_ceil, x_floor, rgb) * weights[2];
+                val[3] = getP(&copy_img, y_ceil, x_ceil, rgb) * weights[3];
+                setP(img,y,x,rgb,(int)(val[0] + val[1] + val[2] + val[3]));
+            }
         }
     }
     freeImage(&copy_img);
+}
+
+
+void main(void){
+    printf("start\n");
+    FILE* file = NULL;
+    file = fopen("./Images/couleurCarre.bmp", "rb+");
+    if(file == NULL) {
+        printf("0\n");
+        exit(0);
+    }                                                                                                            
+    Image img = getImageFromFile(file);                                                                     
+    fclose(file);
+    resize(&img,60,60);
+    printf("mid\n");
+
+    file = NULL;
+    file = fopen("./EcritureImg.bmp", "wb+");
+    printf("A\n");
+    if(file == NULL) {
+        printf("1\n");
+        exit(0);
+    }
+    writeFileFromImage(file, &img);
+    printf("B\n");
+    fclose(file);
+    printf("C\n");
+    freeImage(&img);
+    printf("end\n");
 }
