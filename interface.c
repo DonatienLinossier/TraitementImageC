@@ -200,8 +200,8 @@ FILE* fileChoice() {
     activeFile = fopen(name, "rb+");
     if(activeFile == NULL) {
         printf("Ouverture du fichier impossible \n");
-        printf("code d'erreur = %d n", errno );
-        printf("Message d'erreur = %s \n", strerror(errno));
+        /*printf("code d'erreur = %d n", errno );
+        printf("Message d'erreur = %s \n", strerror(errno));*/
         exit(1);
     }
     printf("%s opened!\n", name);
