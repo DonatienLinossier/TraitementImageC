@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include "transformations.h"
 #include "gestionFichierImg.h"
 
 //Fonction qui passe l'image en noir et blanc
@@ -8,10 +9,10 @@ void grayscale(Image *img){
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
     int sum,average;
-    for (int x = 0; x<max_blur(&img,7)x; x++){
+    for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
-            sum=0;blur(&img,7)
-            for (int rgb = blur(&img,7)0; rgb<3; rgb++){
+            sum=0;
+            for (int rgb = 0; rgb<3; rgb++){
                 sum += getP(img, y, x, rgb);
              }
             average=(int)(sum/3.0);
@@ -30,7 +31,7 @@ void binary(Image *img){
     grayscale(img);
     for (int x = 0; x<max_x; x++){
         for (int y = 0; y<max_y; y++){
-            if (getP(img,y,x,rgb)<128){
+            if (getP(img,y,x,0)<128){
                 value = 0;
             }
             else {
@@ -183,13 +184,35 @@ void resize(Image *img, int new_x, int new_y){
     Image copy_img = copy(img);
     int max_y = img->dibHeader.height;
     int max_x = img->dibHeader.width;
-    float facteur_x = (float)max_x / (float)new_x;
-    float facteur_y = (float)max_y / (float)new_y;
+    float facteur_x = (float)new_x / (float)max_x;
+    float facteur_y = (float)new_y / (float)max_y;
+    int x_floor, x_ceil, y_floor, y_ceil;
+    float old_x, old_y, dx, dy;
+    float weights[4], val[4];
     clearAndResize(img,new_y,new_x);
     for (int x = 0; x<new_x; x++){
         for (int y = 0; y<new_y; y++){
+            old_x = x / facteur_x;
+            old_y = y / facteur_y;
+            x_floor = (int)floor(old_x);
+            x_ceil = (int)ceil(old_x);
+            y_floor = (int)floor(old_y);
+            y_ceil = (int)ceil(old_y);
+            dx = old_x - x_floor;
+            dy = old_y - y_floor;
+            weights[0] = (1 - dx) * (1 - dy);
+            weights[1] = dx * (1 - dy);
+            weights[2] = (1 - dx) * dy;
+            weights[3] = dx * dy;
+            //printf("%d %d %d %d\n", x_floor, y_floor, x_ceil, y_ceil);
+            //printf("%f %f %f %f\n", weights[0], weights[1], weights[2], weights[3]);
             for (int rgb = 0; rgb<3; rgb++){
-                setP(img,y,x,rgb,getP(&copy_img,(int)(y*facteur_y),(int)(x*facteur_x),rgb))
+                val[0] = getP(&copy_img, y_floor, x_floor,rgb) * weights[0];
+                val[1] = getP(&copy_img, y_floor, x_ceil, rgb) * weights[1];
+                val[2] = getP(&copy_img, y_ceil, x_floor, rgb) * weights[2];
+                val[3] = getP(&copy_img, y_ceil, x_ceil, rgb) * weights[3];
+                //printf("%f %f %f %f\n", val[0], val[1], val[2], val[3]);
+                setP(img,y,x,rgb,(int)(val[0] + val[1] + val[2] + val[3]));
             }
         }
     }
@@ -200,7 +223,7 @@ void resize(Image *img, int new_x, int new_y){
 void main(void){
     printf("start\n");
     FILE* file = NULL;
-    file = fopen("./Images/couleurTriangle.bmp", "rb+");
+    file = fopen("./Images/maison50x100.bmp", "rb+");
     if(file == NULL) {
         printf("0\n");
         exit(0);
@@ -208,7 +231,7 @@ void main(void){
     Image img = getImageFromFile(file);                                                                     
     fclose(file);
 
-    resize(img,);
+    resize(&img,200,100);
     printf("mid\n");
 
     file = NULL;
