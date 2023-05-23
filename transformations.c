@@ -211,7 +211,6 @@ void resize(Image *img, int new_x, int new_y){
             if(y_ceil==max_y){
                 y_ceil-=1;
             }
-            printf("%d %d %d %d\n",x_floor,x_ceil,y_floor,y_ceil);
             for (int rgb = 0; rgb<3; rgb++){
                 val[0] = getP(&copy_img, y_floor, x_floor,rgb) * weights[0];
                 val[1] = getP(&copy_img, y_floor, x_ceil, rgb) * weights[1];
@@ -225,7 +224,7 @@ void resize(Image *img, int new_x, int new_y){
 }
 
 
-void main(void){
+/*void main(void){
     printf("start\n");
     FILE* file = NULL;
     file = fopen("./Images/couleurCarre.bmp", "rb+");
@@ -251,4 +250,4 @@ void main(void){
     printf("C\n");
     freeImage(&img);
     printf("end\n");
-}
+}*/
