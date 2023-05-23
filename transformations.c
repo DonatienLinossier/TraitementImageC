@@ -204,14 +204,18 @@ void resize(Image *img, int new_x, int new_y){
             weights[1] = dx * (1 - dy);
             weights[2] = (1 - dx) * dy;
             weights[3] = dx * dy;
-            //printf("%d %d %d %d\n", x_floor, y_floor, x_ceil, y_ceil);
-            //printf("%f %f %f %f\n", weights[0], weights[1], weights[2], weights[3]);
+            if(x_ceil==max_x){
+                x_ceil-=1;
+            }
+            if(y_ceil==max_y){
+                y_ceil-=1;
+            }
+            printf("%d %d %d %d\n",x_floor,x_ceil,y_floor,y_ceil);
             for (int rgb = 0; rgb<3; rgb++){
                 val[0] = getP(&copy_img, y_floor, x_floor,rgb) * weights[0];
                 val[1] = getP(&copy_img, y_floor, x_ceil, rgb) * weights[1];
                 val[2] = getP(&copy_img, y_ceil, x_floor, rgb) * weights[2];
                 val[3] = getP(&copy_img, y_ceil, x_ceil, rgb) * weights[3];
-                //printf("%f %f %f %f\n", val[0], val[1], val[2], val[3]);
                 setP(img,y,x,rgb,(int)(val[0] + val[1] + val[2] + val[3]));
             }
         }
@@ -223,15 +227,14 @@ void resize(Image *img, int new_x, int new_y){
 void main(void){
     printf("start\n");
     FILE* file = NULL;
-    file = fopen("./Images/maison50x100.bmp", "rb+");
+    file = fopen("./Images/couleurCarre.bmp", "rb+");
     if(file == NULL) {
         printf("0\n");
         exit(0);
     }                                                                                                            
     Image img = getImageFromFile(file);                                                                     
     fclose(file);
-
-    resize(&img,200,100);
+    resize(&img,60,60);
     printf("mid\n");
 
     file = NULL;
