@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "transformations.h"
 #include "gestionFichierImg.h"
+#include "transformations.h"
 
 //Fonction qui passe l'image en noir et blanc
 void grayscale(Image *img){

@@ -5,7 +5,7 @@
 #include "interface.h"
 #include <string.h>
 
-void main() {
+int main() {
     //Déclaration
     Image img;
     FILE* activeFile = NULL;
@@ -13,7 +13,7 @@ void main() {
 
 
     //corps de la fonction
-    printf("Bienvenu sur CYImage\n");
+    printf("Bienvenue sur CYImage\n");
     printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
 
 
@@ -74,4 +74,7 @@ void main() {
                 break;
         }
     }
+
+    printf("fin du programme");
+    return 0;
 }
