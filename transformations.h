@@ -9,6 +9,9 @@
 //Fonction qui passe l'image en noir et blanc
 void grayscale(Image *img);
 
+//Fonction qui binarise l'image
+void binary(Image *img);
+
 //Fonction qui inverse les couleurs de l'image
 void reverse_image(Image *img);
 
@@ -19,12 +22,12 @@ void symmetry_y(Image *img);
 void symmetry_x(Image *img);
 
 //Fonction qui effectue une rotation de l'image de 90 degrés dans le sens horaire
-int rotate_90(Image *img);
+void rotate_90(Image *img);
 
 //Fonction qui floute l'image selon un facteur
-int blur(Image *img, int factor);
+void blur(Image *img, int factor);
 
-//Fonctions qui redimensionne l'image selon un facteur
-int resize(Image *img, float factor);
+//Fonctions qui redimensionne l'image à une nouvelle taille (x,y)
+void resize(Image *img, int new_x, int new_y);
 
 #endif
