@@ -8,6 +8,7 @@ OBJ=$(SRC:.c=.o)
 OBJ2= $(addprefix $(BUILD_DIR)/, $(OBJ))
 
 BUILD_DIR = build
+OUTPUT_DIR = Output
 
 all: $(BUILD_DIR)/exec
 
@@ -29,6 +30,16 @@ $(BUILD_DIR)/exec: $(OBJ2)
 $(BUILD_DIR) :
 	mkdir -p $(BUILD_DIR)/
 
-clean :
+$(OUTPUT_DIR) :
+	mkdir -p $(OUTPUT_DIR)/
+
+init : $(BUILD_DIR) $(OUTPUT_DIR)
+
+cleanBuild : 
 	rm -f $(BUILD_DIR)/*.o 
 	rm $(BUILD_DIR)/exec
+
+cleanOutput :
+		rm -f $(OUTPUT_DIR)/*
+
+clean : cleanBuild cleanOutput

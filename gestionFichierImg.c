@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include "gestionFichierImg.h"
+#include "interface.h"
 
 
 /*
@@ -205,14 +206,11 @@ char* steganoReading(Image* image) {
     
     if(hiddenText==NULL) {
         printf("Aucun message trouvé, ou le message n'a pas pu etre correctement encodé. Trop long ?"); //Attention au cas ou le /0 serait apres la fin du fichier
-        hiddenText = calloc(4, sizeof(char));
+        hiddenText = calloc(0, sizeof(char));
         if(hiddenText == NULL) {
             exit(0);
         }
-        hiddenText[0] = 'N';
-        hiddenText[1] = 'U';
-        hiddenText[2] = 'L';
-        hiddenText[3] = 'L';
+        hiddenText[0] = '/0';
         return hiddenText;
     }
     for(int t =0; t< lenght; t++) {
@@ -709,7 +707,7 @@ void printASCII(Image* image) {
 
 /*int main() {
     FILE* fichier = NULL;
-    fichier = fopen("Images/cafe.bmp", "rb");
+    fichier = fopen("Images/couleurTriangle.bmp", "rb");
     if(fichier == NULL) {  
         exit(0);  
     }
@@ -717,7 +715,9 @@ void printASCII(Image* image) {
     Image image = getImageFromFile(fichier);
     fclose(fichier);
 
-    char* test;
+    printASCII(&image);
+
+    /*char* test;
     scanf("%s", test);
     steganoWriting(&image, test);
     printf("resutat : %s", steganoReading(&image));
