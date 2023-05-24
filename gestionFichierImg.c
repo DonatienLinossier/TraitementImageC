@@ -210,7 +210,7 @@ char* steganoReading(Image* image) {
         if(hiddenText == NULL) {
             exit(0);
         }
-        hiddenText[0] = '/0';
+        hiddenText[0] = '\0';
         return hiddenText;
     }
     for(int t =0; t< lenght; t++) {
@@ -589,7 +589,7 @@ Image copy(Image *image) {
 
     NewImage.dibHeader.rest = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
     if(NewImage.dibHeader.rest == NULL) {
-        printf("ERREUR ALLOCATION copy!");
+        printf("ERREUR ALLOCATION copy 1!");
         exit(0);
     }
     for(int i =0; i< NewImage.header.offset-14-4-4-4; i++) {
@@ -599,7 +599,7 @@ Image copy(Image *image) {
 
     NewImage.image = calloc((NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding ), sizeof(unsigned char));
     if(NewImage.image == NULL) {
-        printf("ERREUR ALLOCATION copy!");
+        printf("ERREUR ALLOCATION copy 2!");
         exit(0);
     }
     for(int i = 0; i<NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding; i++) {

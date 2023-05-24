@@ -6,7 +6,7 @@
 
 
 FILE* fileChoice();
-void resizeInterface();
+void resizeInterface(Image* image);
 //void rognerInterface();
 void affichageASCIIInterface(Image* image);
 //void BlackAndWhiteInterface();

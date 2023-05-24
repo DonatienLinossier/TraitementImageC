@@ -4,10 +4,9 @@
 #include "interface.h"
 #include "gestionFichierImg.h"
 #include "transformations.h"
-#include <dirent.h> //Pas nativement sur windows ? 
- // les fonctions FindFirst / FindNext / FindClose peuvent remplacer opendir / readdir / closedir (pas besoin si ça marche sur linux) 
-#include <string.h>
+#include <dirent.h>
 #include <unistd.h>
+#include <string.h>
 #include <errno.h>
 
 void clearBuffer()
@@ -21,16 +20,14 @@ void clearBuffer()
 
 
 /* Reste à faire :
-        -Verif fichier (ouverture)
-        -Verif fichier (ecriture)
         -Verif stegano ()
+        -Permettre le retour en arriere sur la selection fichier? voir meme sur les modifs
 
     Points d'attention :
     - Ouverture fichier. Le programme s'est arrété une fois en voulant ouvrir une image qui venait d'etre crée.
-    - Le programme s'arrete parfois quand on change d'image
-    - L'image couleurTriangle ne s'ouvre pas..
+    - Le programme s'arrete parfois quand on change d'image ??
     - La steganographie ne marche pas tout le temps ?    
-    -Verifier si le fichier n'existe pas deja avant écriture
+    - Verifier si le fichier n'existe pas deja avant écriture ??
 
     if (activeFile == NULL){
         printf("Ouverture du fichier impossible \n");
@@ -214,22 +211,28 @@ FILE* fileChoice() {
     printf("%s opened!\n", name);
     return activeFile;
     //Image image = getImageFromFile(activeFile);
-
-
-
 } 
 
-void resizeInterface() {}
+void resizeInterface(Image* image) {
+    int new_x = 0;
+    int new_y = 0;
+    int ret;
 
-/*void redimensionerInterface(FILE* activeFile, float factor ) {
-    // facteur de redimension = ratio en pourcentage
-    printf("Redimensionner l'image revient à choisir un pourcentage de redimension.\n");
-    printf("De quel facteur voulez-vous redimensionner l'image ?\n");
-    scanf("%f", &factor);
-    printf("Votre image sera redimensioner de %f %", factor);
-    redimensionner(&activeFile, factor);
-}*/
+    printf("Bienvenue dans le module redimensioner");
+    printf("Quelle taille x voulez vous donner à l'image ?");
+    do {
+        ret = scanf("%d", &new_x);
+        clearBuffer();
+    } while(ret!=1 || new_x<=0);
 
+    printf("Quelle taille y voulez vous donner à l'image ?");
+    do {
+        ret = scanf("%d", &new_y);
+        clearBuffer();
+    } while(ret!=1 || new_y<=0);
+
+    resize(image, new_x, new_y);
+}
 
 
 /*void rognerInterface(FILE* activeFile) {
@@ -286,7 +289,6 @@ void affichageASCIIInterface(Image* image) {
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     scanf("%s", answer);
     if(strcmp(answer, "oui") == 0){
-        getP(image.Dibheader , height, width, rgb)
         noir_et_blanc(width, height, pixels[height][width][3]);
     }
     else if(strcmp(answer, "non")==0){
@@ -558,7 +560,7 @@ int choiceImageManipulation() {
         printf("     9 - Binariser l'image\n");
         printf("    10 - Inverser les couleurs\n");
         printf("    11 - Effectuer une symetrie\n");
-        printf("    12 - Steganographie\n");
+        printf("    12 - Steganographie (WIP)\n");
         printf("    13 - Enregistrer l'image\n");
         printf("    14 - Changer d'image (Abandonne les modfications)\n");
         printf("    15 - Fermer le programme (Abandonne les modifications)\n");
