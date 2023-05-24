@@ -18,7 +18,6 @@ void clearBuffer()
     }
 }
 
-
 /* Reste à faire :
         -Verif stegano ()
         -Permettre le retour en arriere sur la selection fichier? voir meme sur les modifs
@@ -36,7 +35,6 @@ void clearBuffer()
         exit(1);
     }
 */
-
 
 //Retourne true si le nom du fichier est valide, false sinon
 int isFilenameValid(char* filename) {
@@ -63,7 +61,6 @@ int isBMP(char* filename) {
     }
     return (filename[length-4] == '.' && filename[length-3] == 'b' && filename[length-2] == 'm' && filename[length-1] == 'p');
 }
-
 
 //Permet à l'uilisateur de choisir son fichier dans Image dans Images et/ou Output et retourne le fichier ouvert
 FILE* fileChoice() {
@@ -213,6 +210,45 @@ FILE* fileChoice() {
     //Image image = getImageFromFile(activeFile);
 } 
 
+//Permet de changer quelle partie de l'image sera impactée par les changements
+void selectionInterface(Image* image, int *sel){
+    int ret, choice;
+    printf("Bienvenue dans le module sélection\n");
+    printf("Voulez vous sélectionner l'image en entier ?\n");
+    printf("    1 - Oui\n");
+    printf("    2 - Non\n");
+    do {
+        ret = scanf("%d", &choice);
+        clearBuffer();
+    } while(ret!=1 || choice<1 || choice>2);
+    if (choice == 1){
+        sel[0]=0;
+        sel[1]=0;
+        sel[2]=image->dibHeader.width;
+        sel[3]=image->dibHeader.height;
+    }
+    printf("Quelle coordonnée x voulez vous pour le coin haut-gauche de la sélection ?\n");
+    do {
+        ret = scanf("%d", &sel[0]);
+        clearBuffer();
+    } while(ret!=1 || sel[0]<0);
+    printf("Quelle coordonnée y voulez vous pour le coin haut-gauche de la sélection ?\n");
+    do {
+        ret = scanf("%d", &sel[1]);
+        clearBuffer();
+    } while(ret!=1 || sel[1]<0);
+    printf("Quelle coordonnée x voulez vous pour le coin bas-droite de la sélection ?\n");
+    do {
+        ret = scanf("%d", &sel[2]);
+        clearBuffer();
+    } while(ret!=1 || sel[2]>=image->dibHeader.width);
+    printf("Quelle coordonnée y voulez vous pour le coin bas-droite de la sélection ?\n");
+    do {
+        ret = scanf("%d", &sel[3]);
+        clearBuffer();
+    } while(ret!=1 || sel[3]>=image->dibHeader.height);
+}
+
 void resizeInterface(Image* image) {
     int new_x = 0;
     int new_y = 0;
@@ -233,7 +269,6 @@ void resizeInterface(Image* image) {
 
     resize(image, new_x, new_y);
 }
-
 
 /*void rognerInterface(FILE* activeFile) {
     int option1;
@@ -274,14 +309,11 @@ void resizeInterface(Image* image) {
 
 }*/
 
-
-
 void affichageASCIIInterface(Image* image) {
     printf("Voici l'image affichée en ASCII(Attention a la taille de l'image)\n");
     printASCII(image);
     printf("\n");
 }
-
 
 /*void BlackAndWhiteInterface(FILE* activeFile) {
     char answer[4];
@@ -300,7 +332,6 @@ void affichageASCIIInterface(Image* image) {
     }
 
 }*/
-
 
 void rotationInterface(Image* image) { 
     char answer[4];
@@ -324,8 +355,6 @@ void rotationInterface(Image* image) {
     }
 }
 
-
-
 void luminositeInterface(Image* image) {
     char answer[4];
     printf(" Vous avez choisi de modifier la luminosité de l'image\n");
@@ -347,8 +376,6 @@ void luminositeInterface(Image* image) {
     }    
 }
 
-
-
 void contrasteInterface(Image* image) {
     char answer[4];
     printf(" Vous avez choisi de modifier la contrsaste de l'image\n");
@@ -369,8 +396,6 @@ void contrasteInterface(Image* image) {
         printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
     } 
 }
-
-
 
 void flouInterface(Image* image) {
     char answer[4];
@@ -394,12 +419,9 @@ void flouInterface(Image* image) {
     }
 }
 
-
-
 void BinariserInterface(Image* image) {
     //binariser
 }
-
 
 void inverserCouleursInterface(Image* image) {
     char answer[4];
@@ -422,9 +444,8 @@ void inverserCouleursInterface(Image* image) {
     }
 }
 
-
 void symetrieInterface(Image* image) {
-char answer[4];
+    char answer[4];
     printf(" Vous avez choisi d'effectuer une symétrie\n");
     printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
     int ret;
@@ -444,7 +465,6 @@ char answer[4];
         printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
     }    
 }
-
 
 void steganographieInterface(Image* image) {
     int choice = 0;
@@ -550,24 +570,25 @@ int choiceImageManipulation() {
     do {
         printf("Que voulez vous faire ?\n");
         printf("     1 - Redimensioner\n");
-        printf("     2 - Rogner\n");
-        printf("     3 - Afficher l'image en ASCII\n");
-        printf("     4 - Passer l'image en noir et blanc\n");
-        printf("     5 - Rotation\n");
-        printf("     6 - Changer la luminosite\n");
-        printf("     7 - Changer le contraste\n");
-        printf("     8 - Flouter l'image\n");
-        printf("     9 - Binariser l'image\n");
-        printf("    10 - Inverser les couleurs\n");
-        printf("    11 - Effectuer une symetrie\n");
-        printf("    12 - Steganographie (WIP)\n");
-        printf("    13 - Enregistrer l'image\n");
-        printf("    14 - Changer d'image (Abandonne les modfications)\n");
-        printf("    15 - Fermer le programme (Abandonne les modifications)\n");
+        printf("     2 - Modifier la sélection\n");
+        printf("     3 - Rogner\n");
+        printf("     4 - Afficher l'image en ASCII\n");
+        printf("     5 - Passer l'image en noir et blanc\n");
+        printf("     6 - Rotation\n");
+        printf("     7 - Changer la luminosite\n");
+        printf("     8 - Changer le contraste\n");
+        printf("     9 - Flouter l'image\n");
+        printf("     10 - Binariser l'image\n");
+        printf("    11 - Inverser les couleurs\n");
+        printf("    12 - Effectuer une symetrie\n");
+        printf("    13 - Steganographie (WIP)\n");
+        printf("    14 - Enregistrer l'image\n");
+        printf("    15 - Changer d'image (Abandonne les modfications)\n");
+        printf("    16 - Fermer le programme (Abandonne les modifications)\n");
         
         ret = scanf("%2d", &choice);
         clearBuffer();
-    } while(choice<1 || choice>15 || ret!=1);
+    } while(choice<1 || choice>16 || ret!=1);
 
     return choice;
 }

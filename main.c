@@ -10,7 +10,7 @@ int main() {
     Image img;
     FILE* activeFile = NULL;
     int choice;
-
+    int selection[4];
 
     //corps de la fonction
     printf("Bienvenue sur CYImage\n");
@@ -23,7 +23,7 @@ int main() {
     
     img = getImageFromFile(activeFile); //Chargement de l'image
     fclose(activeFile); 
-
+    int selection[] = {0, 0, img.dibHeader.width, img.dibHeader.height}; //Création de la sélection qui comprend l'image entière
     
     //Selection des opérations à faire sur l'image
     choice = 0;
@@ -34,42 +34,45 @@ int main() {
                 resizeInterface(&img);
                 break;
             case 2:
-                //rognerInterface();
+                selectionInterface(&img, &selection);
                 break;
             case 3:
-                affichageASCIIInterface(&img);
+                //rognerInterface();
                 break;
             case 4:
-                //BlackAndWhiteInterface();
+                affichageASCIIInterface(&img);
                 break;
             case 5:
-                rotationInterface();
+                //BlackAndWhiteInterface();
                 break;
             case 6:
-                luminositeInterface();
+                rotationInterface();
                 break;
             case 7:
-                contrasteInterface();
+                luminositeInterface();
                 break;
             case 8:
-                flouInterface();
+                contrasteInterface();
                 break;
             case 9:
-                BinariserInterface();
+                flouInterface();
                 break;
             case 10:
-                inverserCouleursInterface();
+                BinariserInterface();
                 break;
             case 11:
-                symetrieInterface();
+                inverserCouleursInterface();
                 break;
             case 12:
-                steganographieInterface(&img);
+                symetrieInterface();
                 break;
             case 13:
-                saveImageInterface(&img);
+                steganographieInterface(&img);
                 break;
             case 14:
+                saveImageInterface(&img);
+                break;
+            case 15:
                 changeImageInterface(activeFile, &img);
                 break;
         }
