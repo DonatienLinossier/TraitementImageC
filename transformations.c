@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-//#include "transformations.h"
+#include "transformations.h"
 #include "gestionFichierImg.h"
 
 //Fonction qui passe l'image en noir et blanc
