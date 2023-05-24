@@ -1,13 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 #include "interface.h"
 #include "gestionFichierImg.h"
 #include "transformations.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 
 void clearBuffer()
@@ -19,25 +17,65 @@ void clearBuffer()
     }
 }
 
+int fileAlreadyExisting(char* filename) {
+    char *repertory = NULL;
+    DIR *outputRepertory = NULL;
+    struct dirent *file = NULL;
+    int changeFilename = 0;
 
-/* Reste à faire :
-        -Verif stegano ()
-        -Permettre le retour en arriere sur la selection fichier? voir meme sur les modifs
 
-    Points d'attention :
-    - Ouverture fichier. Le programme s'est arrété une fois en voulant ouvrir une image qui venait d'etre crée.
-    - Le programme s'arrete parfois quand on change d'image ??
-    - La steganographie ne marche pas tout le temps ?    
-    - Verifier si le fichier n'existe pas deja avant écriture ??
-
-    if (activeFile == NULL){
-        printf("Ouverture du fichier impossible \n");
-        printf("code d'erreur = %d n", errno );
-        printf("Message d'erreur = %s \n", strerror(errno));
-        exit(1);
+    //recuperer le dossier actuel
+    repertory=(char *)malloc(100*sizeof(char));
+    if (repertory == NULL) {
+        exit(0);
     }
-*/
 
+    char *filenameBis;
+    filenameBis = strdup(filename);
+    getcwd(repertory, 100);
+    strcat(filenameBis, ".bmp");
+
+
+    
+    //Se déplacer dans le dossier Image et l'ouvrir
+    strcat(repertory, "/Output");
+    outputRepertory = opendir(repertory);
+
+    //Enumerer les fichiers dans le dossier image + possibilité de lister les images contenu dans output
+    if (outputRepertory)
+    {
+        printf("\n");
+        while ((file = readdir(outputRepertory)) != NULL)
+        {
+            if(strcmp(filenameBis, file->d_name)==0) {
+                int ret;
+                int choice = 0;
+                do {
+                    printf("Ce nom est deja utilise par un autre fichier, voulez-vous changer de nom ou ecraser le fichier possedant le meme nom ? (1: changer / 2: ecraser) :\n");
+                    ret = scanf("%1d", &choice);
+                    clearBuffer();
+                } while(ret!=1 || (choice!= 1 && choice!=2));
+
+                switch(choice) {
+                    case 1:
+                        changeFilename = 1;
+                        break;
+                    case 2:
+                        changeFilename = 0;
+                        break;
+                }
+            }
+        }
+        closedir(outputRepertory);
+        
+    } else {
+        exit(0);
+    }
+    free(filenameBis);
+    return changeFilename;
+
+
+}
 
 //Retourne true si le nom du fichier est valide, false sinon
 int isFilenameValid(char* filename) {
@@ -45,9 +83,10 @@ int isFilenameValid(char* filename) {
     int filenameValid = 1;
 
     for(int iChar = 0; iChar < length; iChar++) {
-        if(filename[iChar]=='<' || filename[iChar]=='>' || filename[iChar]==':' ||
-           filename[iChar]=='"' || filename[iChar]=='/' || filename[iChar]=='\\' || 
-           filename[iChar]=='|' || filename[iChar]=='?' || filename[iChar]=='*') {
+        if(filename[iChar]=='\0'|| filename[iChar]=='<' || filename[iChar]=='>' ||
+           filename[iChar]==':' || filename[iChar]=='"' || filename[iChar]=='/' ||
+           filename[iChar]=='\\'|| filename[iChar]=='|' || filename[iChar]=='&' ||
+           filename[iChar]=='?' || filename[iChar]=='*') {
                 filenameValid = 0; 
                 printf("'%c' n'est pas un caractere valide pour le nom d'un fichier !\n", filename[iChar]);
                 break;
@@ -108,13 +147,12 @@ FILE* fileChoice() {
 
 
     //recuperer le choix de l'utilisateur
-    int choice = 0;
+    int choice = -1;
     int ret;
     do {
         ret = scanf("%d", &choice);
         clearBuffer();
     } while(choice<1 || choice>iFile || ret!=1);
-
 
     if(choice!=iFile) {
         //Si un fichier dans Images a été choisi 
@@ -143,7 +181,7 @@ FILE* fileChoice() {
         }
     } else {
         //Si l'utilisateur a preferé une image dans le dossier Output
-        printf("Quelle image voulez-vous selectionner ? (1/2/3/...)");
+        printf("\nQuelle image voulez-vous selectionner ? (1/2/3/...)");
 
 
         repertory=(char *)malloc(100*sizeof(char));
@@ -168,6 +206,7 @@ FILE* fileChoice() {
                 iFile++;
             }
             closedir(imageRepertory);
+            printf("    %d: Retourner aux images du dossier Images\n", iFile, file->d_name);
         }
         int choice = 0;
         int ret;
@@ -176,32 +215,38 @@ FILE* fileChoice() {
             clearBuffer();
         } while(choice<1 || choice>iFile || ret!=1);
 
-        imageRepertory = opendir(repertory);
-        if (imageRepertory)
-        {
-            int length;
-            int j = 0;
-            while (j < choice && (file = readdir(imageRepertory)) != NULL)
+        if(choice!=iFile) {  //Si un fichier dans Output a été choisi 
+            imageRepertory = opendir(repertory);
+            if (imageRepertory)
             {
-                length = strlen(file->d_name);
-                if(!isBMP(file->d_name)) {
-                    continue;
+                int length;
+                int j = 0;
+                while (j < choice && (file = readdir(imageRepertory)) != NULL)
+                {
+                    length = strlen(file->d_name);
+                    if(!isBMP(file->d_name)) {
+                        continue;
+                    }
+                    j++;
                 }
-                j++;
+                closedir(imageRepertory);
+                    
+                name = calloc(length, sizeof(char));
+                if (name == NULL) {
+                    exit(0);
+                }
+                strcat(name, "Output/");
+                strcat(name, file->d_name);
             }
-            closedir(imageRepertory);
-                
-            name = calloc(length, sizeof(char));
-            if (name == NULL) {
-                exit(0);
-            }
-            strcat(name, "Output/");
-            strcat(name, file->d_name);
+        } else { //si l'utilisateur veut dans le dossier image
+            printf("Quelle image voulez-vous selectionner ? (1/2/3/...)");
+            return fileChoice();
         }
     }
 
+        
+
     //ouvrir le fichier image selectionné 
-    printf("'%s'", name);
     activeFile = fopen(name, "rb");
     if(activeFile == NULL) {
         printf("Ouverture du fichier impossible \n");
@@ -209,24 +254,25 @@ FILE* fileChoice() {
         printf("Message d'erreur = %s \n", strerror(errno));
         exit(1);
     }
-    printf("%s opened!\n", name);
+    printf("Image %s ouverte!\n", name);
     return activeFile;
-    //Image image = getImageFromFile(activeFile);
 } 
 
+
+//Les tailles de base
 void resizeInterface(Image* image) {
     int new_x = 0;
     int new_y = 0;
     int ret;
 
-    printf("Bienvenue dans le module redimensioner");
-    printf("Quelle taille x voulez vous donner à l'image ?");
+    printf("\nBienvenue dans le module redimensioner\n");
+    printf("Quelle taille x voulez vous donner a l'image ?\n");
     do {
         ret = scanf("%d", &new_x);
         clearBuffer();
     } while(ret!=1 || new_x<=0);
 
-    printf("Quelle taille y voulez vous donner à l'image ?");
+    printf("Quelle taille y voulez vous donner à l'image ?\n");
     do {
         ret = scanf("%d", &new_y);
         clearBuffer();
@@ -235,94 +281,100 @@ void resizeInterface(Image* image) {
     resize(image, new_x, new_y);
 }
 
+void rognerInterface(Image *image) {
+    printf("\nBienvenue dans le module rogner\n");
 
-/*void rognerInterface(FILE* activeFile) {
-    int option1;
-    printf("Quel est le format choisi pour rogner votre image ?");
-    printf("    1 - rapport 1:1\n");
-    printf("    2 - rapport 4:3\n");
-    printf("    3 - rapport 16:9\n");
-    scanf("%d", &option1);
+    int ret = 0;
+    int xStart;
+    int xEnd;
+    int yStart;
+    int yEnd;
 
-    int option2=0;
+    printf("Veuillez entrer les coordonnees de la selection, suivant le format suivant : 'x1 y1 x2 y2'. Tapez '0 0 0 0' puis pour revenir au menu principal\n");
+    printf("A titre informatif, votre image est de taille %d H x %d L, veuillez a ne pas depasser ces valeurs pour vos coordonnees \n", image->dibHeader.width, image->dibHeader.height);
+    do {
+        xStart = -1;
+        xEnd = -1;
+        yStart = -1;
+        yEnd = -1;
+        ret = scanf("%d %d %d %d", &xStart, &yStart, &xEnd, &yEnd);
+        clearBuffer();
+    } while((ret!=4 || xStart < 0 || xEnd <0 || yStart<0 || yEnd<0 || yEnd <= yStart || xEnd <= xStart || xEnd >= image->dibHeader.width || yEnd >= image->dibHeader.height) && !(xStart==0 && yStart == 0 && xEnd == 0 && yEnd == 0));
+    //Le while est completer/verifier
 
-    while(option2!=4){
-        switch(option1){
-            case 1:
-                int mesure1 = 1080;
-                printf("Vous avez choisi le format carré, la longueur et largeur sont donc égales. \n");
-                rogner(&activeFile, mesure1, mesure1);
-                break;
-            case 2 :
-            int longueur;
-            int largeur;
-                printf("Vous avez choisi le format quatre tiers\n");
-                //format 4:3 est de 1.33:1 de résolution
-                largeur = Image.DibHeader.width;
-                longueur = 1.33*largeur;
-                rogner(&activeFile, largeur, longueur);
-                break;
-            case 3:
-                int longueur1, largeur1;
-                printf("Vous avez choisi le format large\n");
-                //format 4:3 est de 1.77:1 de résolution
-                largeur1 = Image.DibHeader.width;
-                longueur1 = 1.77*largeur;
-                rogner(&activeFile, largeur1, longueur1);
-                break;
-        }
+    if(xStart==0 && yStart == 0 && xEnd == 0 && yEnd == 0) {
+        return;
     }
 
-}*/
-
-
-
-void affichageASCIIInterface(Image* image) {
-    printf("Voici l'image affichée en ASCII(Attention a la taille de l'image)\n");
-    printASCII(image);
-    printf("\n");
+    rogner(image, yStart, xStart, yEnd-yStart, xEnd-xStart);
+    printf("L'image a bien ete rognee !\n");
 }
 
 
-/*void BlackAndWhiteInterface(FILE* activeFile) {
-    char answer[4];
-    printf("Vous avez choisi de rendre l'image noire et blanche\n");
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
-    scanf("%s", answer);
-    if(strcmp(answer, "oui") == 0){
-        noir_et_blanc(width, height, pixels[height][width][3]);
+void affichageASCIIInterface(Image* image) {
+    printf("\nBienvenue dans le module ASCII. Pour les images de tailles consequentes, nous vous invitons a dezoomer dans le terminal afin de permettre l'affichage de l'image en entier.\n");
+    printf("A titre informatif, votre image est de taille %d H x %d L\n", image->dibHeader.width, image->dibHeader.height);
+    printf("Une fois pret, veuillez entrer 1 pour afficher l'image en ASCII. Entrez 2 pour revenir au menu principal.\n");
+    int choice = 0;
+    int ret;
+    do {
+        ret = scanf("%1d", &choice);
+        clearBuffer();
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==1) {
+        printf("Voici l'image affichee en ASCII(Attention a la taille de l'image)\n");
+        printASCII(image);
+        printf("\n");
     }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
+}
+
+
+void blackAndWhiteInterface(Image* image) {
+    printf("\nBienvenue dans le module noir et blanc\n");
+    printf("Voulez-vous passer l'image en noir et blanc ?\n");
+    printf("    1: Oui \n");
+    printf("    2: Non, retour au menu principal \n");
+    int choice = 0;
+    int ret;
+    do {
+        ret = scanf("%1d", &choice);
+        clearBuffer();
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==1) {
+        grayscale(image);
+        printf("L'image a bien ete passe en noir et blanc !\n");
     }
 
-}*/
+}
 
 
 void rotationInterface(Image* image) { 
-    char answer[4];
-    printf("Votre image va effectuer une rotation de 90 degrés \n");
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
+    printf("\nBienvenue dans le module de rotation des images\n");
+    printf("De combien de degres voulez-vous faire pivoter l'image ?\n");
+    printf("    1: 90 \n");
+    printf("    2: 180 \n");
+    printf("    3: 270 \n");
+    printf("    4: Retour au menu principal \n");
+    int choice = 0;
     int ret;
     do {
-        ret = scanf("%3s", answer);
+        ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(ret!=1);
+    } while(ret!=1 || choice<1 || choice > 4);
 
-    if(strcmp(answer, "oui") == 0){
-        //rota_90(image);
+    switch (choice)
+    {
+    case 3:
+        rotate_90(image);
+    case 2:
+        rotate_90(image);
+    case 1:
+        rotate_90(image);
+        break;
     }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    }
+    printf("Rotation effectué !\n");
 }
 
 
@@ -374,76 +426,89 @@ void contrasteInterface(Image* image) {
 
 
 void flouInterface(Image* image) {
-    char answer[4];
-    int strength; // comment défnir la force
-    printf("Votre image va être floutée \n");
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
+    printf("\nBienvenue dans le module de floutage des images\n");
+    printf("Voulez-vous flouter l'image ?\n");
+    printf("    1: Oui \n");
+    printf("    2: Non, retour au menu principal \n");
+    int choice = 0;
     int ret;
     do {
-        ret = scanf("%3s", answer);
+        ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(ret!=1);
-    if(strcmp(answer, "oui") == 0){
-        //flou(activeFile, strength);
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==1) {
+        blur(image, 10);
+        printf("Effet de flou appliqué !\n");
     }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    }
+    
 }
 
 
 
-void BinariserInterface(Image* image) {
-    //binariser
+void binariserInterface(Image* image) {
+    printf("\nBienvenue dans le module de binarisation des images\n");
+    printf("Voulez-vous binariser l'image ?\n");
+    printf("    1: Oui \n");
+    printf("    2: Non, retour au menu principal \n");
+    int choice = 0;
+    int ret;
+    do {
+        ret = scanf("%1d", &choice);
+        clearBuffer();
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==1) {
+        binary(image);
+        printf("Image binarisee !\n");
+    }
 }
 
 
 void inverserCouleursInterface(Image* image) {
-    char answer[4];
-    printf(" Vous avez choisi d'inverser les couleurs de l'image.\n");
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
+    printf("\nBienvenue dans le module d'inversion des couleurs\n");
+    printf("Voulez-vous inverser les couleurs de l'image ?\n");
+    printf("    1: Oui \n");
+    printf("    2: Non, retour au menu principal \n");
+    int choice = 0;
     int ret;
     do {
-        ret = scanf("%3s", answer);
+        ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(ret!=1);
-    if(strcmp(answer, "oui")== 0){
-        //inverse_image(image);
-    }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    }
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==1) {
+        reverse_image(image);
+         printf("Couleurs de l'image inversees !\n");
+    }  
 }
 
 
 void symetrieInterface(Image* image) {
-char answer[4];
-    printf(" Vous avez choisi d'effectuer une symétrie\n");
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
+    
+    printf("\nBienvenue dans le module symetrie, quelle symetrie voulez-vous executer ?\n");
+    printf("    1: Horizontale \n");
+    printf("    2: Verticale \n");
+    printf("    3: Retour au menu principal\n");
     int ret;
+    int choice = 0;
     do {
-        ret = scanf("%3s", answer);
+        ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(ret!=1);
-    if(strcmp(answer, "oui") == 0){
-        //symetrie_y(image);
-        //symetrie_x(image);
+    } while(ret!=1 || choice<1 || choice > 3);
+    switch (choice)
+    {
+    case 1:
+        symmetry_x(image);
+        printf("Symetrie effectuee!\n");
+        break;
+
+    case 2:
+        symmetry_y(image);
+        printf("Symetrie effectuee!\n");
+        break;
     }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    }    
+    
 }
 
 
@@ -452,7 +517,7 @@ void steganographieInterface(Image* image) {
     char message[1000]; //1000 Suffisant ? Utiliser un scanf("%1000s") ?
     int ret;
     do  {
-        printf("Bienvenue dans le module steganoraphie, que voulez vous faire :\n");
+        printf("\nBienvenue dans le module steganoraphie, que voulez vous faire :\n");
         printf("    1 - Essayer de lire un message dans l'image\n");
         //printf("  2 - Essayer de lire un message dans l'image et enregistrer le msg dans un fichier txt");
         printf("    2 - Cacher un message entre dans la console dans l'image (Ecrasera un potentiel message deja cache)\n");
@@ -470,7 +535,7 @@ void steganographieInterface(Image* image) {
         printf("\n");
         break;
     case 2:
-        printf("Quel msg voulez vous cacher ?");
+        printf("Quel msg voulez vous cacher ? (Veuillez remplacer les espaces par des underscores)\n");
         int ret;
         do {
             ret = scanf("%s", message);
@@ -490,12 +555,12 @@ void saveImageInterface(Image* image) {
 
     //Corps de la fonction
     do {
-        printf("Comment voulez-vous vous nommer votre image ?\n");
+        printf("\nComment voulez-vous vous nommer votre image ?\n");
 
         //    /!\ A SECURISER  /!/
         scanf("%90s", filename);
         clearBuffer();
-    } while(!isFilenameValid(filename));
+    } while(!isFilenameValid(filename) || fileAlreadyExisting(filename));
     strcat(finalFilename, filename);
     strcat(finalFilename, ".bmp");
 
@@ -503,8 +568,10 @@ void saveImageInterface(Image* image) {
     writingFile = fopen(finalFilename, "wb+");
  
     if(writingFile == NULL) {
-        printf("Erreur dans l'ouverture du fichier !");
-        exit(0);
+        printf("Ouverture du fichier impossible \n");
+        printf("code d'erreur = %d \n", errno );
+        printf("Message d'erreur = %s \n", strerror(errno));
+        exit(1);
     }
 
     writeFileFromImage(writingFile, image);
@@ -519,7 +586,7 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
     //corps de la fonction
     do  {
-        printf("Etes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N) ");
+        printf("\nEtes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N) ");
         //Faire vérif input
         scanf("%c", &input);
         clearBuffer();
@@ -533,8 +600,10 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
     activeFile = fileChoice();
     if(activeFile == NULL) {
-        printf("Erreur dans l'ouverture du fichier !");
-        exit(0);
+        printf("Ouverture du fichier impossible \n");
+        printf("code d'erreur = %d \n", errno );
+        printf("Message d'erreur = %s \n", strerror(errno));
+        exit(1);
     }
 
     freeImage(img);
@@ -549,7 +618,7 @@ int choiceImageManipulation() {
     int choice = 0;
     int ret;
     do {
-        printf("Que voulez vous faire ?\n");
+        printf("\n\nQue voulez vous faire ?\n");
         printf("     1 - Redimensioner\n");
         printf("     2 - Rogner\n");
         printf("     3 - Afficher l'image en ASCII\n");

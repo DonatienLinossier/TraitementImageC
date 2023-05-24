@@ -1,15 +1,15 @@
+#Passer clean, cleanBuild et cleanOutput et init en .PHONY ? A tester a cytech
+
 CC= gcc
 
-#Liste des .c
 SRC=$(wildcard *.c)
-
-#Liste les .o
 OBJ=$(SRC:.c=.o)
 OBJ2= $(addprefix $(BUILD_DIR)/, $(OBJ))
 
 BUILD_DIR = build
 OUTPUT_DIR = Output
 
+#Rajouter init avant le build exec ? A tester a Cytech
 all: $(BUILD_DIR)/exec
 
 $(BUILD_DIR)/gestionFichierImg.o: gestionFichierImg.c gestionFichierImg.h $(BUILD_DIR)

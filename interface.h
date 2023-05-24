@@ -7,16 +7,16 @@
 
 FILE* fileChoice();
 void resizeInterface(Image* image);
-//void rognerInterface();
+void rognerInterface(Image* image);
 void affichageASCIIInterface(Image* image);
-//void BlackAndWhiteInterface();
-void rotationInterface();
+void blackAndWhiteInterface(Image* image);
+void rotationInterface(Image* image);
 void luminositeInterface();
 void contrasteInterface();
-void flouInterface();
-void BinariserInterface();
-void inverserCouleursInterface();
-void symetrieInterface();
+void flouInterface(Image* image);
+void binariserInterface(Image* image);
+void inverserCouleursInterface(Image* image);
+void symetrieInterface(Image *image);
 void steganographieInterface(Image* image);
 void saveImageInterface(Image* image);
 void changeImageInterface(FILE* activeFile, Image* img);

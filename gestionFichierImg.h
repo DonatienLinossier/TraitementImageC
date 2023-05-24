@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 //---------------------------
-//Utilisation de Image (16/05/2023)
+//Utilisation de Image
 //---------------------------
 /*
 - - - CREATION DE IMAGE - - - 
@@ -20,7 +20,7 @@
         |                                                           |
         |    Image image = getImageFromFile(fichier);               |
         |                                                           |
-        |   fclose(fichier);                                        |
+        |    fclose(fichier);                                       |
         |                                                           |
         |-----------------------------------------------------------|
 
@@ -41,10 +41,11 @@ Pour accéder aux dimensions de l'image :
 
     /!\ Pour la hauteur comme la largeur, ne pas modifier les variables directement. Utiliser la fonction clearAndResize() pour changer la taille de l'image. /!\
 
+
 - - - PIXEL DE IMAGE - - -
 Pour acceder et modifer les pixels de l'image :
-    - Lecture : getP(Image* image, int height, int wight, int rgb) retourne la composante r,g ou b du pixel à la ligne height, colonne width de image.
-    - Modification : setP(Image* image, int height, int wight, int rgb, int value) met la composante r,g ou b du pixel à la ligne height, colonne width de image à la valeur value.
+    - Lecture : getP(Image* image, int height, int wight, int rgb) retourne la composante r,g ou b du pixel à la ligne height, colonne width de l'image image.
+    - Modification : setP(Image* image, int height, int wight, int rgb, int value) met la composante r,g ou b du pixel à la ligne height, colonne width de l'image image à la valeur value.
 
     /!\ Que ce soit pour modifier ou lire un pixel, toujours passer par getP() et setP(), mais ne jamais utiliser image.image[x] /!\
 
@@ -52,6 +53,7 @@ Pour acceder et modifer les pixels de l'image :
 
 - - - AFFICHAGE DE IMAGE - - - 
 Pour afficher l'image et avoir un premier rendu il est possible d'utiliser printASCII(Image* image).
+
 
 - - - ROGNER UNE IMAGE - - - 
 Pour rogner une image il suffit d'utiliser la foncion rogner(&image, int PosYCoinSupérieurGauche,  int PosXCoinSupérieurGauche, int hauteur, int longueur)
@@ -64,8 +66,14 @@ Une partie de l'image est alloué de maniere dynamique, il est important d'utili
     /!\ Ne pas le faire provoquerait une fuite de memoire /!\
 
 
+- - - CHANGER LA TAILLE UNE IMAGE - - -
+Pour changer la taille d'une image il suffit d'utiliser resize(&image, hauteur, largeur). 
+
+    /!\ Attention cette opération supprime tout les pixels de l'image, pensez a faire une copie avant d'appeler la fonction resize si vous avez besoin de la valeur des pixels pour la suite /!\
+
+
 - - - CREATION D'UN FICHIER POUR IMAGE - - - 
-    Pour creer un fichier à partir d'une image utiliser la fonction writeFileFromImage(FILE* fichier, Image* image) :
+    Pour creer un fichier à partir d'une image il suffit d'utiliser la fonction writeFileFromImage(FILE* fichier, Image* image) :
         |-----------------------------------------------------------|
         |                                                           |
         |    FILE* fichier = NULL;                                  |
@@ -82,8 +90,6 @@ Une partie de l'image est alloué de maniere dynamique, il est important d'utili
         |    //freeImage(&image); si on n'utilise plus l'image      |
         |                                                           |
         |-----------------------------------------------------------|
-
-
 
 */
 
