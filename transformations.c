@@ -5,17 +5,18 @@
 #include "gestionFichierImg.h"
 
 //Fonction qui passe l'image en noir et blanc
-void grayscale(Image *img, int x1, int y1, int x2, int y2){
-    int max_y = img->dibHeader.height;
-    int max_x = img->dibHeader.width;
-    if(x1<0 || y1<0 || x2>=max_x || y2>=max_y || x1>=x2 || y1>=y2){
+void grayscale(Image *img, sel[4]){$
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         exit(1);
-       
     }
 
     int sum,average;
-    for (int x = x1; x<x2; x++){
-        for (int y = y1; y<y2; y++){
+    for (int x = min_x; x<max_x; x++){
+        for (int y = min_y; y<max_y; y++){
             sum=0;
             for (int rgb = 0; rgb<3; rgb++){
                 sum += getP(img, y, x, rgb);
@@ -29,18 +30,19 @@ void grayscale(Image *img, int x1, int y1, int x2, int y2){
     } 
 }
 
-void binary(Image *img, int x1, int y1, int x2, int y2){
-    int max_y = img->dibHeader.height;
-    int max_x = img->dibHeader.width;
-    if(x1<0 || y1<0 || x2>=max_x || y2>=max_y || x1>=x2 || y1>=y2){
+void binary(Image *img, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         exit(1);
-       
     }
 
     int value;
-    grayscale(img,x1,y1,x2,y2);
-    for (int x = x1; x<x2; x++){
-        for (int y = y1; y<y2; y++){
+    grayscale(img,sel);
+    for (int x = min_x; max_x; x++){
+        for (int y = min_y; y<max_y; y++){
             if (getP(img,y,x,0)<128){
                 value = 0;
             }
@@ -55,16 +57,17 @@ void binary(Image *img, int x1, int y1, int x2, int y2){
 }
 
 //Fonction qui inverse les couleurs de l'image
-void reverse_image(Image *img, int x1, int y1, int x2, int y2){
-    int max_y = img->dibHeader.height;
-    int max_x = img->dibHeader.width;
-    if(x1<0 || y1<0 || x2>=max_x || y2>=max_y || x1>=x2 || y1>=y2){
+void reverse_image(Image *img, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         exit(1);
-       
     }
 
-    for (int x = x1; x<x2; x++){
-        for (int y = x1; y<x2; y++){
+    for (int x = min_x; x<max_x; x++){
+        for (int y = min_y; y<max_y; y++){
             for (int rgb = 0; rgb<3; rgb++){
                 //On définit chaque valeur rgb de chaque pixel à son inverse, soit 255 - sa valeur
                 setP(img, y, x, rgb, 255-getP(img, y, x, rgb));
@@ -89,31 +92,37 @@ void swap(Image *img, int x1, int y1, int x2, int y2){
 }
 
 //Fonction qui fait une symetrie de l'image selon l'axe y
-void symmetry_y(Image *img, int x1, int y1, int x2, int y2){
-    int max_y = img->dibHeader.height;
-    int max_x = img->dibHeader.width;
-    if(x1<0 || y1<0 || x2>=max_x || y2>=max_y || x1>=x2 || y1>=y2){
+void symmetry_y(Image *img, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         exit(1);
-       
     }
 
 
-    for (int x = x1; x<x2/2; x++){
-        for (int y = y1; y<y2; y++){
+    for (int x = min_ix; x<max_x/2; x++){
+        for (int y = min_y; y<max_y; y++){
             //On échange chaque pixel avec le pixel avec le même y et le x = 255-x
-            swap(img, x, y, x2-x-1, y);
+            swap(img, x, y, max_x-x-1, y);
         }
     }
 }
 
 //Fonctiongi qui fait une symetrie de l'image selon l'axe x
-void symmetry_x(Image *img, int x1, int y1, int x2, int y2){
-    int max_y = img->dibHeader.height;
-    int max_x = img->dibHeader.width;
-    for (int x = x1; x<x2; x++){
-        for (int y = y1; y<y2/2; y++){
+void symmetry_x(Image *img, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+        exit(1);
+    }
+    for (int x = min_x; x<max_x; x++){
+        for (int y = min_y; y<max_y/2; y++){
             //On échange chaque pixel avec le pixel avec le même x et le x inverse
-            swap(img, x, y, x, y2-y-1);
+            swap(img, x, y, x, max_y-y-1);
         }
     }
 }
@@ -154,17 +163,18 @@ void rotate_90(Image *img){
 }
 
 //Fonction qui floute l'image selon un facteur
-void blur(Image *img, int range, int x1, int y1, int x2, int y2){
-    if (range%2 != 1 || range<0){
-        printf("1\n");
+void blur(Image *img, int range, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(range%2 != 1 || range<0 || min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         exit(1);
     }
     Image copy_img = copy(img);
-    int max_y = img->dibHeader.height;
-    int max_x = img->dibHeader.width;
 
-    for (int x = 0; x<max_x; x++){
-        for (int y = 0; y<max_y; y++){
+    for (int x = 0; x<img->dibHeader.width; x++){
+        for (int y = 0; y<img->dibHeader.height; y++){
             if(x1<=x && x<=x2 && y1<=y && y<=y2){
                 //On crée les coordonnées des coins de la matrice flou qu'on applique à l'image
                 int min_iy=range/-2, max_iy=range+min_iy, min_ix=min_iy, max_ix=max_iy;

@@ -317,29 +317,20 @@ void resizeInterface(Image* image) {
     resize(image, new_x, new_y);
 }
 
-void rognerInterface(Image *image) {
+void rognerInterface(Image *image, int sel[4]) {
     printf("\nBienvenue dans le module rogner\n");
+    int ret = 0, choice;
 
-    int ret = 0;
-    int xStart;
-    int xEnd;
-    int yStart;
-    int yEnd;
-
-    printf("Veuillez entrer les coordonnees de la selection, suivant le format suivant : 'x1 y1 x2 y2'. Tapez '0 0 0 0' puis pour revenir au menu principal\n");
-    printf("A titre informatif, votre image est de taille %d H x %d L, veuillez a ne pas depasser ces valeurs pour vos coordonnees \n", image->dibHeader.width, image->dibHeader.height);
+    printf("Êtes vous sur de rogner votre image de (%d,%d) à (%d,%d) ?\n", sel[0], sel[1], sel[2], sel[3]);
+    printf("    1 - Oui\n");
+    printf("    2 - Non\n");
     do {
-        xStart = -1;
-        xEnd = -1;
-        yStart = -1;
-        yEnd = -1;
-        ret = scanf("%d %d %d %d", &xStart, &yStart, &xEnd, &yEnd);
+        ret = scanf("%d", &choice);
         clearBuffer();
-    } while((ret!=4 || xStart < 0 || xEnd <0 || yStart<0 || yEnd<0 || yEnd <= yStart || xEnd <= xStart || xEnd >= image->dibHeader.width || yEnd >= image->dibHeader.height) && !(xStart==0 && yStart == 0 && xEnd == 0 && yEnd == 0));
-    //Le while est completer/verifier
+    } while(ret!=1 || choice<1 || choice>2);
 
-    if(xStart==0 && yStart == 0 && xEnd == 0 && yEnd == 0) {
-        return;
+    if(choice == 1) {
+        rogner(image, sel[1], sel[0], sel[3]-sel[1], sel[2]-sel[0]);
     }
 
 }
@@ -365,11 +356,11 @@ void affichageASCIIInterface(Image* image) {
 }
 
 
-void grayscaleInterface(Image* image) {
+void grayscaleInterface(Image* image, int sel[4]) {
     printf("\nBienvenue dans le module noir et blanc\n");
     printf("Voulez-vous passer l'image en noir et blanc ?\n");
-    printf("    1: Oui \n");
-    printf("    2: Non, retour au menu principal \n");
+    printf("    1 - Oui \n");
+    printf("    2 - Non, retour au menu principal \n");
     int choice = 0;
     int ret;
     do {
@@ -378,7 +369,7 @@ void grayscaleInterface(Image* image) {
     } while(ret!=1 || choice<1 || choice > 2);
 
     if(choice==1) {
-        grayscale(image);
+        grayscale(image,sel);
         printf("L'image a bien ete passe en noir et blanc !\n");
     }
 
@@ -388,10 +379,10 @@ void grayscaleInterface(Image* image) {
 void rotationInterface(Image* image) { 
     printf("\nBienvenue dans le module de rotation des images\n");
     printf("De combien de degres voulez-vous faire pivoter l'image ?\n");
-    printf("    1: 90 \n");
-    printf("    2: 180 \n");
-    printf("    3: 270 \n");
-    printf("    4: Retour au menu principal \n");
+    printf("    1 - 90 \n");
+    printf("    2 - 180 \n");
+    printf("    3 - 270 \n");
+    printf("    4 - Retour au menu principal \n");
     int choice = 0;
     int ret;
     do {
@@ -454,11 +445,11 @@ void contrasteInterface(Image* image) {
     } 
 }
 
-void flouInterface(Image* image) {
+void flouInterface(Image* image, int sel[4]) {
     printf("\nBienvenue dans le module de floutage des images\n");
     printf("Voulez-vous flouter l'image ?\n");
-    printf("    1: Oui \n");
-    printf("    2: Non, retour au menu principal \n");
+    printf("    1 - Oui \n");
+    printf("    2 - Non, retour au menu principal \n");
     int choice = 0;
     int ret;
     do {
@@ -467,19 +458,18 @@ void flouInterface(Image* image) {
     } while(ret!=1 || choice<1 || choice > 2);
 
     if(choice==1) {
-        blur(image, 10);
+        blur(image, 11, sel);
         printf("Effet de flou appliqué !\n");
     }
     
 }
 
 
-
-void binariserInterface(Image* image) {
+void binariserInterface(Image* image, int sel [4]) {
     printf("\nBienvenue dans le module de binarisation des images\n");
     printf("Voulez-vous binariser l'image ?\n");
-    printf("    1: Oui \n");
-    printf("    2: Non, retour au menu principal \n");
+    printf("    1 - Oui \n");
+    printf("    2 - Non, retour au menu principal \n");
     int choice = 0;
     int ret;
     do {
@@ -488,16 +478,16 @@ void binariserInterface(Image* image) {
     } while(ret!=1 || choice<1 || choice > 2);
 
     if(choice==1) {
-        binary(image);
+        binary(image, sel);
         printf("Image binarisee !\n");
     }
 }
 
-void inverserCouleursInterface(Image* image) {
+void inverserCouleursInterface(Image* image, int sel[4]) {
     printf("\nBienvenue dans le module d'inversion des couleurs\n");
     printf("Voulez-vous inverser les couleurs de l'image ?\n");
-    printf("    1: Oui \n");
-    printf("    2: Non, retour au menu principal \n");
+    printf("    1 - Oui \n");
+    printf("    2 - Non, retour au menu principal \n");
     int choice = 0;
     int ret;
     do {
@@ -506,17 +496,17 @@ void inverserCouleursInterface(Image* image) {
     } while(ret!=1 || choice<1 || choice > 2);
 
     if(choice==1) {
-        reverse_image(image);
+        reverse_image(image, sel);
          printf("Couleurs de l'image inversees !\n");
     }  
 }
 
-void symetrieInterface(Image* image) {
+void symetrieInterface(Image* image, int sel[4]) {
     
     printf("\nBienvenue dans le module symetrie, quelle symetrie voulez-vous executer ?\n");
-    printf("    1: Horizontale \n");
-    printf("    2: Verticale \n");
-    printf("    3: Retour au menu principal\n");
+    printf("    1 - Horizontale \n");
+    printf("    2 - Verticale \n");
+    printf("    3 - Retour au menu principal\n");
     int ret;
     int choice = 0;
     do {
@@ -526,12 +516,12 @@ void symetrieInterface(Image* image) {
     switch (choice)
     {
     case 1:
-        symmetry_x(image);
+        symmetry_x(image, sel);
         printf("Symetrie effectuee!\n");
         break;
 
     case 2:
-        symmetry_y(image);
+        symmetry_y(image, sel);
         printf("Symetrie effectuee!\n");
         break;
     }
@@ -654,7 +644,7 @@ int choiceImageManipulation() {
         printf("     7 - Changer la luminosite\n");
         printf("     8 - Changer le contraste\n");
         printf("     9 - Flouter l'image\n");
-        printf("     10 - Binariser l'image\n");
+        printf("    10 - Binariser l'image\n");
         printf("    11 - Inverser les couleurs\n");
         printf("    12 - Effectuer une symetrie\n");
         printf("    13 - Steganographie (WIP)\n");
