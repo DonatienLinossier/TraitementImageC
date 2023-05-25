@@ -1,9 +1,25 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 #include "gestionFichierImg.h"
 #include "interface.h"
-#include <string.h>
+
+/* Reste a faire :
+                Finir les interfaces : 
+                    luminositeInterface(); -> Asma 
+                    contrasteInterface(); -> Asma 
+                    RedimensionerInterface(Ajouter une liste de taille prédéfini,
+                                           car spécifié dans le cahier des charges) -> ?
+
+                Appliquer une fonction que sur une selection -> Elias 
+
+                transformation image :
+                    luminosite -> Asma
+                    contraste -> Asma
+
+                Selectioner un lot d'image -> ?
+
+                ReadMe -> Asma
+*/
 
 int main() {
     //Déclaration
@@ -36,16 +52,16 @@ int main() {
                 selectionInterface(&img, selection);
                 break;
             case 3:
-                //rognerInterface();
+                rognerInterface(&img);
                 break;
             case 4:
                 affichageASCIIInterface(&img);
                 break;
             case 5:
-                //BlackAndWhiteInterface();
+                grayscaleInterface(&img);
                 break;
             case 6:
-                rotationInterface();
+                rotationInterface(&img);
                 break;
             case 7:
                 luminositeInterface();
@@ -54,16 +70,16 @@ int main() {
                 contrasteInterface();
                 break;
             case 9:
-                flouInterface();
+                flouInterface(&img);
                 break;
             case 10:
-                BinariserInterface();
+                binariserInterface(&img);
                 break;
             case 11:
-                inverserCouleursInterface();
+                inverserCouleursInterface(&img);
                 break;
             case 12:
-                symetrieInterface();
+                symetrieInterface(&img);
                 break;
             case 13:
                 steganographieInterface(&img);
@@ -77,6 +93,6 @@ int main() {
         }
     }
 
-    printf("fin du programme");
+    printf("Fermeture du programme");
     return 0;
 }

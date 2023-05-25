@@ -5,6 +5,10 @@
 #include "gestionFichierImg.h"
 #include "interface.h"
 
+#define COEF_RED 0.2126
+#define COEF_GREEN 0.7152
+#define COEF_BLUE 0.0722
+
 
 /*
 - - - STRUCTURE DE IMAGE - - -
@@ -21,7 +25,7 @@
       |                        |- Le reste du DIBHeader comporte des informations non utiles aux projets et qui dépendent du type de Header de l'image, voir directement dans la fonction de decodage du DIBHeader concerné si besoin
       | 
       |------>Tableau 1D avec l'ensemble des valeurs rgb de l'image (Utiliser getP() pour accéder aux pixels, et setP() pour les modifier.)
-      |------>Padding(Interne à l'image, ne sert pas en dehors)
+      |------>Padding(Interne à l'image, ne sert pas en dehors. N'est pas stocké dans les fichiers.)
 
 
 
@@ -34,14 +38,14 @@ Recap:
 |-------------------------------------------------------------|
 |                          DECODAGE                           |
 |getImageFromFile        | Externe         | OK   |    OUI    |
-|decoderANDgetHeader     | Interne         | OK   |    X      |
-|decoderANDgetDIBHeader  | Interne         | OK   |    X      |
+|decodeANDgetHeader      | Interne         | OK   |    X      |
+|decodeANDgetDIBHeader   | Interne         | OK   |    X      |
 |getImg                  | Interne         | OK   |    X      |
 |                                                             |
 |                          ENCODAGE                           |
 |writeFileFromImage      | Externe         | OK   |    OUI    |
-|encoderHeader           | Interne         | OK   |    X      |
-|encoderDIBHeader        | Interne         | OK   |    X      |
+|encodeHeader            | Interne         | OK   |    X      |
+|encodeDIBHeader         | Interne         | OK   |    X      |
 |ImgToFile               | Interne         | OK   |    X      |
 |                                                             |
 |                         AFFICHAGE                           |
@@ -56,13 +60,13 @@ Recap:
 |ClearAndRedimensioner   | Externe         | OK   |    OUI    |
 |                                                             |
 |                       STEGANOGRAPHIE                        |
-|affichageHeader         | Externe         | OK   |    NON    |
-|ecriture_stegano        | Externe         | OK   |    NON    |
-|ecriture_steganoCache   | Externe         |abdon?|    NON    |
+|readingStegano          | Externe         | OK   |    OUI    |
+|wrintingStegano         | Externe         | OK   |    OUI    |
+|ecriture_steganoCache   | Externe         |abdon |    NON    |
 |                                                             |
 |                           DEBUG                             |
-|affichageHeader         | Interne         | OK   |    X      |
-|affichageDIBHeader      | Interne         | OK   |    X      |
+|printInfoHeader         | Interne         | OK   |    X      |
+|printInfoDIBHeader      | Interne         | OK   |    X      |
 |                                                             |
 |                          BINAIRE                            |
 |decodageLittleEndian    | Interne         | OK   |    X      |
@@ -77,7 +81,8 @@ Recap:
 //Manipulation binaire
 //--------------------------------
 
-//Permet de décoder les infos dans les headers stockées en little Endian(La casi totalité des infos).
+//Renvoie la valeur int stockée dans bits en binaire little endian 
+//Utile pour décoder les infos dans les headers stockées en little Endian(La casi totalité des infos).
 int littleEndianDecoding(int* bits, int SIZE) {
     int resultFinal = 0;
     for (int i =0; i<SIZE; i++) {
@@ -95,6 +100,7 @@ int littleEndianDecoding(int* bits, int SIZE) {
     return resultFinal;
 }
 
+//Renvoie le binaire encodé en little endian  de la valeur value
 void littleEndianEncoding(int* bitsResult, int SIZE, int value) {
     int i =0;
     int* binaire = NULL;
@@ -117,7 +123,8 @@ void littleEndianEncoding(int* bitsResult, int SIZE, int value) {
     }
 }
 
-void intTo8bitBinary(char* result, char value) {
+//Renvoie un octet binaire de la valeur value entrée
+void intTo8bitBinary(char* result, unsigned char value) {
     int i = 0;
     while(i<8) {
         result[8-1-i] = value%2;
@@ -165,15 +172,15 @@ char* steganoReading(Image* image) {
 
         //detecter fin de chaine de caractere(si somme nb binaire = 0, signifie tout les bits = 0, en ASCII on a donc /0, donc fin de chaine)
         if(i%8==7) {
-            int EOS = 0; //Boolean de si on est a la fin de la chaine (EndOfString)
+            int EOS = 1; //Boolean de si on est a la fin de la chaine (EndOfString)
             for (int t = 0; t < 8; t++)
             {
                 if(hiddenTextbin[i-t]==1) {
-                    EOS = 1;
+                    EOS = 0;
                     break;
                 }
             }
-            if(!EOS) {
+            if(EOS) {
                 lenght = (i+1)/8;
                 hiddenText = calloc(lenght, sizeof(char));
                 if(hiddenText == NULL) {
@@ -183,7 +190,7 @@ char* steganoReading(Image* image) {
             }
         }
 
-        hiddenTextbin[i] =  decomposition[7-bit];
+        hiddenTextbin[i] = decomposition[7-bit];
         bit++;
         if(bit>1) {
             bit=0;
@@ -206,11 +213,15 @@ char* steganoReading(Image* image) {
     
     if(hiddenText==NULL) {
         printf("Aucun message trouvé, ou le message n'a pas pu etre correctement encodé. Trop long ?"); //Attention au cas ou le /0 serait apres la fin du fichier
-        hiddenText = calloc(0, sizeof(char));
+        hiddenText = calloc(5, sizeof(char));
         if(hiddenText == NULL) {
             exit(0);
         }
-        hiddenText[0] = '\0';
+        hiddenText[0] = 'N';
+        hiddenText[1] = 'o';
+        hiddenText[2] = 'n';
+        hiddenText[3] = 'e';
+        hiddenText[4] = '\0';
         return hiddenText;
     }
     for(int t =0; t< lenght; t++) {
@@ -225,7 +236,6 @@ char* steganoReading(Image* image) {
 
 
 void steganoWriting(Image* image, char* value) {
-
     //Tableau 1D de tout les nombres binaires a écrire.
     //printf("Message a cacher : %s", value);
     int size = strlen(value);
@@ -239,14 +249,13 @@ void steganoWriting(Image* image, char* value) {
         intTo8bitBinary(textBin + i * 8, value[i]);
     }
 
-    int height =0;
+    int height = 0;
     int width = 0;
     int rgb = 0;
     int bit = 0;
 
 
     char decompt[8];
-    
     intTo8bitBinary(decompt, getP(image, height, width, rgb));
 
     for(int i = 0; i<(size+1) * 8; i++) {
@@ -277,7 +286,8 @@ void steganoWriting(Image* image, char* value) {
 //--------------------------------
 //Decodage
 //--------------------------------
-void decoderANDgetHeader(FILE* file, Image* image) {
+//Remplis les valeurs du Header de Image à partir des informations trouvées dans le fichier FILE
+void decodeANDgetHeader(FILE* file, Image* image) {
     int caractereActuel;
     int SizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
     for(int i =0; i<5; i++) {
@@ -315,10 +325,12 @@ void decoderANDgetHeader(FILE* file, Image* image) {
 }
 
 /*
-On recupere que la taille du DIBHeader, ainsi que la width et la height de l'image
+//Remplis les valeurs du DIBHeader de Image à partir des informations trouvées dans le fichier FILE:
+
+On ne recupere que la taille du DIBHeader, ainsi que la width et la height de l'image. Le padding est aussi calculer.
 Le fin du DIB Header depend de son type, on preferera donc ne pas le decoder pour permettre une compatibilité avec tout les types de DIBHeader
 */
-void decoderANDgetDIBHeader(FILE* file, Image* image) {
+void decodeANDgetDIBHeader(FILE* file, Image* image) {
     int caractereActuel;
     int sizeElementsDIBHeaders[3] = {4, 4, 4};
     for(int i = 0; i<3; i++) {
@@ -381,16 +393,22 @@ void getImg(FILE* file, Image* image) {
 
 //Fonction regroupant le nécessaire pour creer une image à partir d'un file
 Image getImageFromFile(FILE *file) {
+
     Image image;
     image.dibHeader.rest = NULL;
     image.image = NULL;
 
-    decoderANDgetHeader(file, &image);
+    //Récuperer et stocker le Header du fichier
+    decodeANDgetHeader(file, &image);
 
-    decoderANDgetDIBHeader(file, &image);
+    //Récuperer et stocker le DIBHeader de l'image
+    decodeANDgetDIBHeader(file, &image);
 
+    //Calculer le padding, necessaire a l'utilisation de l'image. (Necessite de connaitre la width de l'image)
     image.padding = (4-(image.dibHeader.width*3)%4)%4;//surement une meilleur formule
 
+    //Récuperer et stocker l'image. Le stockage est 'brut', aucune manipulation n'est effectuée, les valeurs sont stockées de la meme maniere que dans le fichier.
+    //Pour acceder aux pixels il faudra donc obligatoirement utiliser getP et setP.
     getImg(file, &image);
 
 
@@ -403,8 +421,8 @@ Image getImageFromFile(FILE *file) {
 //--------------------------------
 //Encodage
 //--------------------------------
-
-void encoderHeader(FILE* file, Image* image) {
+//Encode les infos du header du file
+void encodeHeader(FILE* file, Image* image) {
     int sizeElementsHeaders[5] = {2, 4, 2, 2, 4}; 
     int size;   
     for(int i =0; i<5; i++) {
@@ -443,6 +461,7 @@ void encoderHeader(FILE* file, Image* image) {
     
 }
 
+//Stocke l'image dans le fichier.
 void ImgToFile(FILE* file, Image* image) {
     int caractereActuel;
     int i = 0;
@@ -452,8 +471,8 @@ void ImgToFile(FILE* file, Image* image) {
     }
 }
 
-
-void encoderDIBHeader(FILE* file, Image* image) {
+//Encode les infos du DIBheader de l'image
+void encodeDIBHeader(FILE* file, Image* image) {
     int SizeElementsDIBHeaders[3] = {4, 4, 4}; 
     int size;   
     for(int i =0; i<3; i++) {
@@ -484,13 +503,16 @@ void encoderDIBHeader(FILE* file, Image* image) {
     
 }
 
-
+//Stocke une image Image dans le fichier file. 
 void writeFileFromImage(FILE* file, Image* image)
-{
+{   
+    //Stockage du Header dans le file
+    encodeHeader(file, image);
 
+    //Stockage du DIBHeader dans le file
+    encodeDIBHeader(file, image);
 
-    encoderHeader(file, image);
-    encoderDIBHeader(file, image);
+    //Stockage de l'image dans le file
     ImgToFile(file, image);
  
 
@@ -563,6 +585,8 @@ void setP(Image* image, int height, int width, int rgb, int value) {
 //--------------------------------
 //Manipulation d'image
 //--------------------------------
+
+//Change la taille de l'image entrée et les variables qui y sont liées. Vide l'image précédente.
 void clearAndResize(Image *image, int height, int width) {
     free(image->image);
 
@@ -577,8 +601,10 @@ void clearAndResize(Image *image, int height, int width) {
     }
 }
 
-//Créé une copie de image. Les deux images deviennent indépendantes.
+//Créé une copie de image. Les deux images sont indépendantes.
 Image copy(Image *image) {
+
+    //Creation de la copie d'image et affectation des variable avec allocation statique. Les pointeurs d'allocation dynamique sont mit a NULL. (Pour empecher que la suppr d'une image suppr des infos encore utile a une autre image)
     Image NewImage;
     NewImage.header = image->header;
     NewImage.dibHeader = image->dibHeader;
@@ -587,6 +613,10 @@ Image copy(Image *image) {
     NewImage.padding = image->padding;
 
 
+
+    //Affectation avec allocation dynamique
+
+    //Copie du reste du header
     NewImage.dibHeader.rest = calloc((NewImage.header.offset-14-4-4-4), sizeof(unsigned char));
     if(NewImage.dibHeader.rest == NULL) {
         printf("ERREUR ALLOCATION copy 1!");
@@ -596,7 +626,7 @@ Image copy(Image *image) {
         NewImage.dibHeader.rest[i] = image->dibHeader.rest[i];
     }
 
-
+    //Copie de l'image
     NewImage.image = calloc((NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding ), sizeof(unsigned char));
     if(NewImage.image == NULL) {
         printf("ERREUR ALLOCATION copy 2!");
@@ -605,13 +635,17 @@ Image copy(Image *image) {
     for(int i = 0; i<NewImage.dibHeader.height*NewImage.dibHeader.width*3 + NewImage.dibHeader.height * NewImage.padding; i++) {
         NewImage.image[i] = image->image[i];
     }
+
     return NewImage;
 }
 
 //Libere l'espace alloué dynamiquement par image
 void freeImage(Image* image) {
+    //Liberation de l'image
     free(image->image);
     image->image = NULL;
+
+    //liberation du reste du DibHeader
     free(image->dibHeader.rest);
     image->dibHeader.rest = NULL;
 }
@@ -633,19 +667,15 @@ void rogner(Image *image, int y, int x, int height, int width) {
         printf("Depassement y de l'image");
         return;
     }
+    
+    //copie de l'image pour conserver les valeurs des pixels le temps de la manipulation
     Image copie = copy(image);
-    free(image->image);
-    image->dibHeader.height = height;
-    image->dibHeader.width = width;
-    image->padding = (4-(image->dibHeader.width*3)%4)%4;
-
-    image->image = calloc((image->dibHeader.height*image->dibHeader.width*3 + image->dibHeader.height * image->padding ), sizeof(unsigned char));
-    if(image->image == NULL) {
-            printf("ERREUR ALLOCATION ROGNER!");
-            exit(0);
-    }  
 
 
+    //Redimensionne l'image en lui donnant sa taille height et width
+    clearAndResize(image, height, width);
+
+    //copie les pixels de la selection dans l'image
     for(int i =0; i<height; i++) {
         for(int j = 0; j<width; j++) {
             for(int k =0; k<3; k++) {
@@ -654,6 +684,7 @@ void rogner(Image *image, int y, int x, int height, int width) {
         }
     }
 
+    //liberer la copie
     freeImage(&copie);
 }
 
@@ -664,7 +695,7 @@ void rogner(Image *image, int y, int x, int height, int width) {
 //--------------------------------
 
 //Afficher les infos du headers
-void affichageHeader(Header header) {
+void printInfoHeader(Header header) {
     printf("\nInformation sur le header : \n");
     printf("    type : %s\n", header.type);
     printf("    Image size : %d\n", header.size);
@@ -674,7 +705,7 @@ void affichageHeader(Header header) {
 }
 
 //Afficher les infos du DIBHeaders
-void affichageDIBHeader(DibHeader dibHeader) {
+void printInfoDIBHeader(DibHeader dibHeader) {
     printf("\nInformation sur le header : \n");
     printf("    sizeHeader : %d\n", dibHeader.sizeHeader);
     printf("    Image width : %d\n", dibHeader.width);
@@ -698,27 +729,8 @@ void printASCII(Image* image) {
     for(int i = 0; i<image->dibHeader.height; i++) {
         printf("\n");
         for(int j = 0; j<image->dibHeader.width; j++) {
-            int valueRgb = 0.2126 * getP(image, i, j, 0) + 0.7152 * getP(image, i, j, 1) + 0.0722 * getP(image, i, j, 1);
-            printf("%c", tab[valueRgb/(255/5)]);
-            printf("%c", tab[valueRgb/(255/5)]);
+            int valueRgb = COEF_RED * getP(image, i, j, 0) + COEF_GREEN * getP(image, i, j, 1) + COEF_BLUE * getP(image, i, j, 1); //des coefs basés sur la perception humaine des couleurs ont été appliqué afin de rendre compte des couleurs meme en ASCII
+            printf("%c%c", tab[valueRgb/(255/5)], tab[valueRgb/(255/5)]); //les caracteres étant plus haut que large dans le terminal, on les affiche en double pour eviter que l'image apparaisse étirée verticalement: On preserve plus ou moins les proportions. 
         }
     }
 }
-
-/*int main() {
-    FILE* fichier = NULL;
-    fichier = fopen("Images/couleurTriangle.bmp", "rb");
-    if(fichier == NULL) {  
-        exit(0);  
-    }
-
-    Image image = getImageFromFile(fichier);
-    fclose(fichier);
-
-    printASCII(&image);
-
-    /*char* test;
-    scanf("%s", test);
-    steganoWriting(&image, test);
-    printf("resutat : %s", steganoReading(&image));
- }*/
