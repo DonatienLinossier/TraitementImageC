@@ -19,6 +19,11 @@
                 Selectioner un lot d'image -> ?
 
                 ReadMe -> Asma
+
+
+    ERREUR :
+        -Fonction ecraser si meme fichier -  normalement OK - A verif
+        -crash ouverture fichier cree manuellement - normalement OK  (Si pb -> crash du programme avec fopen. )  /!\ GROSSE VERIF A FAIRE !!! /!\
 */
 
 int main() {

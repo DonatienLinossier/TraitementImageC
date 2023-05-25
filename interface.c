@@ -8,6 +8,17 @@
 #include <string.h>
 #include <errno.h>
 
+
+#define IMAGE_OUTPUT_DIRECTORY "Images/Output"
+#define IMAGE_DIRECTORY "Images"
+
+#define STEGANO_OUTPUT_FILE "Stegano/Output.txt"
+#define STEGANO_INPUT_FILE "Stegano/Input.txt"
+#define STEGANO_MESSAGE_SIZE_MAX 10000
+
+#define FILENAME_SIZE_MAX 255
+#define FOLDER_SIZE_MAX 255
+
 void clearBuffer()
 {
     int c = 0;
@@ -32,13 +43,14 @@ int fileAlreadyExisting(char* filename) {
 
     char *filenameBis;
     filenameBis = strdup(filename);
-    getcwd(repertory, 100);
+    getcwd(repertory, FOLDER_SIZE_MAX);
     strcat(filenameBis, ".bmp");
 
 
     
     //Se déplacer dans le dossier Image et l'ouvrir
-    strcat(repertory, "/Output");
+    strcat(repertory, "/");
+    strcat(repertory, IMAGE_OUTPUT_DIRECTORY);
     outputRepertory = opendir(repertory);
 
     //Enumerer les fichiers dans le dossier image + possibilité de lister les images contenu dans output
@@ -69,7 +81,7 @@ int fileAlreadyExisting(char* filename) {
         closedir(outputRepertory);
         
     } else {
-        exit(0);
+        printf("Verifiez que le dossier %s existe bien et reessayez", repertory);
     }
     free(filenameBis);
     return changeFilename;
@@ -101,7 +113,7 @@ int isBMP(char* filename) {
     if(length<4) { //Si le fichier fait moins de 4 caractere, ce n'est pas un bmp(Eviter les erreurs de segmentation)
         return 0; 
     }
-    return (filename[length-4] == '.' && filename[length-3] == 'b' && filename[length-2] == 'm' && filename[length-1] == 'p');
+    return (filename[length-4] == '.' && (filename[length-3] == 'b' || filename[length-3] == 'B' )&& (filename[length-2] == 'm' || filename[length-2] == 'M' ) && (filename[length-1] == 'p' || filename[length-1] == 'P'));
 }
 
 
@@ -115,16 +127,17 @@ FILE* fileChoice() {
 
 
     //recuperer le dossier actuel
-    repertory=(char *)malloc(100*sizeof(char));
+    repertory=(char *)malloc(FOLDER_SIZE_MAX*sizeof(char));
     if (repertory == NULL) {
         exit(0);
     }
-    getcwd(repertory, 100);
+    getcwd(repertory, FOLDER_SIZE_MAX);
 
 
     
     //Se déplacer dans le dossier Image et l'ouvrir
-    strcat(repertory, "/Images");
+    strcat(repertory, "/");
+    strcat(repertory, IMAGE_DIRECTORY);
     imageRepertory = opendir(repertory);
 
     //Enumerer les fichiers dans le dossier image + possibilité de lister les images contenu dans output
@@ -142,7 +155,7 @@ FILE* fileChoice() {
             iFile++;
         }
         closedir(imageRepertory);
-        printf("    %d: Ouvrir le dossier Output contenant les images precedement modifiees\n", iFile, file->d_name);
+        printf("    %d: Ouvrir le dossier %s contenant les images precedement modifiees\n", iFile, IMAGE_OUTPUT_DIRECTORY, file->d_name);
     }    
 
 
@@ -176,7 +189,9 @@ FILE* fileChoice() {
             if (name == NULL) {
                 exit(0);
             }
-            strcat(name, "Images/");
+                
+            strcat(name, IMAGE_DIRECTORY);
+            strcat(name, "/");
             strcat(name, file->d_name);
         }
     } else {
@@ -184,15 +199,16 @@ FILE* fileChoice() {
         printf("\nQuelle image voulez-vous selectionner ? (1/2/3/...)");
 
 
-        repertory=(char *)malloc(100*sizeof(char));
+        repertory=(char *) malloc(FOLDER_SIZE_MAX*sizeof(char));
         if (repertory == NULL) {
             exit(0);
         }
-        getcwd(repertory, 100);
+        getcwd(repertory, FOLDER_SIZE_MAX);
 
 
         int iFile = 1;
-        strcat(repertory, "/Output");
+        strcat(repertory, "/");
+        strcat(repertory, IMAGE_OUTPUT_DIRECTORY);
         imageRepertory = opendir(repertory);
         if (imageRepertory)
         {
@@ -206,7 +222,7 @@ FILE* fileChoice() {
                 iFile++;
             }
             closedir(imageRepertory);
-            printf("    %d: Retourner aux images du dossier Images\n", iFile, file->d_name);
+            printf("    %d: Retourner aux images du dossier %s\n", iFile, IMAGE_DIRECTORY);
         }
         int choice = 0;
         int ret;
@@ -235,8 +251,10 @@ FILE* fileChoice() {
                 if (name == NULL) {
                     exit(0);
                 }
-                strcat(name, "Output/");
+                strcat(name, IMAGE_OUTPUT_DIRECTORY);
+                strcat(name, "/");
                 strcat(name, file->d_name);
+                
             }
         } else { //si l'utilisateur veut dans le dossier image
             printf("Quelle image voulez-vous selectionner ? (1/2/3/...)");
@@ -245,13 +263,13 @@ FILE* fileChoice() {
     }
 
         
-
     //ouvrir le fichier image selectionné 
     activeFile = fopen(name, "rb");
     if(activeFile == NULL) {
         printf("Ouverture du fichier impossible \n");
         printf("code d'erreur = %d \n", errno );
         printf("Message d'erreur = %s \n", strerror(errno));
+        printf("Nous avons rencontre un probleme en essayant d'ouvrir le fichier %s, veuillez verifier son existence et son integrite, puis relancez le programme.\n", name);
         exit(1);
     }
     printf("Image %s ouverte!\n", name);
@@ -514,19 +532,21 @@ void symetrieInterface(Image* image) {
 
 void steganographieInterface(Image* image) {
     int choice = 0;
-    char message[1000]; //1000 Suffisant ? Utiliser un scanf("%1000s") ?
+    char message[STEGANO_MESSAGE_SIZE_MAX];
     int ret;
     do  {
         printf("\nBienvenue dans le module steganoraphie, que voulez vous faire :\n");
         printf("    1 - Essayer de lire un message dans l'image\n");
-        //printf("  2 - Essayer de lire un message dans l'image et enregistrer le msg dans un fichier txt");
-        printf("    2 - Cacher un message entre dans la console dans l'image (Ecrasera un potentiel message deja cache)\n");
-        //printf("    3 - Cacher un message au prelablement enregistre dans un fichier dans l'image (Ecrasera un potentiel message deja cache)\n");
-        printf("    3 - Revenir au menu principal.\n");
+        printf("    2 - Essayer de lire un message dans l'image et enregistrer le msg dans un fichier txt\n");
+        printf("    3 - Cacher un message entre dans la console dans l'image (Ecrasera un potentiel message deja cache)\n");
+        printf("    4 - Cacher un message au prelablement enregistre dans un fichier dans l'image (Ecrasera un potentiel message deja cache)\n");
+        printf("    5 - Revenir au menu principal.\n");
         //Sécuriser
         ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(choice<1 || choice>3 || ret!=1);
+    } while(choice<1 || choice>5 || ret!=1);
+
+    FILE* file = NULL;
     switch (choice)
     {
     case 1:
@@ -535,30 +555,49 @@ void steganographieInterface(Image* image) {
         printf("\n");
         break;
     case 2:
+        file = fopen(STEGANO_OUTPUT_FILE, "w");
+        if(file==NULL) {
+            printf("Nous n'avons pas reussi a ouvrir le fichier. Verifiez que l'image %s exite bien et reessayez.\n", STEGANO_OUTPUT_FILE);
+        }
+        fprintf(file, steganoReading(image));
+        fclose(file);
+        printf("Le message a ete sauvegarde dans le fichier Stegano/Output.txt\n");
+        break;
+    case 3:
         printf("Quel msg voulez vous cacher ? (Veuillez remplacer les espaces par des underscores)\n");
         int ret;
         do {
-            ret = scanf("%s", message);
+            ret = scanf("%10000s", message);
             clearBuffer();
         } while(ret!=1);
         steganoWriting(image, message);
         printf("Le message a ete inscrit dans l'image.\n");
+        break;
+    case 4:
+        file = fopen(STEGANO_INPUT_FILE, "r");
+        if(file==NULL) {
+            printf("Aucun fichier Stegano/Input.txt n'a ete trouve. Verifier que le fichier %s existe bien et retentez.", STEGANO_INPUT_FILE);
+            break;
+        }
+        fscanf(file,"%10000s", message);
+        steganoWriting(image, message);
+        printf("Le message a ete inscrit dans l'image.\n");
+        fclose(file);
         break;
     }
 }
 
 void saveImageInterface(Image* image) {
     //Déclaration
-    char filename[100];
-    char finalFilename[100] = {'O', 'u', 't', 'p', 'u', 't', '/', '\0'};
+    char filename[FILENAME_SIZE_MAX];
+    char finalFilename[FILENAME_SIZE_MAX] = IMAGE_OUTPUT_DIRECTORY;
+    strcat(finalFilename, "/\0");
     FILE* writingFile = NULL;
 
     //Corps de la fonction
     do {
         printf("\nComment voulez-vous vous nommer votre image ?\n");
-
-        //    /!\ A SECURISER  /!/
-        scanf("%90s", filename);
+        scanf("%255s", filename);
         clearBuffer();
     } while(!isFilenameValid(filename) || fileAlreadyExisting(filename));
     strcat(finalFilename, filename);
@@ -571,7 +610,7 @@ void saveImageInterface(Image* image) {
         printf("Ouverture du fichier impossible \n");
         printf("code d'erreur = %d \n", errno );
         printf("Message d'erreur = %s \n", strerror(errno));
-        exit(1);
+        printf("Nous n'avons pas reussi a sauvegarder votre image, veuillez reesayer plus tard.\n");
     }
 
     writeFileFromImage(writingFile, image);
@@ -587,7 +626,6 @@ void changeImageInterface(FILE* activeFile, Image* img) {
     //corps de la fonction
     do  {
         printf("\nEtes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N) ");
-        //Faire vérif input
         scanf("%c", &input);
         clearBuffer();
     } while(input!='y'&& input!='Y' && input!='N' && input!='n');
@@ -603,7 +641,8 @@ void changeImageInterface(FILE* activeFile, Image* img) {
         printf("Ouverture du fichier impossible \n");
         printf("code d'erreur = %d \n", errno );
         printf("Message d'erreur = %s \n", strerror(errno));
-        exit(1);
+        printf("Veuillez choisir un autre fichier ou reessayer plus tard\n");
+        return;
     }
 
     freeImage(img);
