@@ -6,6 +6,8 @@
 
 
 FILE* fileChoice();
+//Permet de changer quelle partie de l'image sera impactée par les changements
+void selectionInterface(Image* image, int *sel);
 void resizeInterface(Image* image);
 //void rognerInterface();
 void affichageASCIIInterface(Image* image);

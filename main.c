@@ -10,7 +10,6 @@ int main() {
     Image img;
     FILE* activeFile = NULL;
     int choice;
-    int selection[4];
 
     //corps de la fonction
     printf("Bienvenue sur CYImage\n");
@@ -27,14 +26,14 @@ int main() {
     
     //Selection des opérations à faire sur l'image
     choice = 0;
-    while(choice!=15) {
+    while(choice!=16) {
         choice = choiceImageManipulation(); //Affiche les possibilités à l'utilisateur et retourne son choix
         switch(choice) {
             case 1:
                 resizeInterface(&img);
                 break;
             case 2:
-                selectionInterface(&img, &selection);
+                selectionInterface(&img, selection);
                 break;
             case 3:
                 //rognerInterface();
