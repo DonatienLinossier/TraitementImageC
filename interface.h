@@ -9,7 +9,7 @@ FILE* fileChoice();
 void resizeInterface(Image* image);
 void rognerInterface(Image* image);
 void affichageASCIIInterface(Image* image);
-void blackAndWhiteInterface(Image* image);
+void grayscaleInterface(Image* image);
 void rotationInterface(Image* image);
 void luminositeInterface();
 void contrasteInterface();

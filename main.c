@@ -56,7 +56,7 @@ int main() {
                 affichageASCIIInterface(&img);
                 break;
             case 4:
-                blackAndWhiteInterface(&img);
+                grayscaleInterface(&img);
                 break;
             case 5:
                 rotationInterface(&img);
@@ -91,6 +91,6 @@ int main() {
         }
     }
 
-    printf("Fermeture15 du programme");
+    printf("Fermeture du programme");
     return 0;
 }

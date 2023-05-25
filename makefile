@@ -1,4 +1,4 @@
-#Passer clean, cleanBuild et cleanOutput et init en .PHONY ? A tester a cytech
+.PHONY: all init clean cleanBuild cleanOutput
 
 CC= gcc
 
@@ -9,9 +9,11 @@ OBJ2= $(addprefix $(BUILD_DIR)/, $(OBJ))
 BUILD_DIR = build
 OUTPUT_DIR = Output
 
-#Rajouter init avant le build exec ? A tester a Cytech
-all: $(BUILD_DIR)/exec
 
+
+all: init $(BUILD_DIR)/exec
+
+#Compilation
 $(BUILD_DIR)/gestionFichierImg.o: gestionFichierImg.c gestionFichierImg.h $(BUILD_DIR)
 	$(CC) -c $< -o $@ 
 
@@ -27,6 +29,8 @@ $(BUILD_DIR)/main.o: main.c gestionFichierImg.h interface.h $(BUILD_DIR)
 $(BUILD_DIR)/exec: $(OBJ2)
 	$(CC) $^ -o $@ -lm
 
+
+#Initialiation
 $(BUILD_DIR) :
 	mkdir -p $(BUILD_DIR)/
 
@@ -35,6 +39,8 @@ $(OUTPUT_DIR) :
 
 init : $(BUILD_DIR) $(OUTPUT_DIR)
 
+
+#Clean
 cleanBuild : 
 	rm -f $(BUILD_DIR)/*.o 
 	rm $(BUILD_DIR)/exec

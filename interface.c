@@ -330,7 +330,7 @@ void affichageASCIIInterface(Image* image) {
 }
 
 
-void blackAndWhiteInterface(Image* image) {
+void grayscaleInterface(Image* image) {
     printf("\nBienvenue dans le module noir et blanc\n");
     printf("Voulez-vous passer l'image en noir et blanc ?\n");
     printf("    1: Oui \n");

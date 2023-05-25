@@ -5,6 +5,10 @@
 #include "gestionFichierImg.h"
 #include "interface.h"
 
+#define COEF_RED 0.2126
+#define COEF_GREEN 0.7152
+#define COEF_BLUE 0.0722
+
 
 /*
 - - - STRUCTURE DE IMAGE - - -
@@ -725,7 +729,7 @@ void printASCII(Image* image) {
     for(int i = 0; i<image->dibHeader.height; i++) {
         printf("\n");
         for(int j = 0; j<image->dibHeader.width; j++) {
-            int valueRgb = 0.2126 * getP(image, i, j, 0) + 0.7152 * getP(image, i, j, 1) + 0.0722 * getP(image, i, j, 1); //des coefs basés sur la perception humaine des couleurs ont été appliqué afin de rendre compte des couleurs meme en ASCII
+            int valueRgb = COEF_RED * getP(image, i, j, 0) + COEF_GREEN * getP(image, i, j, 1) + COEF_BLUE * getP(image, i, j, 1); //des coefs basés sur la perception humaine des couleurs ont été appliqué afin de rendre compte des couleurs meme en ASCII
             printf("%c%c", tab[valueRgb/(255/5)], tab[valueRgb/(255/5)]); //les caracteres étant plus haut que large dans le terminal, on les affiche en double pour eviter que l'image apparaisse étirée verticalement: On preserve plus ou moins les proportions. 
         }
     }
