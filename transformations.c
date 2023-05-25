@@ -5,7 +5,7 @@
 #include "gestionFichierImg.h"
 
 //Fonction qui passe l'image en noir et blanc
-void grayscale(Image *img, sel[4]){$
+void grayscale(Image *img, int sel[4]){
     int min_y = sel[1];
     int min_x = sel[0];
     int max_y = sel[3];
@@ -102,7 +102,7 @@ void symmetry_y(Image *img, int sel[4]){
     }
 
 
-    for (int x = min_ix; x<max_x/2; x++){
+    for (int x = min_x; x<max_x/2; x++){
         for (int y = min_y; y<max_y; y++){
             //On échange chaque pixel avec le pixel avec le même y et le x = 255-x
             swap(img, x, y, max_x-x-1, y);
@@ -175,7 +175,7 @@ void blur(Image *img, int range, int sel[4]){
 
     for (int x = 0; x<img->dibHeader.width; x++){
         for (int y = 0; y<img->dibHeader.height; y++){
-            if(x1<=x && x<=x2 && y1<=y && y<=y2){
+            if(min_x<=x && x<=max_x && min_x<=y && y<=max_x){
                 //On crée les coordonnées des coins de la matrice flou qu'on applique à l'image
                 int min_iy=range/-2, max_iy=range+min_iy, min_ix=min_iy, max_ix=max_iy;
                 // On rectifie ces coordonnées pour éviter les valeurs hors de l'image
