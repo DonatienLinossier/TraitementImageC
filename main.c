@@ -43,7 +43,7 @@ int main() {
     
     img = getImageFromFile(activeFile); //Chargement de l'image
     fclose(activeFile); 
-    int selection[] = {0, 0, img.dibHeader.width, img.dibHeader.height}; //Création de la sélection qui comprend l'image entière
+    int selection[] = {0, 0, img.dibHeader.width-1, img.dibHeader.height-1}; //Création de la sélection qui comprend l'image entière
     
     //Selection des opérations à faire sur l'image
     choice = 0;
