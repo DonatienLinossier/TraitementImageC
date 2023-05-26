@@ -1,14 +1,13 @@
 
-# TraitementImageC
+# TraitementImageC    
 
 Ce projet a pour but de créer un programme en C permettant le traitement d'images en format bmp. Vous allez pouvoir choisir une image dans un dossier prédéfini lui appliquer différents filtres et l'enregistrer dans un nouveau fichier.
 
 ## Sommaire
 
-
-* [Informations générales](#info-general)
-* [Guides des commandes](#commandes)
-* [Options du code](#options)
+* [Informations générales](#informations-générales)
+* [Guides des commandes](#guides-des-commandes)
+* [Options du code](#options-du-code)
 * [Auteurs](#auteurs)
 * [Technologies](#technologies)
 
@@ -37,18 +36,14 @@ L'utilisateur peut ensuite choisir un filtre à apposer sur l'image parmi la lis
 | Afficher l'image en ASCII | displayASCII  |
 
 
-
-
 ## Guides des commandes
 
 A partir du terminal:
 
-    * Pour la première fois : § make init 
-    Cela permet d'initialiser tous les répertoires et fichiers nécessaires à l'execution du programme.
-
-    * Pour compiler : § make
-    
-    * Pour lancer le programme : § make run
+* Pour initialiser : `make init`
+Cela permet d'initialiser tous les répertoires et fichiers nécessaires à l'execution du programme.
+* Pour compiler :  `make`
+* Pour lancer le programme : `make run`
 
 
 
@@ -58,18 +53,20 @@ A partir du terminal:
 
 * Les images s'ouvrent manuellement et elles sont modifiées après enregistrement.
 
-* La fonction Crop doit être précédent d'une séléction
+* La fonction Crop doit être précéder d'une séléction.
+
+* Une autre manière de cacher un message grâce à la steganographie : pour insérer du texte on peut le faire directement depuis le fichier *input* présent dans le dossier stegenographie et pour récupérer ce message il sera affiché dans le *output*.
 
 
 ## Technologies
 
-Ce projet a été réalisé sur le logiciel Visual Studio Code.
+Ce projet a été réalisé sur le logiciel Visual Studio Code et le langage utilisé est le C.
 
-Les différents fichiers utilisés sont enregistrés sur la plateforme Github et l'addresse de dépot est : https://github.com/DonatienLinossier/TraitementImageC 
+Les différents fichiers utilisés sont enregistrés sur la plateforme Github et l'addresse de dépt est : https://github.com/DonatienLinossier/TraitementImageC 
 
-Ce projet utilise (technologies au niveau de la gestion de fichiers ??)
 
-## Authors
+
+## Auteurs
 
 - [@DonationLinossier](https://www.github.com/DonatienLinossier)
 - [@EliasGaudaré](https://www.github.com/Eliasgdr)
@@ -77,7 +74,5 @@ Ce projet utilise (technologies au niveau de la gestion de fichiers ??)
 
 
 
-## Appendix
 
-Any additional information goes here
 
