@@ -14,30 +14,53 @@ Ce projet a pour but de créer un programme en C permettant le traitement d'imag
 
 ## Informations générales
 
-Une fois le programme lancé, l'utilisateur a le choix entre plusieurs images prédéfinies.
+Une fois le programme lancé, l'utilisateur a le choix entre plusieurs images prédéfinies enregistrés dans un dossier Images.
 
 L'utilisateur peut ensuite choisir un filtre à apposer sur l'image parmi la liste suivante :
  
- * Passer l'image en noir et blanc.
- * Inverser les couleurs de l'image
- * Effectuer une rotation (90°, 180° ou 270°)
-* Effectueur une symétrie selon l'axe horizontal ou vertical
-* Redimensionner l'image
-* Gérer la luminosité de l'image
-* Gérer le contraste de l'image
-* Flouter l'image
+| Filtres | Fonctions | 
+|----------|:-------------:|
+| Redimensionner l'image | resize | 
+| Séléctionner une partie de l'image| selection | 
+| Passer l'image en noir et blanc| grayscale | 
+|  Rogner l'image | crop  | 
+| Effectuer une rotation (90°, 180° ou 270°)| rotation | 
+| Inverser les couleurs de l'image |  invertcolorsInterface | 
+| Gérer la luminosité de l'image | brightness  |
+| Gérer le contraste de l'image | contrast | 
+| Flouter l'image | blur | 
+| Traduit limage en binaire | binarize |
+| Effectueur une symétrie selon l'axe horizontal ou vertical | symmetry |
+| Permet de cacher un message| steganography |
+| Enregistre l'image dans le dossier Output| saveImage  |
+| Permet de changer l'image | changeImage  |
+| Afficher l'image en ASCII | displayASCII  |
+
+
 
 
 ## Guides des commandes
 
-à partir du makefile : //ligne de code
+A partir du terminal:
+
+    * Pour la première fois : § make init 
+    Cela permet d'initialiser tous les répertoires et fichiers nécessaires à l'execution du programme.
+
+    * Pour compiler : § make
+    
+    * Pour lancer le programme : § make run
+
 
 
 ## Options du code
 
-* Il vous faudra ouvrir le terminal et effctuer un zoom négatif  pour que les images en ASCII se voient dans leur entièreté.
+* Il vous faudra ouvrir le terminal et effctuer un zoom négatif pour que les images en ASCII se voient dans leur entièreté.
 
 * Les images s'ouvrent manuellement et elles sont modifiées après enregistrement.
+
+* La fonction Crop doit être précédent d'une séléction
+
+
 ## Technologies
 
 Ce projet a été réalisé sur le logiciel Visual Studio Code.

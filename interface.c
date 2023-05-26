@@ -335,7 +335,7 @@ void resizeInterface(Image* image) {
     resize(image, new_x, new_y);
 }
 
-void rognerInterface(Image *image, int sel[4]) {
+void cropInterface(Image *image, int sel[4]) {
     printf("\nBienvenue dans le module rogner\n");
     int ret = 0, choice;
 
@@ -355,7 +355,7 @@ void rognerInterface(Image *image, int sel[4]) {
 
 
 
-void affichageASCIIInterface(Image* image) {
+void displayASCIIInterface(Image* image) {
     printf("\nBienvenue dans le module ASCII. Pour les images de tailles consequentes, nous vous invitons a dezoomer dans le terminal afin de permettre l'affichage de l'image en entier.\n");
     printf("A titre informatif, votre image est de taille %d H x %d L\n", image->dibHeader.width, image->dibHeader.height);
     printf("Une fois pret, veuillez entrer 1 pour afficher l'image en ASCII. Entrez 2 pour revenir au menu principal.\n");
@@ -465,7 +465,7 @@ void contrastInterface(Image* img) {
     } 
 }
 
-void flouInterface(Image* image, int sel[4]) {
+void blurInterface(Image* image, int sel[4]) {
     printf("\nBienvenue dans le module de floutage des images\n");
     printf("Voulez-vous flouter l'image ?\n");
     printf("    1 - Oui \n");
@@ -485,7 +485,7 @@ void flouInterface(Image* image, int sel[4]) {
 }
 
 
-void binariserInterface(Image* image, int sel [4]) {
+void binarizeInterface(Image* image, int sel [4]) {
     printf("\nBienvenue dans le module de binarisation des images\n");
     printf("Voulez-vous binariser l'image ?\n");
     printf("    1 - Oui \n");
@@ -503,7 +503,7 @@ void binariserInterface(Image* image, int sel [4]) {
     }
 }
 
-void inverserCouleursInterface(Image* image, int sel[4]) {
+void invertcolorsInterface(Image* image, int sel[4]) {
     printf("\nBienvenue dans le module d'inversion des couleurs\n");
     printf("Voulez-vous inverser les couleurs de l'image ?\n");
     printf("    1 - Oui \n");
@@ -521,7 +521,7 @@ void inverserCouleursInterface(Image* image, int sel[4]) {
     }  
 }
 
-void symetrieInterface(Image* image, int sel[4]) {
+void symetryInterface(Image* image, int sel[4]) {
     
     printf("\nBienvenue dans le module symetrie, quelle symetrie voulez-vous executer ?\n");
     printf("    1 - Horizontale \n");
@@ -548,7 +548,7 @@ void symetrieInterface(Image* image, int sel[4]) {
     
 }
 
-void steganographieInterface(Image* image) {
+void steganographyInterface(Image* image) {
     int choice = 0;
     char message[STEGANO_MESSAGE_SIZE_MAX];
     int ret;
@@ -676,14 +676,14 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
     void exitInterface(){
         int *choice1 = NULL;
-        char answer;
+        char *answer;
         printf("Etes-vous sûr de vouloir fermer le programme et abandonner les modifications apportées ? \n");
         scanf("%s", answer);
         while(!(*choice1)){
                     if(strcmp(answer, "oui")== 0){
                         *choice1 = 1; //true;
                         free(choice1);
-                        return 0;
+                        return;
                     }
                     else if(strcmp(answer, "non")==0){
                         printf("0\n");

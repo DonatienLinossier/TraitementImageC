@@ -57,10 +57,10 @@ int main() {
                 selectionInterface(&img, selection);
                 break;
             case 3:
-                rognerInterface(&img, selection);
+                cropInterface(&img, selection);
                 break;
             case 4:
-                affichageASCIIInterface(&img);
+                displayASCIIInterface(&img);
                 break;
             case 5:
                 grayscaleInterface(&img, selection);
@@ -69,25 +69,25 @@ int main() {
                 rotationInterface(&img);
                 break;
             case 7:
-                luminositeInterface();
+                brightnessInterface(&img);
                 break;
             case 8:
-                contrasteInterface();
+                contrastInterface(&img);
                 break;
             case 9:
-                flouInterface(&img, selection);
+                blurInterface(&img, selection);
                 break;
             case 10:
-                binariserInterface(&img, selection);
+                binarizeInterface(&img, selection);
                 break;
             case 11:
-                inverserCouleursInterface(&img, selection);
+                invertcolorsInterface(&img, selection);
                 break;
             case 12:
-                symetrieInterface(&img, selection);
+                symmetryInterface(&img, selection);
                 break;
             case 13:
-                steganographieInterface(&img);
+                steganographyInterface(&img);
                 break;
             case 14:
                 saveImageInterface(&img);
