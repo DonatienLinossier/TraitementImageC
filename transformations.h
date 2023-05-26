@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 
 //Fonction qui passe l'image en noir et blanc dans la sélection
 void grayscale(Image *img, int sel[4]);

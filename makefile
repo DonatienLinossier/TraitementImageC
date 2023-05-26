@@ -21,16 +21,16 @@ run :
 	./$(BUILD_DIR)/exec
 
 #Compilation
-$(BUILD_DIR)/gestionFichierImg.o: gestionFichierImg.c gestionFichierImg.h $(BUILD_DIR)
+$(BUILD_DIR)/imageManagement.o: imageManagement.c imageManagement.h $(BUILD_DIR)
 	$(CC) -c $< -o $@ 
 
 $(BUILD_DIR)/transformations.o: transformations.c transformations.h $(BUILD_DIR)
 	$(CC) -c $< -o $@
 
-$(BUILD_DIR)/interface.o: interface.c interface.h gestionFichierImg.h transformations.h $(BUILD_DIR)
+$(BUILD_DIR)/interface.o: interface.c interface.h imageManagement.h transformations.h $(BUILD_DIR)
 	$(CC) -c $< -o $@
 
-$(BUILD_DIR)/main.o: main.c gestionFichierImg.h interface.h $(BUILD_DIR)
+$(BUILD_DIR)/main.o: main.c imageManagement.h interface.h $(BUILD_DIR)
 	$(CC) -c $< -o $@
 
 $(BUILD_DIR)/exec: $(OBJ2)

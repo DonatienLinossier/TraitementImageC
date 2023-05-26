@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "transformations.h"
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 
 
 <<<<<<< HEAD
