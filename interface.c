@@ -686,7 +686,7 @@ int choiceImageManipulation() {
         printf("    10 - Binariser l'image\n");
         printf("    11 - Inverser les couleurs\n");
         printf("    12 - Effectuer une symetrie\n");
-        printf("    13 - Steganographie (WIP)\n");
+        printf("    13 - Steganographie\n");
         printf("    14 - Enregistrer l'image\n");
         printf("    15 - Changer d'image (Abandonne les modfications)\n");
         printf("    16 - Fermer le programme (Abandonne les modifications)\n");
@@ -697,5 +697,3 @@ int choiceImageManipulation() {
 
     return choice;
 }
-
-

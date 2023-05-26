@@ -316,7 +316,7 @@ void decodeANDgetHeader(FILE* file, Image* image) {
     int SizeElementsHeaders[5] = SIZE_ELEMENTS_HEADER; 
     for(int i =0; i<5; i++) {
         //int* tab = NULL;
-        char* tab = NULL;
+        unsigned char* tab = NULL;
         tab = calloc(SizeElementsHeaders[i], sizeof(unsigned char));
         if(tab == NULL) {
             printf("ERREUR ALLOCATION decoderANDgetHeader!");
