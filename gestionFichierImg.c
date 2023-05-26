@@ -694,7 +694,7 @@ Image copy(Image *image) {
         printf("ERREUR ALLOCATION copy 1!");
         exit(0);
     }
-    for(int i =0; i< NewImage.header.offset-REMAINING_BYTES_BEFORE_OFFSET; i++) {
+    for(int i =0; i< REMAINING_BYTES_BEFORE_OFFSET; i++) {
         NewImage.dibHeader.rest[i] = image->dibHeader.rest[i];
     }
 
