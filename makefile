@@ -1,4 +1,4 @@
-.PHONY: all init clean cleanBuild cleanOutput run
+.PHONY: all init clean cleanBuild cleanOutput cleanTmp run
 
 CC= gcc
 
@@ -16,6 +16,7 @@ STEGANO_OUTPUT_DIR = Output.txt
 STEGANO_INPUT_DIR = Input.txt
 
 TMP_DIR = tmp
+TMP_IMAGE_FILE = tmpImage
 
 all: init $(BUILD_DIR)/exec
 
@@ -53,6 +54,7 @@ $(STEGANO_DIR) :
 
 $(TMP_DIR) :
 	mkdir -p $(TMP_DIR)
+	touch $(TMP_DIR)/$(TMP_IMAGE_FILE)
 
 init : $(BUILD_DIR) $(OUTPUT_DIR) $(STEGANO_DIR) $(TMP_DIR)
 
@@ -63,6 +65,15 @@ cleanBuild :
 	rm $(BUILD_DIR)/exec
 
 cleanOutput :
-		rm -f $(OUTPUT_DIR)/*
+	rm -f $(OUTPUT_DIR)/*
 
-clean : cleanBuild cleanOutput
+cleanStegano :
+	rm -f $(STEGANO_DIR)/*
+	touch $(STEGANO_DIR)/$(STEGANO_OUTPUT_DIR)
+	touch $(STEGANO_DIR)/$(STEGANO_INPUT_DIR)
+
+cleanTmp : 
+	rm -f $(TMP_DIR)/$(TMP_IMAGE_FILE)
+
+
+clean : cleanBuild cleanOutput cleanTmp cleanStegano

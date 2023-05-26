@@ -159,7 +159,10 @@ FILE* fileChoice() {
         }
         closedir(imageRepertory);
         printf("    %d: Ouvrir le dossier %s contenant les images precedement modifiees\n", iFile, IMAGE_OUTPUT_DIRECTORY, file->d_name);
-    }    
+    } else {
+        printf("Nous n'avons pas reussi a ouvrir le dossier %s. Veuillez verifier son integrite et qu'il existe bien, puis relancer le programme", repertory);
+        exit(0);
+    }  
 
 
     //recuperer le choix de l'utilisateur
@@ -196,6 +199,9 @@ FILE* fileChoice() {
             strcat(name, IMAGE_DIRECTORY);
             strcat(name, "/");
             strcat(name, file->d_name);
+        }  else {
+            printf("Nous n'avons pas reussi a ouvrir le dossier %s. Veuillez verifier son integrite et qu'il existe bien, puis relancer le programme", repertory);
+            exit(0);
         }
     } else {
         //Si l'utilisateur a preferé une image dans le dossier Output
@@ -226,6 +232,10 @@ FILE* fileChoice() {
             }
             closedir(imageRepertory);
             printf("    %d: Retourner aux images du dossier %s\n", iFile, IMAGE_DIRECTORY);
+        } else {
+            printf("Nous n'avons pas reussi a ouvrir le dossier %s. Veuillez verifier son integrite et qu'il existe bien, puis relancer le programme", repertory);
+            printf("En attendant, veuillez choisir une image contenu dans %s (parmi les images de base)", IMAGE_DIRECTORY);
+            return fileChoice();
         }
         int choice = 0;
         int ret;
@@ -258,6 +268,10 @@ FILE* fileChoice() {
                 strcat(name, "/");
                 strcat(name, file->d_name);
                 
+            } else {
+                printf("Nous n'avons pas reussi a ouvrir le dossier %s. Veuillez verifier son integrite et qu'il existe bien, puis relancer le programme", repertory);
+                printf("En attendant, veuillez choisir une image contenu dans %s (parmi les images de base)", IMAGE_DIRECTORY);
+                return fileChoice();
             }
         } else { //si l'utilisateur veut dans le dossier image
             printf("Quelle image voulez-vous selectionner ? (1/2/3/...)");
@@ -273,7 +287,8 @@ FILE* fileChoice() {
         printf("code d'erreur = %d \n", errno );
         printf("Message d'erreur = %s \n", strerror(errno));
         printf("Nous avons rencontre un probleme en essayant d'ouvrir le fichier %s, veuillez verifier son existence et son integrite, puis relancez le programme.\n", name);
-        exit(1);
+        printf("En attendant, veuillez choisir une autre image :\n");
+        return fileChoice();
     }
     printf("Image %s ouverte!\n", name);
     return activeFile;
@@ -737,7 +752,7 @@ int choiceImageManipulation() {
         printf("    13 - Steganographie\n");
         printf("    14 - Enregistrer l'image\n");
         printf("    15 - Changer d'image (Abandonne les modfications)\n");
-        printf("    16 - ctrl z\n");
+        printf("    16 - Annuler le dernier changement. (Applicable 1 fois).\n");
         printf("    17 - Fermer le programme (Abandonne les modifications)\n");
         
         ret = scanf("%2d", &choice);
