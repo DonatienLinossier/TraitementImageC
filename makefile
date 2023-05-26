@@ -1,15 +1,19 @@
-.PHONY: all init clean cleanBuild cleanOutput
+.PHONY: all init clean cleanBuild cleanOutput run
 
 CC= gcc
+
 
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 OBJ2= $(addprefix $(BUILD_DIR)/, $(OBJ))
 
 BUILD_DIR = build
-OUTPUT_DIR = Output
 
+OUTPUT_DIR = Images/Output
 
+STEGANO_DIR = Stegano
+STEGANO_OUTPUT_DIR = Output.txt
+STEGANO_INPUT_DIR = Input.txt
 
 all: init $(BUILD_DIR)/exec
 
@@ -37,7 +41,13 @@ $(BUILD_DIR) :
 $(OUTPUT_DIR) :
 	mkdir -p $(OUTPUT_DIR)/
 
-init : $(BUILD_DIR) $(OUTPUT_DIR)
+$(STEGANO_DIR) :
+	mkdir -p $(STEGANO_DIR)/
+	touch $(STEGANO_DIR)/$(STEGANO_OUTPUT_DIR)
+	touch $(STEGANO_DIR)/$(STEGANO_INPUT_DIR)
+
+
+init : $(BUILD_DIR) $(OUTPUT_DIR) $(STEGANO_DIR)
 
 
 #Clean
@@ -49,3 +59,7 @@ cleanOutput :
 		rm -f $(OUTPUT_DIR)/*
 
 clean : cleanBuild cleanOutput
+
+
+run : 
+	./$(BUILD_DIR)/exec
