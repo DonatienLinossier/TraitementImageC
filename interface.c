@@ -19,6 +19,10 @@
 #define FILENAME_SIZE_MAX 255
 #define FOLDER_SIZE_MAX 255
 
+
+
+
+
 void clearBuffer()
 {
     int c = 0;
@@ -669,6 +673,27 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
 }
 
+void addImageToImageTmp(Image* img, char* filename) {
+    FILE* file = NULL;
+    file = fopen(filename, "wb");
+    if(file==NULL) {
+        return;
+    }
+    writeFileFromImage(file, img);
+    fclose(file);
+}
+
+void getLastImage(Image *img, char* filename) {
+    FILE* file = NULL;
+    file = fopen(filename, "rb");
+    if(file==NULL) {
+        return;
+    }
+    *img = getImageFromFile(file);
+    fclose(file);
+}
+
+
 int choiceImageManipulation() {
     int choice = 0;
     int ret;
@@ -690,10 +715,11 @@ int choiceImageManipulation() {
         printf("    14 - Enregistrer l'image\n");
         printf("    15 - Changer d'image (Abandonne les modfications)\n");
         printf("    16 - Fermer le programme (Abandonne les modifications)\n");
+        printf("    17 - Fermer le programme (Abandonne les modifications)\n");
         
         ret = scanf("%2d", &choice);
         clearBuffer();
-    } while(choice<1 || choice>16 || ret!=1);
+    } while(choice<1 || choice>17 || ret!=1);
 
     return choice;
 }
