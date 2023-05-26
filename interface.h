@@ -10,20 +10,20 @@ FILE* fileChoice();
 void selectionInterface(Image* image, int *sel);
 void resizeInterface(Image* image);
 void cropInterface(Image* image, int sel[4]);
-void displayASCIIInterface(Image* image);
+void displayInterfaceASCII(Image* image);
 void grayscaleInterface(Image* image, int sel[4]);
-void rotationInterface(Image* image);
-void brightnessInterface(Image* image);
-void contrastInterface(Image* image);
+void rotateInterface(Image* image);
+void brightnessInterface(Image* image, int sel[4]);
+void contrastInterface(Image* image, int sel[4]);
 void blurInterface(Image* image, int sel[4]);
-void binarizeInterface(Image* image, int sel[4]);
-void invertcolorsInterface(Image* image, int sel[4]);
+void binaryInterface(Image* image, int sel[4]);
+void reverseColorsInterface(Image* image, int sel[4]);
 void symmetryInterface(Image *image, int sel[4]);
 void steganographyInterface(Image* image);
 void saveImageInterface(Image* image);
 void changeImageInterface(FILE* activeFile, Image* img);
 int choiceImageManipulation();
-
-
+void addImageToImageTmp(Image* img, char* filename);
+void getLastImage(Image *img, char* filename);
 
 #endif

@@ -316,7 +316,7 @@ void decodeANDgetHeader(FILE* file, Image* image) {
     int SizeElementsHeaders[5] = SIZE_ELEMENTS_HEADER; 
     for(int i =0; i<5; i++) {
         //int* tab = NULL;
-        char* tab = NULL;
+        unsigned char* tab = NULL;
         tab = calloc(SizeElementsHeaders[i], sizeof(unsigned char));
         if(tab == NULL) {
             printf("ERREUR ALLOCATION decoderANDgetHeader!");
@@ -724,47 +724,6 @@ void freeImage(Image* image) {
     //liberation du reste du DibHeader
     free(image->dibHeader.rest);
     image->dibHeader.rest = NULL;
-}
-
-void rogner(Image *image, int y, int x, int height, int width) {
-    if(image == NULL) {
-        exit(0);
-    }
-    if(height+y>image->dibHeader.height) {
-        printf("Depassement y de l'image");
-        return;
-    }
-    if(width+x>image->dibHeader.width) {
-        printf("Depassement x de l'image");
-        return;
-    }
-    if(x<0) {
-        printf("Depassement x de l'image");
-        return;
-    }
-    if(y<0) {
-        printf("Depassement y de l'image");
-        return;
-    }
-    
-    //copie de l'image pour conserver les valeurs des pixels le temps de la manipulation
-    Image copie = copy(image);
-
-
-    //Redimensionne l'image en lui donnant sa taille height et width
-    clearAndResize(image, height, width);
-
-    //copie les pixels de la selection dans l'image
-    for(int i =0; i<height; i++) {
-        for(int j = 0; j<width; j++) {
-            for(int k =0; k<3; k++) {
-                setP(image, i, j, k, getP(&copie, y + i, x + j, k));
-            }
-        }
-    }
-
-    //liberer la copie
-    freeImage(&copie);
 }
 
 
