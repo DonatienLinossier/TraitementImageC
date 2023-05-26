@@ -30,6 +30,33 @@ void grayscale(Image *img, int sel[4]){
     } 
 }
 
+//Fonction qui augmente ou baisse la luminosité dans la sélection
+void brightness (Image *img, float percentage, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+        exit(1);
+    }
+    int new_rgb;
+    percentage /= 100;
+    for (int x = min_x; x<max_x; x++){
+        for (int y = min_y; y<max_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                //on muttiplie chaque composantes rgb au facteur de luminosité choisi
+                new_rgb = (int)getP(img,y,x,rgb)*percentage;
+                if (new_rgb > 255){
+                    new_rgb = 255;
+                }
+                //printf("%d ",l_rgb);
+                setP(img, y, x, rgb, new_rgb);
+             }
+             //printf("\n");
+        }   
+    }
+}
+
 //Fonction qui rend les pixels lumineux encore plus lumineux et ceux sombres encore plus sombre
 int contrast_recursive(int value, int power){
     if(value <= 255 / 2){
@@ -290,7 +317,7 @@ void resize(Image *img, int new_x, int new_y){
 }
 
 
-void main(void){
+/*void main(void){
     printf("start\n");
     FILE* file = NULL;
     file = fopen("./Images/MARBLES.bmp", "rb+");
@@ -300,8 +327,8 @@ void main(void){
     }                                                                                                            
     Image img = getImageFromFile(file);                                                                    
     fclose(file);
-    int selection[] = {700, 0, img.dibHeader.width-1, img.dibHeader.height-1}; 
-    contrast(&img,selection);
+    int selection[] = {0, 0, img.dibHeader.width-1, img.dibHeader.height-1}; 
+    brightness(&img,200,selection);
     printf("mid\n");
 
     file = NULL;
@@ -317,4 +344,4 @@ void main(void){
     printf("C\n");
     freeImage(&img);
     printf("end\n");
-}
+}*/
