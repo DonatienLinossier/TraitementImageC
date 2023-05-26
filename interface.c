@@ -1,12 +1,13 @@
+//Ce fichier contient les différentes fonctions d'interface qui demandent à l'utilisateur les valeurs à utiliser pour le tranformations
 #include <stdlib.h>
 #include <stdio.h>
-#include "interface.h"
-#include "imageManagement.h"
-#include "transformations.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include "imageManagement.h"
+#include "transformations.h"
+#include "interface.h"
 
 
 #define IMAGE_OUTPUT_DIRECTORY "Images/Output"
@@ -23,8 +24,12 @@
 
 
 
-void clearBuffer()
-{
+
+
+
+
+//Fonction qui vide le buffer pour les scanf
+void clearBuffer() {
     int c = 0;
     while (c != '\n' && c != EOF)
     {
@@ -32,6 +37,7 @@ void clearBuffer()
     }
 }
 
+//Fonction qui vérifie si le fichier existe déjà
 int fileAlreadyExisting(char* filename) {
     char *repertory = NULL;
     DIR *outputRepertory = NULL;
@@ -290,7 +296,7 @@ FILE* fileChoice() {
         printf("En attendant, veuillez choisir une autre image :\n");
         return fileChoice();
     }
-    printf("Image %s ouverte!\n", name);
+    printf("%s ouverte!\n", name);
     return activeFile;
 } 
 
@@ -333,6 +339,9 @@ void selectionInterface(Image* image, int *sel){
     } while(ret!=1 || sel[3]>=image->dibHeader.height);
 }
 
+
+//Toutes les fonctions suivantes sont les versions utilisateurs des transformations
+
 void resizeInterface(Image* image) {
     int new_x = 0;
     int new_y = 0;
@@ -355,28 +364,13 @@ void resizeInterface(Image* image) {
 }
 
 void cropInterface(Image *image, int sel[4]) {
-    printf("\nBienvenue dans le module rogner\n");
-    int ret = 0, choice;
-
-    printf("Êtes vous sur de rogner votre image de (%d,%d) à (%d,%d) ?\n", sel[0], sel[1], sel[2], sel[3]);
-    printf("    1 - Oui\n");
-    printf("    2 - Non\n");
-    do {
-        ret = scanf("%d", &choice);
-        clearBuffer();
-    } while(ret!=1 || choice<1 || choice>2);
-
-    if(choice == 1) {
-        rogner(image, sel[1], sel[0], sel[3]-sel[1], sel[2]-sel[0]);
-    }
+    crop(image, sel);
+    printf("Votre image a bien été redimensionnée, elle fait maintenant %d x %d pixels\n", image->dibHeader.width, image->dibHeader.height);
 
 }
 
-
-
-void displayASCIIInterface(Image* image) {
-    printf("\nBienvenue dans le module ASCII. Pour les images de tailles consequentes, nous vous invitons a dezoomer dans le terminal afin de permettre l'affichage de l'image en entier.\n");
-    printf("A titre informatif, votre image est de taille %d H x %d L\n", image->dibHeader.width, image->dibHeader.height);
+void displayInterfaceASCII(Image* image) {
+    printf("Bienvenue dans le module ASCII. Pour les images de tailles consequentes, nous vous invitons a dezoomer dans le terminal afin de permettre l'affichage de l'image en entier.\n");
     printf("Une fois pret, veuillez entrer 1 pour afficher l'image en ASCII. Entrez 2 pour revenir au menu principal.\n");
     int choice = 0;
     int ret;
@@ -392,29 +386,12 @@ void displayASCIIInterface(Image* image) {
     }
 }
 
-
 void grayscaleInterface(Image* image, int sel[4]) {
-    printf("\nBienvenue dans le module noir et blanc\n");
-    printf("Voulez-vous passer l'image en noir et blanc ?\n");
-    printf("    1 - Oui \n");
-    printf("    2 - Non, retour au menu principal \n");
-    int choice = 0;
-    int ret;
-    do {
-        ret = scanf("%1d", &choice);
-        clearBuffer();
-    } while(ret!=1 || choice<1 || choice > 2);
-
-    if(choice==1) {
         grayscale(image,sel);
-        printf("L'image a bien ete passe en noir et blanc !\n");
-    }
-
+        printf("L'image a bien ete passe en noir et blanc\n");
 }
 
-
-void rotationInterface(Image* image) { 
-    printf("\nBienvenue dans le module de rotation des images\n");
+void rotateInterface(Image* image) { 
     printf("De combien de degres voulez-vous faire pivoter l'image ?\n");
     printf("    1 - 90 \n");
     printf("    2 - 180 \n");
@@ -437,111 +414,60 @@ void rotationInterface(Image* image) {
         rotate_90(image);
         break;
     }
-    printf("Rotation effectué !\n");
+    printf("Rotation effectuée\n");
 }
 
-void brightnessInterface (Image *img){
-    char answer[4];
-    float percentage;
-    printf("Veuillez saisir le pourcentage de luminosité que vous souhaité appliquer à votre image ");
-    scanf("%f", &percentage);
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
+void brightnessInterface(Image* image, int sel[4]) {
+    int percent;
+    printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
     int ret;
     do {
-        ret = scanf("%3s", answer);
+        ret = scanf("%d", percent);
         clearBuffer();
-    } while(ret!=1);
-    if(strcmp(answer, "oui") == 0){
-     //   brightness (Image *img);
-    }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    }
+    }while(ret!=1 || percent < 0);
+    brightness(image,percent,sel);
+    printf("La luminosité de l'image a bien été modifiée\n");
 }
 
-void contrastInterface(Image* img) {
-    char answer[4];
-    printf(" Vous avez choisi de modifier la contrsaste de l'image\n");
-    printf("Etes-vous sûr de vouloir continuer ? Saisir oui ou non \n");
-    int ret;
+void contrastInterface(Image* image, int sel[4]) {
+    printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
+    int ret,percent;
     do {
-        ret = scanf("%3s", answer);
+        ret = scanf("%d", percent);
         clearBuffer();
-    } while(ret!=1);
-    if(strcmp(answer, "oui")  == 0){
-     //   contrast(Image* img);
-        }
-    else if(strcmp(answer, "non")==0){
-        printf("0\n");
-        exit(0);
-    }
-    else{
-        printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-    } 
+    }while(ret!=1 || percent < 0);
+    contrast(image,sel);
+    printf("La luminosité de l'image a bien été modifiée\n");
 }
 
 void blurInterface(Image* image, int sel[4]) {
-    printf("\nBienvenue dans le module de floutage des images\n");
-    printf("Voulez-vous flouter l'image ?\n");
-    printf("    1 - Oui \n");
-    printf("    2 - Non, retour au menu principal \n");
-    int choice = 0;
-    int ret;
+    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillée 10\n");
+    int factor = 0;
+    int ret,choice;
     do {
         ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(ret!=1 || choice<1 || choice > 2);
+    } while(ret!=1 || factor>=1);
 
     if(choice==1) {
-        blur(image, 11, sel);
+        blur(image, factor * 2 - 1 , sel);
         printf("Effet de flou appliqué !\n");
     }
     
 }
 
+void binaryInterface(Image* image, int sel [4]) {
+    binary(image, sel);
+    printf("Votre image est bien binarisée\n");
 
-void binarizeInterface(Image* image, int sel [4]) {
-    printf("\nBienvenue dans le module de binarisation des images\n");
-    printf("Voulez-vous binariser l'image ?\n");
-    printf("    1 - Oui \n");
-    printf("    2 - Non, retour au menu principal \n");
-    int choice = 0;
-    int ret;
-    do {
-        ret = scanf("%1d", &choice);
-        clearBuffer();
-    } while(ret!=1 || choice<1 || choice > 2);
-
-    if(choice==1) {
-        binary(image, sel);
-        printf("Image binarisee !\n");
-    }
 }
 
-void invertcolorsInterface(Image* image, int sel[4]) {
-    printf("\nBienvenue dans le module d'inversion des couleurs\n");
-    printf("Voulez-vous inverser les couleurs de l'image ?\n");
-    printf("    1 - Oui \n");
-    printf("    2 - Non, retour au menu principal \n");
-    int choice = 0;
-    int ret;
-    do {
-        ret = scanf("%1d", &choice);
-        clearBuffer();
-    } while(ret!=1 || choice<1 || choice > 2);
-
-    if(choice==1) {
-        reverse_image(image, sel);
-         printf("Couleurs de l'image inversees !\n");
-    }  
+void reverseColorsInterface(Image* image, int sel[4]) {
+    reverse_colors(image, sel);
+    printf("Couleurs de l'image inversées\n");
 }
 
 void symmetryInterface(Image* image, int sel[4]) {
-    
     printf("\nBienvenue dans le module symetrie, quelle symetrie voulez-vous executer ?\n");
     printf("    1 - Horizontale \n");
     printf("    2 - Verticale \n");
@@ -624,6 +550,7 @@ void steganographyInterface(Image* image) {
     }
 }
 
+//Sauvegarde l'image en .bmp
 void saveImageInterface(Image* image) {
     //Déclaration
     char filename[FILENAME_SIZE_MAX];
@@ -656,6 +583,7 @@ void saveImageInterface(Image* image) {
 }
 
 
+//Permet de modifier une autre image
 void changeImageInterface(FILE* activeFile, Image* img) {
     //Déclaration
     char input = ' ';
@@ -732,6 +660,7 @@ void exitInterface(){
     }
 }
 
+//Affiche le menu principal, avec toutes les options possibles
 int choiceImageManipulation() {
     int choice = 0;
     int ret;
