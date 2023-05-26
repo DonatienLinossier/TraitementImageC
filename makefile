@@ -15,6 +15,8 @@ STEGANO_DIR = Stegano
 STEGANO_OUTPUT_DIR = Output.txt
 STEGANO_INPUT_DIR = Input.txt
 
+TMP_DIR = tmp
+
 all: init $(BUILD_DIR)/exec
 
 run : 
@@ -49,8 +51,10 @@ $(STEGANO_DIR) :
 	touch $(STEGANO_DIR)/$(STEGANO_OUTPUT_DIR)
 	touch $(STEGANO_DIR)/$(STEGANO_INPUT_DIR)
 
+$(TMP_DIR) :
+	mkdir -p $(TMP_DIR)
 
-init : $(BUILD_DIR) $(OUTPUT_DIR) $(STEGANO_DIR)
+init : $(BUILD_DIR) $(OUTPUT_DIR) $(STEGANO_DIR) $(TMP_DIR)
 
 
 #Clean
