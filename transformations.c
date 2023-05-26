@@ -5,6 +5,7 @@
 #include "imageManagement.h"
 
 
+
 //Fonction qui passe l'image en noir et blanc selon la sélection
 void grayscale(Image *img, int sel[4]){
     int min_y = sel[1];
