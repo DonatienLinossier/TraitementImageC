@@ -318,21 +318,49 @@ void resizeInterface(Image* image) {
     int new_x = 0;
     int new_y = 0;
     int ret;
+    int selection = 0;
 
     printf("\nBienvenue dans le module redimensioner\n");
-    printf("Quelle taille x voulez vous donner a l'image ?\n");
-    do {
-        ret = scanf("%d", &new_x);
+    printf("Les differents formats de redimension sont a choisir:\n");
+    printf("    1 - 0.5\n");
+    printf("    2 - 2\n");
+    printf("    3 - 5\n");
+    printf("    4 - Taille personnalisee\n");
+    do{
+        ret=scanf("%d", &selection);
         clearBuffer();
-    } while(ret!=1 || new_x<=0);
+    } while(selection>4 || ret!=1 || selection<1);
 
-    printf("Quelle taille y voulez vous donner à l'image ?\n");
-    do {
-        ret = scanf("%d", &new_y);
-        clearBuffer();
-    } while(ret!=1 || new_y<=0);
+        switch(selection)
+        {
+            case 1:
+                resize(image, image->dibHeader.width*0.5, image->dibHeader.height*0.5);
+                break;
+            case 2:
+                resize(image, image->dibHeader.width*2, image->dibHeader.height*2);
+                break;
+            case 3:
+                resize(image, image->dibHeader.width*5, image->dibHeader.height*5);
+                break;
+            case 4:
+                printf("Bienvenue dans le module de redimensioner\n");
 
-    resize(image, new_x, new_y);
+                printf("Quelle taille de redimension x voulez-vous appliquer à l'image ?\n");
+                do{
+                    ret=scanf("%d", &new_x);
+                    clearBuffer();
+                }while(ret!=1 || new_x<=0);
+
+                printf("Quelle taille de redimension y voulez-vous donner à l'image ?\n");
+                do{
+                    ret = scanf("%d", &new_y);
+                    clearBuffer();
+                } while(selection>4 || ret!=1 || selection<1);
+                resize(image, new_x, new_y);
+                break;
+            
+
+        }
 }
 
 void cropInterface(Image *image, int sel[4]) {
@@ -521,7 +549,7 @@ void invertcolorsInterface(Image* image, int sel[4]) {
     }  
 }
 
-void symetryInterface(Image* image, int sel[4]) {
+void symmetryInterface(Image* image, int sel[4]) {
     
     printf("\nBienvenue dans le module symetrie, quelle symetrie voulez-vous executer ?\n");
     printf("    1 - Horizontale \n");

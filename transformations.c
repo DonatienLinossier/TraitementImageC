@@ -317,32 +317,3 @@ void resize(Image *img, int new_x, int new_y){
     freeImage(&copy_img);
 }
 
-
-/*void main(void){
-    printf("start\n");
-    FILE* file = NULL;
-    file = fopen("./Images/MARBLES.bmp", "rb+");
-    if(file == NULL) {
-        printf("0\n");
-        exit(0);
-    }                                                                                                            
-    Image img = getImageFromFile(file);                                                                    
-    fclose(file);
-    int selection[] = {0, 0, img.dibHeader.width-1, img.dibHeader.height-1}; 
-    brightness(&img,200,selection);
-    printf("mid\n");
-
-    file = NULL;
-    file = fopen("./EcritureImg.bmp", "wb+");
-    printf("A\n");
-    if(file == NULL) {
-        printf("1\n");
-        exit(0);
-    }
-    writeFileFromImage(file, &img);
-    printf("B\n");
-    fclose(file);
-    printf("C\n");
-    freeImage(&img);
-    printf("end\n");
-}*/

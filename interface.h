@@ -18,7 +18,7 @@ void contrastInterface(Image* image);
 void blurInterface(Image* image, int sel[4]);
 void binarizeInterface(Image* image, int sel[4]);
 void invertcolorsInterface(Image* image, int sel[4]);
-void symetryInterface(Image *image, int sel[4]);
+void symmetryInterface(Image *image, int sel[4]);
 void steganographyInterface(Image* image);
 void saveImageInterface(Image* image);
 void changeImageInterface(FILE* activeFile, Image* img);
