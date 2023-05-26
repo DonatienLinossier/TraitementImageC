@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 #include "interface.h"
 
 /* Reste a faire :

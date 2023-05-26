@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 #include "interface.h"
 
 #define COEF_RED 0.2126
@@ -328,7 +328,7 @@ void decodeANDgetHeader(FILE* file, Image* image) {
         for(int j = 0; j< SizeElementsHeaders[i]; j++) {
             caractereActuel = fgetc(file);
             tab[j] = caractereActuel;
-            printf("%c", tab[j]);
+            //printf("%c", tab[j]);
         }
         switch(i) {
             case 0: 

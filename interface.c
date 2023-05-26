@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "interface.h"
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 #include "transformations.h"
 #include <dirent.h>
 #include <unistd.h>

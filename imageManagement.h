@@ -1,5 +1,5 @@
-#ifndef GESTIONFICHIERIMG_H
-#define GESTIONFICHIERIMG_H
+#ifndef IMAGEMANAGEMENT_H
+#define IMAGEMANAGEMENT_H
 
 #include <stdio.h>
 

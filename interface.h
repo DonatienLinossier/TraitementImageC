@@ -2,7 +2,7 @@
 #define INTERFACE_H
 
 #include <stdio.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 
 
 FILE* fileChoice();
