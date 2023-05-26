@@ -4,6 +4,50 @@
 #include "transformations.h"
 #include "gestionFichierImg.h"
 
+
+
+void brightness (Image *img, float percentage){
+    int l_rgb;
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    for (int x = 0; x<max_x; x++){
+        for (int y = 0; y<max_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                //on muttiplie chaque composantes rgb au facteur de luminosité choisi
+                l_rgb = rgb * percentage;
+                setP(img, y, x, rgb, l_rgb);
+             }
+        }   
+    }
+}
+
+/*void contrast(Image *img){
+    int rgb;
+    int max_y = img->dibHeader.height;
+    int max_x = img->dibHeader.width;
+    int rgbDark = rgb;
+    int rgbClear = rgb;
+    for (int x = 0; x<max_x; x++){
+        for (int y = 0; y<max_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                if(rgb>rgbDark){
+                    rgbDark=rgb;
+                }
+                if(rgb<rgbClear){
+                    rgbClear=rgb;
+                }
+            }
+                setP(img, y, x, rgb, value);
+
+                //comparer les composantes rgb pour prendre la plus sombre et la plus claire
+                 rgbDark = rgbDark * 0.7;
+                 rgbClear= rgbClear * 0.3;
+
+                setP(img, y, x, rgb, );
+        }
+    }        
+}*/
+
 //Fonction qui passe l'image en noir et blanc
 void grayscale(Image *img, int sel[4]){
     int min_y = sel[1];
