@@ -1,14 +1,11 @@
 //Ce fichier contient les différentes fonctions d'interface qui demandent à l'utilisateur les valeurs à utiliser pour le tranformations
 #include <stdlib.h>
 #include <stdio.h>
-#include "interface.h"
-#include "imageManagement.h"
-#include "transformations.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 #include "transformations.h"
 #include "interface.h"
 
