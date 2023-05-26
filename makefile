@@ -17,6 +17,9 @@ STEGANO_INPUT_DIR = Input.txt
 
 all: init $(BUILD_DIR)/exec
 
+run : 
+	./$(BUILD_DIR)/exec
+
 #Compilation
 $(BUILD_DIR)/gestionFichierImg.o: gestionFichierImg.c gestionFichierImg.h $(BUILD_DIR)
 	$(CC) -c $< -o $@ 
@@ -59,7 +62,3 @@ cleanOutput :
 		rm -f $(OUTPUT_DIR)/*
 
 clean : cleanBuild cleanOutput
-
-
-run : 
-	./$(BUILD_DIR)/exec

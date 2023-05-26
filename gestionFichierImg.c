@@ -689,7 +689,7 @@ Image copy(Image *image) {
     //Affectation avec allocation dynamique
 
     //Copie du reste du header
-    NewImage.dibHeader.rest = calloc((NewImage.header.offset-REMAINING_BYTES_BEFORE_OFFSET), sizeof(unsigned char));
+    NewImage.dibHeader.rest = calloc((REMAINING_BYTES_BEFORE_OFFSET), sizeof(unsigned char));
     if(NewImage.dibHeader.rest == NULL) {
         printf("ERREUR ALLOCATION copy 1!");
         exit(0);
