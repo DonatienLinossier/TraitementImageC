@@ -9,6 +9,12 @@
 //Fonction qui passe l'image en noir et blanc dans la sélection
 void grayscale(Image *img, int sel[4]);
 
+//Fonction qui augmente ou baisse la luminosité dans la sélection
+void brightness (Image *img, float percentage, int sel[4]);
+
+//Fonction qui augmente le contraste de l'image dans la sélection
+void contrast(Image *img, int sel[4]);
+
 //Fonction qui binarise l'image dans la sélection
 void binary(Image *img, int sel[4]);
 
