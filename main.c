@@ -1,20 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 #include "interface.h"
+
+#define FILE_TMP_IMG "tmp/tmpImage"
 
 /* Reste a faire :
                 Finir les interfaces : 
-                    luminositeInterface(); -> Asma 
-                    contrasteInterface(); -> Asma 
                     RedimensionerInterface(Ajouter une liste de taille prédéfini,
                                            car spécifié dans le cahier des charges) -> ?
 
-                Appliquer une fonction que sur une selection -> Elias 
-
-                transformation image :
-                    luminosite -> Asma
-                    contraste -> Asma
 
                 Selectioner un lot d'image -> ?
 
@@ -35,20 +30,24 @@ int main() {
     //corps de la fonction
     printf("Bienvenue sur CYImage\n");
     printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
-
+ 
 
     
     activeFile = fileChoice(); //Selection et ouverture du fichier image
 
     
     img = getImageFromFile(activeFile); //Chargement de l'image
+    addImageToImageTmp(&img, FILE_TMP_IMG);
     fclose(activeFile); 
     int selection[] = {0, 0, img.dibHeader.width, img.dibHeader.height}; //Création de la sélection qui comprend l'image entière
     
     //Selection des opérations à faire sur l'image
     choice = 0;
-    while(choice!=16) {
+    while(choice!=17) {
         choice = choiceImageManipulation(); //Affiche les possibilités à l'utilisateur et retourne son choix
+        if(choice!=2 && choice != 4 && choice != 14 && choice != 16) {
+            addImageToImageTmp(&img, FILE_TMP_IMG);
+        }
         switch(choice) {
             case 1:
                 resizeInterface(&img);
@@ -76,6 +75,7 @@ int main() {
                 break;
             case 9:
                 blurInterface(&img, selection);
+                blurInterface(&img, selection);
                 break;
             case 10:
                 binaryInterface(&img, selection);
@@ -85,8 +85,10 @@ int main() {
                 break;
             case 12:
                 symmetryInterface(&img, selection);
+                symmetryInterface(&img, selection);
                 break;
             case 13:
+                steganographyInterface(&img);
                 steganographyInterface(&img);
                 break;
             case 14:
@@ -95,9 +97,14 @@ int main() {
             case 15:
                 changeImageInterface(activeFile, &img);
                 break;
+            case 16:
+                getLastImage(&img, FILE_TMP_IMG);
+                break;
         }
     }
 
     printf("Fermeture du programme");
     return 0;
 }
+
+

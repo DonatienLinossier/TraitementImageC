@@ -1,6 +1,9 @@
 //Ce fichier contient les différentes fonctions d'interface qui demandent à l'utilisateur les valeurs à utiliser pour le tranformations
 #include <stdlib.h>
 #include <stdio.h>
+#include "interface.h"
+#include "imageManagement.h"
+#include "transformations.h"
 #include <dirent.h>
 #include <unistd.h>
 #include <string.h>
@@ -19,6 +22,14 @@
 
 #define FILENAME_SIZE_MAX 255
 #define FOLDER_SIZE_MAX 255
+
+
+
+
+
+
+
+
 
 //Fonction qui vide le buffer pour les scanf
 void clearBuffer() {
@@ -559,6 +570,7 @@ void saveImageInterface(Image* image) {
     printf("Votre image a ete sauvegarde dans le fichier output/%s.bmp\n", filename);
 }
 
+
 //Permet de modifier une autre image
 void changeImageInterface(FILE* activeFile, Image* img) {
     //Déclaration
@@ -595,6 +607,47 @@ void changeImageInterface(FILE* activeFile, Image* img) {
 
 }
 
+void addImageToImageTmp(Image* img, char* filename) {
+    FILE* file = NULL;
+    file = fopen(filename, "wb");
+    if(file==NULL) {
+        return;
+    }
+    writeFileFromImage(file, img);
+    fclose(file);
+}
+
+void getLastImage(Image *img, char* filename) {
+    FILE* file = NULL;
+    file = fopen(filename, "rb");
+    if(file==NULL) {
+        return;
+    }
+    *img = getImageFromFile(file);
+    fclose(file);
+}
+
+
+
+void exitInterface(){
+    int *choice1 = NULL;
+    char *answer;
+    printf("Etes-vous sûr de vouloir fermer le programme et abandonner les modifications apportées ? \n");
+    scanf("%s", answer);
+    while(!(*choice1)){
+        if(strcmp(answer, "oui")== 0){
+            *choice1 = 1; //true;
+            free(choice1);
+            return;
+        } else if(strcmp(answer, "non")==0){
+            printf("0\n");
+            exit(0);
+        }else{
+            printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
+        }
+    }
+}
+
 //Affiche le menu principal, avec toutes les options possibles
 int choiceImageManipulation() {
     int choice = 0;
@@ -613,16 +666,15 @@ int choiceImageManipulation() {
         printf("    10 - Binariser l'image\n");
         printf("    11 - Inverser les couleurs\n");
         printf("    12 - Effectuer une symetrie\n");
-        printf("    13 - Steganographie (WIP)\n");
+        printf("    13 - Steganographie\n");
         printf("    14 - Enregistrer l'image\n");
         printf("    15 - Changer d'image (Abandonne les modfications)\n");
-        printf("    16 - Fermer le programme (Abandonne les modifications)\n");
+        printf("    16 - ctrl z\n");
+        printf("    17 - Fermer le programme (Abandonne les modifications)\n");
         
         ret = scanf("%2d", &choice);
         clearBuffer();
-    } while(choice<1 || choice>16 || ret!=1);
+    } while(choice<1 || choice>17 || ret!=1);
 
     return choice;
 }
-
-

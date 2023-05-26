@@ -2,7 +2,7 @@
 #define INTERFACE_H
 
 #include <stdio.h>
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
 
 
 FILE* fileChoice();
@@ -23,7 +23,7 @@ void steganographyInterface(Image* image);
 void saveImageInterface(Image* image);
 void changeImageInterface(FILE* activeFile, Image* img);
 int choiceImageManipulation();
-
-
+void addImageToImageTmp(Image* img, char* filename);
+void getLastImage(Image *img, char* filename);
 
 #endif

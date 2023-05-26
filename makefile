@@ -15,22 +15,24 @@ STEGANO_DIR = Stegano
 STEGANO_OUTPUT_DIR = Output.txt
 STEGANO_INPUT_DIR = Input.txt
 
+TMP_DIR = tmp
+
 all: init $(BUILD_DIR)/exec
 
 run : 
 	./$(BUILD_DIR)/exec
 
 #Compilation
-$(BUILD_DIR)/gestionFichierImg.o: gestionFichierImg.c gestionFichierImg.h $(BUILD_DIR)
+$(BUILD_DIR)/imageManagement.o: imageManagement.c imageManagement.h $(BUILD_DIR)
 	$(CC) -c $< -o $@ 
 
 $(BUILD_DIR)/transformations.o: transformations.c transformations.h $(BUILD_DIR)
 	$(CC) -c $< -o $@
 
-$(BUILD_DIR)/interface.o: interface.c interface.h gestionFichierImg.h transformations.h $(BUILD_DIR)
+$(BUILD_DIR)/interface.o: interface.c interface.h imageManagement.h transformations.h $(BUILD_DIR)
 	$(CC) -c $< -o $@
 
-$(BUILD_DIR)/main.o: main.c gestionFichierImg.h interface.h $(BUILD_DIR)
+$(BUILD_DIR)/main.o: main.c imageManagement.h interface.h $(BUILD_DIR)
 	$(CC) -c $< -o $@
 
 $(BUILD_DIR)/exec: $(OBJ2)
@@ -49,8 +51,10 @@ $(STEGANO_DIR) :
 	touch $(STEGANO_DIR)/$(STEGANO_OUTPUT_DIR)
 	touch $(STEGANO_DIR)/$(STEGANO_INPUT_DIR)
 
+$(TMP_DIR) :
+	mkdir -p $(TMP_DIR)
 
-init : $(BUILD_DIR) $(OUTPUT_DIR) $(STEGANO_DIR)
+init : $(BUILD_DIR) $(OUTPUT_DIR) $(STEGANO_DIR) $(TMP_DIR)
 
 
 #Clean

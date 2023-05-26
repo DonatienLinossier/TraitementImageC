@@ -3,7 +3,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include "transformations.h"
-#include "gestionFichierImg.h"
+#include "imageManagement.h"
+
 
 /*
 Ces quelques lignes presentes au début de chaque fonction servent à les sécuriser : vérifier que l'image existe et que les valeurs sont valides : 
