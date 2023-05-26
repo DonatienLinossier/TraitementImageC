@@ -32,7 +32,6 @@ int main() {
     FILE* activeFile = NULL;
     int choice;
 
-
     //corps de la fonction
     printf("Bienvenue sur CYImage\n");
     printf("Pour commencer, quelle image voulez-vous modifier ? (1/2/3/...)");
@@ -44,53 +43,56 @@ int main() {
     
     img = getImageFromFile(activeFile); //Chargement de l'image
     fclose(activeFile); 
-
+    int selection[] = {0, 0, img.dibHeader.width, img.dibHeader.height}; //Création de la sélection qui comprend l'image entière
     
     //Selection des opérations à faire sur l'image
     choice = 0;
-    while(choice!=15) {
+    while(choice!=16) {
         choice = choiceImageManipulation(); //Affiche les possibilités à l'utilisateur et retourne son choix
         switch(choice) {
             case 1:
                 resizeInterface(&img);
                 break;
             case 2:
-                rognerInterface(&img);
+                selectionInterface(&img, selection);
                 break;
             case 3:
-                affichageASCIIInterface(&img);
+                rognerInterface(&img, selection);
                 break;
             case 4:
-                grayscaleInterface(&img);
+                affichageASCIIInterface(&img);
                 break;
             case 5:
-                rotationInterface(&img);
+                grayscaleInterface(&img, selection);
                 break;
             case 6:
-                luminositeInterface();
+                rotationInterface(&img);
                 break;
             case 7:
-                contrasteInterface();
+                luminositeInterface();
                 break;
             case 8:
-                flouInterface(&img);
+                contrasteInterface();
                 break;
             case 9:
-                binariserInterface(&img);
+                flouInterface(&img, selection);
                 break;
             case 10:
-                inverserCouleursInterface(&img);
+                binariserInterface(&img, selection);
                 break;
             case 11:
-                symetrieInterface(&img);
+                inverserCouleursInterface(&img, selection);
                 break;
             case 12:
-                steganographieInterface(&img);
+                symetrieInterface(&img, selection);
                 break;
             case 13:
-                saveImageInterface(&img);
+                steganographieInterface(&img);
                 break;
             case 14:
+                saveImageInterface(&img);
+                break;
+            case 15:
                 changeImageInterface(activeFile, &img);
                 break;
         }
