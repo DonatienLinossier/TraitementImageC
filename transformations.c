@@ -4,7 +4,8 @@
 #include "transformations.h"
 #include "gestionFichierImg.h"
 
-//Fonction qui passe l'image en noir et blanc
+
+//Fonction qui passe l'image en noir et blanc selon la sélection
 void grayscale(Image *img, int sel[4]){
     int min_y = sel[1];
     int min_x = sel[0];
@@ -21,8 +22,7 @@ void grayscale(Image *img, int sel[4]){
             for (int rgb = 0; rgb<3; rgb++){
                 sum += getP(img, y, x, rgb);
              }
-            average=(int)(sum/3.0);
-            //On fait la moyenne des 3 valeurs rgb puis définit ces 3 valeurs à cette moyenne
+            average=(int)(sum/3.0); //On fait la moyenne des 3 valeurs rgb puis définit ces 3 valeurs à cette moyenne
             for (int rgb = 0; rgb<3; rgb++){
                 setP(img, y, x, rgb, average);
             }
@@ -30,6 +30,38 @@ void grayscale(Image *img, int sel[4]){
     } 
 }
 
+//Fonction qui rend les pixels lumineux encore plus lumineux et ceux sombres encore plus sombre
+int contrast_recursive(int value, int power){
+    if(value <= 255 / 2){
+        return (int)( (255/2) * pow((double) 2 * value / 255, power));
+    }
+    else{
+        return 255 - contrast_recursive(255 - value, power);
+    }
+
+}
+
+//Fonction qui augmente le contraste de l'image dans la sélection
+void contrast(Image *img, int sel[4]){
+    int min_y = sel[1];
+    int min_x = sel[0];
+    int max_y = sel[3];
+    int max_x = sel[2];
+    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+        exit(1);
+    }
+    int power = 3,value,result;
+    for (int x = min_x; x<max_x; x++){
+        for (int y = min_y; y<max_y; y++){
+            for (int rgb = 0; rgb<3; rgb++){
+                value = contrast_recursive(getP(img,y,x,rgb),power);
+                setP(img,y,x,rgb,value);
+            }
+        }
+    }        
+}
+
+//Fonction qui rends chaque pixel dans la sélection noir ou blanc
 void binary(Image *img, int sel[4]){
     int min_y = sel[1];
     int min_x = sel[0];
@@ -40,10 +72,10 @@ void binary(Image *img, int sel[4]){
     }
 
     int value;
-    grayscale(img,sel);
+    grayscale(img,sel); //On passe d'abord l'image en noir et blanc
     for (int x = min_x; max_x; x++){
         for (int y = min_y; y<max_y; y++){
-            if (getP(img,y,x,0)<128){
+            if (getP(img,y,x,0)<128){ // On arrondit à 0 ou 255
                 value = 0;
             }
             else {
@@ -257,19 +289,19 @@ void resize(Image *img, int new_x, int new_y){
     freeImage(&copy_img);
 }
 
-/*
+
 void main(void){
     printf("start\n");
     FILE* file = NULL;
-    file = fopen("./Images/couleur.bmp", "rb+");
+    file = fopen("./Images/MARBLES.bmp", "rb+");
     if(file == NULL) {
         printf("0\n");
         exit(0);
     }                                                                                                            
-    Image img = getImageFromFile(file);                                                                     
+    Image img = getImageFromFile(file);                                                                    
     fclose(file);
-
-    blur(&img,11,50,50,150,150);
+    int selection[] = {700, 0, img.dibHeader.width-1, img.dibHeader.height-1}; 
+    contrast(&img,selection);
     printf("mid\n");
 
     file = NULL;
@@ -286,4 +318,3 @@ void main(void){
     freeImage(&img);
     printf("end\n");
 }
-*/
