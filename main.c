@@ -43,7 +43,7 @@ int main() {
     
     img = getImageFromFile(activeFile); //Chargement de l'image
     fclose(activeFile); 
-    int selection[] = {0, 0, img.dibHeader.width-1, img.dibHeader.height-1}; //Création de la sélection qui comprend l'image entière
+    int selection[] = {0, 0, img.dibHeader.width, img.dibHeader.height}; //Création de la sélection qui comprend l'image entière
     
     //Selection des opérations à faire sur l'image
     choice = 0;
@@ -54,40 +54,40 @@ int main() {
                 resizeInterface(&img);
                 break;
             case 2:
-                selectionInterface(&img, selection);
+                selectionInterface(&img,selection);
                 break;
             case 3:
-                rognerInterface(&img, selection);
+                cropInterface(&img,selection);
                 break;
             case 4:
-                affichageASCIIInterface(&img);
+                displayInterfaceASCII(&img);
                 break;
             case 5:
-                grayscaleInterface(&img, selection);
+                grayscaleInterface(&img,selection);
                 break;
             case 6:
-                rotationInterface(&img);
+                rotateInterface(&img);
                 break;
             case 7:
-                luminositeInterface();
+                brightnessInterface(&img,selection);
                 break;
             case 8:
-                contrasteInterface();
+                contrastInterface(&img,selection);
                 break;
             case 9:
-                flouInterface(&img, selection);
+                blurInterface(&img, selection);
                 break;
             case 10:
-                binariserInterface(&img, selection);
+                binaryInterface(&img, selection);
                 break;
             case 11:
-                inverserCouleursInterface(&img, selection);
+                reverseColorsInterface(&img, selection);
                 break;
             case 12:
-                symetrieInterface(&img, selection);
+                symmetryInterface(&img, selection);
                 break;
             case 13:
-                steganographieInterface(&img);
+                steganographyInterface(&img);
                 break;
             case 14:
                 saveImageInterface(&img);
