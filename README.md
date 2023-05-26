@@ -56,13 +56,13 @@ Cela permet d'initialiser tous les répertoires et fichiers nécessaires à l'ex
 * La fonction Crop doit être précéder d'une séléction.
 
 * Une autre manière de cacher un message grâce à la steganographie : pour insérer du texte on peut le faire directement depuis le fichier *input* présent dans le dossier stegenographie et pour récupérer ce message il sera affiché dans le *output*.
-* la fonction ctrl+Z fonctionne qu'une seule fois à la suite et ne retiens que la denière image.
+* la fonction "ctrl+Z" fonctionne qu'une seule fois à la suite et ne retiens que la denière image.
 
 ## Technologies
 
 Ce projet a été réalisé sur le logiciel Visual Studio Code et le langage utilisé est le C.
 
-Les différents fichiers utilisés sont enregistrés sur la plateforme Github et l'addresse de dépt est : https://github.com/DonatienLinossier/TraitementImageC 
+Les différents fichiers utilisés sont enregistrés sur la plateforme Github et l'addresse de dépôt est : https://github.com/DonatienLinossier/TraitementImageC 
 
 
 
