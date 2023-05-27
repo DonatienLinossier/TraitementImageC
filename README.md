@@ -57,7 +57,7 @@ Cela permet d'initialiser tous les répertoires et fichiers nécessaires à l'ex
 
 * Une autre manière de cacher un message grâce à la steganographie : pour insérer du texte on peut le faire directement depuis le fichier *input* présent dans le dossier stegenographie et pour récupérer ce message il sera affiché dans le *output*.
 
-* la fonction `undo` ne fonctionne qu'une seule fois à la suite et ne retiens que la denière image. Elle permet d'annuler, à la manière d'un *ctrl+z*, la modification précédente.
+* La fonction `undo` ne fonctionne qu'une seule fois à la suite et ne retiens que la denière image. Elle permet d'annuler, à la manière d'un *ctrl+z*, la modification précédente.
 
 ## Technologies
 
