@@ -13,7 +13,7 @@ Ce projet a pour but de créer un programme en C permettant le traitement d'imag
 
 ## Informations générales
 
-Une fois le programme lancé, l'utilisateur a le choix entre plusieurs images prédéfinies enregistrés dans un dossier Images.
+Une fois le programme lancé, l'utilisateur a le choix entre plusieurs images prédéfinies enregistrés dans un dossier Images, ainsi que les images créés précédemment par l'utilisateur.
 
 L'utilisateur peut ensuite choisir un filtre à apposer sur l'image parmi la liste suivante :
  
@@ -33,6 +33,7 @@ L'utilisateur peut ensuite choisir un filtre à apposer sur l'image parmi la lis
 | Permet de cacher un message| steganography |
 | Enregistre l'image dans le dossier Output| saveImage  |
 | Permet de changer l'image | changeImage  |
+| Permet d'annuler le dernier filtre | undo |
 | Afficher l'image en ASCII | displayASCII  |
 
 
@@ -54,13 +55,13 @@ A partir du terminal:
 
 * La fonction `Crop` doit être précéder d'une séléction de la partie l'image à traiter, il s'agit du deuxième filtre dans le menu.
 
-* Une autre manière de cacher un message grâce à la steganographie : pour insérer du texte on peut le faire directement depuis le fichier *input* présent dans le dossier stegenographie et pour récupérer ce message il sera affiché dans le *output*.
+* la fonction 'Steganography' permet de cacher un message entré manuellement dans l'interface, ou au préalablement inscrit dans le fichier *Stegano/Input.txt* dans l'image active. De meme, il est possible de récupérer un message cacher dans l'image active pour l''afficher dans le terminal. Il est aussi possible d'inscrire le message caché directement dans le fichier *Stegano/Output.txt*.
 
 * La fonction `undo` ne fonctionne qu'une seule fois à la suite et ne retiens que la denière image. Elle permet d'annuler, à la manière d'un *ctrl+z*, la modification précédente.
 
 ## Technologies
 
-Ce projet a été réalisé sur le logiciel Visual Studio Code et le langage utilisé est le C.
+Ce projet a été réalisé sur les logiciel Visual Studio Code et VSCodium. Le langage utilisé est le C.
 
 Les différents fichiers utilisés sont enregistrés sur la plateforme Github et l'addresse de dépôt est : https://github.com/DonatienLinossier/TraitementImageC 
 
@@ -68,7 +69,7 @@ Les différents fichiers utilisés sont enregistrés sur la plateforme Github et
 
 ## Auteurs
 
-- [@DonationLinossier](https://www.github.com/DonatienLinossier)
+- [@DonatienLinossier](https://www.github.com/DonatienLinossier)
 - [@EliasGaudaré](https://www.github.com/Eliasgdr)
 - [@AsmaKajeiou](https://www.github.com/asmakaj)
 
