@@ -300,8 +300,8 @@ FILE* fileChoice() {
 //Permet de changer quelle partie de l'image sera impactée par les changements
 void selectionInterface(Image* image, int *sel){
     int ret, choice;
-    printf("Bienvenue dans le module sélection\n");
-    printf("Voulez vous sélectionner l'image en entier ?\n");
+    printf("Bienvenue dans le module selection\n");
+    printf("Voulez vous selectionner l'image en entier ?\n");
     printf("    1 - Oui\n");
     printf("    2 - Non\n");
     do {
@@ -314,22 +314,22 @@ void selectionInterface(Image* image, int *sel){
         sel[2]=image->dibHeader.width;
         sel[3]=image->dibHeader.height;
     } else if(choice==2) {
-        printf("Quelle coordonnée x voulez vous pour le coin haut-gauche de la sélection ?\n");
+        printf("Quelle coordonnee x voulez vous pour le coin haut-gauche de la selection ?\n");
         do {
             ret = scanf("%d", &sel[0]);
             clearBuffer();
         } while(ret!=1 || sel[0]<0);
-        printf("Quelle coordonnée y voulez vous pour le coin haut-gauche de la sélection ?\n");
+        printf("Quelle coordonnee y voulez vous pour le coin haut-gauche de la selection ?\n");
         do {
             ret = scanf("%d", &sel[1]);
             clearBuffer();
         } while(ret!=1 || sel[1]<0);
-        printf("Quelle coordonnée x voulez vous pour le coin bas-droite de la sélection ?\n");
+        printf("Quelle coordonnee x voulez vous pour le coin bas-droite de la selection ?\n");
         do {
             ret = scanf("%d", &sel[2]);
             clearBuffer();
         } while(ret!=1 || sel[2]>=image->dibHeader.width);
-        printf("Quelle coordonnée y voulez vous pour le coin bas-droite de la sélection ?\n");
+        printf("Quelle coordonnee y voulez vous pour le coin bas-droite de la selection ?\n");
         do {
             ret = scanf("%d", &sel[3]);
             clearBuffer();
@@ -394,7 +394,7 @@ void resizeInterface(Image* image, int sel[4]) {
 
 void cropInterface(Image *image, int sel[4]) {
     crop(image, sel);
-    printf("Votre image a bien été redimensionnée, elle fait maintenant %d x %d pixels\n", image->dibHeader.width, image->dibHeader.height);
+    printf("Votre image a bien été redimensionnee, elle fait maintenant %d x %d pixels\n", image->dibHeader.width, image->dibHeader.height);
 
 }
 
@@ -452,29 +452,29 @@ void rotateInterface(Image* image, int sel[4]) {
 
 void brightnessInterface(Image* image, int sel[4]) {
     int percent = 0;
-    printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
+    printf("De quel pourcentage voulez vous changer la luminosite ?\nMoins de 100 baisse la luminosite, plus de 100 l'augmente.\n");
     int ret;
     do {
         ret = scanf("%d", &percent);
         clearBuffer();
     }while(ret!=1 || percent < 0);
     brightness(image,percent,sel);
-    printf("La luminosité de l'image a bien été modifiée\n");
+    printf("La luminosite de l'image a bien été modifiee\n");
 }
 
 void contrastInterface(Image* image, int sel[4]) {
-    printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
+    printf("De quel pourcentage voulez vous changer la luminosite ?\nMoins de 100 baisse la luminosite, plus de 100 l'augmente.\n");
     int ret,percent;
     do {
         ret = scanf("%d", &percent);
         clearBuffer();
     }while(ret!=1 || percent < 0);
     contrast(image,sel);
-    printf("La luminosité de l'image a bien été modifiée\n");
+    printf("La luminosite de l'image a bien ete modifiee\n");
 }
 
 void blurInterface(Image* image, int sel[4]) {
-    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillée 10\n");
+    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillee 10\n");
     int factor = 0;
     int ret,choice;
     do {
@@ -484,20 +484,20 @@ void blurInterface(Image* image, int sel[4]) {
 
     if(choice==1) {
         blur(image, factor * 2 - 1 , sel);
-        printf("Effet de flou appliqué !\n");
+        printf("Effet de flou applique !\n");
     }
     
 }
 
 void binaryInterface(Image* image, int sel [4]) {
     binary(image, sel);
-    printf("Votre image est bien binarisée\n");
+    printf("Votre image est bien binarisee\n");
 
 }
 
 void reverseColorsInterface(Image* image, int sel[4]) {
     reverse_colors(image, sel);
-    printf("Couleurs de l'image inversées\n");
+    printf("Couleurs de l'image inversees\n");
 }
 
 void symmetryInterface(Image* image, int sel[4]) {
@@ -560,7 +560,7 @@ void steganographyInterface(Image* image) {
         printf("Le message a ete sauvegarde dans le fichier Stegano/Output.txt\n");
         break;
     case 3:
-        printf("Quel msg voulez vous cacher ? (Veuillez remplacer les espaces par des underscores)\n");
+        printf("Quel message voulez vous cacher ? (Veuillez remplacer les espaces par des underscores)\n");
         int ret;
         do {
             ret = scanf("%10000s", message);
@@ -624,7 +624,7 @@ void changeImageInterface(FILE* activeFile, Image* img, int sel[4]) {
 
     //corps de la fonction
     do  {
-        printf("\nEtes-vous sur de vouloir changer d'image ? Vos modifications non enregistres seront effaces (Y/N) ");
+        printf("\nEtes-vous sur de vouloir changer d'image ? Vos modifications non enregistrees seront effacees (Y/N) ");
         scanf("%c", &input);
         clearBuffer();
     } while(input!='y'&& input!='Y' && input!='N' && input!='n');
@@ -680,7 +680,7 @@ void getLastImage(Image *img, char* filename) {
 void undoInterface(Image *img, char* filename, int sel[4]) {
     int choice = 0;
     int ret = 0;
-    printf("Etes-vous sûr de vouloir annuler votre derniere modification ? \n");
+    printf("Etes-vous sur de vouloir annuler votre derniere modification ? \n");
     printf("    1 - Oui\n");
     printf("    2 - Non, revenir au menu principal\n");
     do {
@@ -694,7 +694,7 @@ void undoInterface(Image *img, char* filename, int sel[4]) {
         sel[1]=0;
         sel[2]=img->dibHeader.width;
         sel[3]=img->dibHeader.height;
-        printf("Image précédente restaurée\n");
+        printf("Image precedente restauree\n");
     }
 
 
@@ -709,7 +709,7 @@ void exitInterface(int* choiceRetour){
     }
     int choice = 0;
     int ret = 0;
-    printf("Etes-vous sûr de vouloir fermer le programme et d'abandonner les modifications apportées ? (N'oubliez pas d'enregistrer votre image avant de quitter.) : \n");
+    printf("Etes-vous sur de vouloir fermer le programme et d'abandonner les modifications apportees ? (N'oubliez pas d'enregistrer votre image avant de quitter.) : \n");
     printf("    1 - Oui\n");
     printf("    2 - Non\n");
     do {
@@ -731,7 +731,7 @@ int choiceImageManipulation() {
     do {
         printf("\n\nQue voulez vous faire ?\n");
         printf("     1 - Redimensioner\n");
-        printf("     2 - Modifier la sélection\n");
+        printf("     2 - Modifier la selection\n");
         printf("     3 - Rogner\n");
         printf("     4 - Afficher l'image en ASCII\n");
         printf("     5 - Passer l'image en noir et blanc\n");
