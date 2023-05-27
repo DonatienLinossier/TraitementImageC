@@ -396,7 +396,11 @@ void resizeInterface(Image* image, int sel[4]) {
 void cropInterface(Image *image, int sel[4]) {
     crop(image, sel);
     printf("Votre image a bien ete redimensionnee, elle fait maintenant %d x %d pixels\n", image->dibHeader.width, image->dibHeader.height);
-
+        
+    sel[0]=0;
+    sel[1]=0;
+    sel[2]=image->dibHeader.width;
+    sel[3]=image->dibHeader.height;
 }
 
 void displayInterfaceASCII(Image* image) {
