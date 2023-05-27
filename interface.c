@@ -15,7 +15,7 @@
 
 #define STEGANO_OUTPUT_FILE "Stegano/Output.txt"
 #define STEGANO_INPUT_FILE "Stegano/Input.txt"
-#define STEGANO_MESSAGE_SIZE_MAX 10000
+#define STEGANO_MESSAGE_SIZE_MAX 10001 //Message de 10000 + '\0'
 
 #define FILENAME_SIZE_MAX 255
 #define FOLDER_SIZE_MAX 255
@@ -164,7 +164,7 @@ FILE* fileChoice() {
             iFile++;
         }
         closedir(imageRepertory);
-        printf("    %d: Ouvrir le dossier %s contenant les images precedement modifiees\n", iFile, IMAGE_OUTPUT_DIRECTORY, file->d_name);
+        printf("    %d: Ouvrir le dossier %s contenant les images precedement modifiees\n", iFile, IMAGE_OUTPUT_DIRECTORY);
     } else {
         printf("Nous n'avons pas reussi a ouvrir le dossier %s. Veuillez verifier son integrite et qu'il existe bien, puis relancer le programme", repertory);
         exit(0);
@@ -450,7 +450,7 @@ void brightnessInterface(Image* image, int sel[4]) {
     printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
     int ret;
     do {
-        ret = scanf("%d", percent);
+        ret = scanf("%d", &percent);
         clearBuffer();
     }while(ret!=1 || percent < 0);
     brightness(image,percent,sel);
@@ -461,7 +461,7 @@ void contrastInterface(Image* image, int sel[4]) {
     printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
     int ret,percent;
     do {
-        ret = scanf("%d", percent);
+        ret = scanf("%d", &percent);
         clearBuffer();
     }while(ret!=1 || percent < 0);
     contrast(image,sel);
@@ -669,22 +669,22 @@ void getLastImage(Image *img, char* filename) {
 
 
 
-void exitInterface(){
-    int *choice1 = NULL;
-    char *answer;
-    printf("Etes-vous sûr de vouloir fermer le programme et abandonner les modifications apportées ? \n");
-    scanf("%s", answer);
-    while(!(*choice1)){
-        if(strcmp(answer, "oui")== 0){
-            *choice1 = 1; //true;
-            free(choice1);
-            return;
-        } else if(strcmp(answer, "non")==0){
-            printf("0\n");
-            exit(0);
-        }else{
-            printf("Veuillez répondre avec 'oui' ou 'non' s'il vous plaît.\n");
-        }
+void exitInterface(int* choiceRetour){
+    if(choiceRetour==NULL) {
+        return;
+    }
+    int choice = 0;
+    int ret = 0;
+    printf("Etes-vous sûr de vouloir fermer le programme et d'abandonner les modifications apportées ? (N'oubliez pas d'enregistrer votre image avant de quitter.) : \n");
+    printf("    1 - Oui\n");
+    printf("    2 - Non\n");
+    do {
+        ret = scanf("%1d", &choice);
+        clearBuffer();
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==2) {
+        *choiceRetour = 0;
     }
 }
 

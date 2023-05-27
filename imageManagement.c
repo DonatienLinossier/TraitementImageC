@@ -312,7 +312,6 @@ void decodeANDgetHeader(FILE* file, Image* image) {
     if(file == NULL || image == NULL) {
         exit(0);
     }
-    int caractereActuel;
     int SizeElementsHeaders[5] = SIZE_ELEMENTS_HEADER; 
     for(int i =0; i<5; i++) {
         //int* tab = NULL;
@@ -324,12 +323,6 @@ void decodeANDgetHeader(FILE* file, Image* image) {
         }
 
         fread(tab, sizeof(unsigned char), SizeElementsHeaders[i], file);
-        //printf("%s", tab);
-        /*for(int j = 0; j< SizeElementsHeaders[i]; j++) {
-            caractereActuel = fgetc(file);
-            tab[j] = caractereActuel;
-            //printf("%c", tab[j]);
-        }*/
         switch(i) {
             case 0: 
                 image->header.type[0] = tab[0];
@@ -362,11 +355,10 @@ void decodeANDgetDIBHeader(FILE* file, Image* image) {
     if(file == NULL || image == NULL) {
         exit(0);
     }
-    int caractereActuel;
     int sizeElementsDIBHeaders[3] = SIZE_3_FIRST_ELEMENTS_DIBHEADER;
     for(int i = 0; i<3; i++) {
         //int* tab = NULL;
-        char* tab = NULL;
+        unsigned char* tab = NULL;
         tab = calloc(sizeElementsDIBHeaders[i], sizeof(unsigned char));
         if(tab == NULL) {
             printf("ERREUR ALLOCATION decoderANDgetDIBHeader 1!");
@@ -374,10 +366,6 @@ void decodeANDgetDIBHeader(FILE* file, Image* image) {
         }
 
         fread(tab, sizeof(unsigned char), sizeElementsDIBHeaders[i], file);
-        /*for(int j = 0; j < sizeElementsDIBHeaders[i]; j++) {
-            caractereActuel = fgetc(file);
-            tab[j] = caractereActuel;
-        }*/
         switch(i) {
             case 0:
                 image->dibHeader.sizeHeader = littleEndianDecoding(tab, sizeElementsDIBHeaders[i]);
@@ -401,10 +389,6 @@ void decodeANDgetDIBHeader(FILE* file, Image* image) {
     }
 
     fread(image->dibHeader.rest, sizeof(unsigned char), REMAINING_BYTES_BEFORE_OFFSET, file);
-    /*for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
-        caractereActuel = fgetc(file);
-        image->dibHeader.rest[i] = caractereActuel;
-    }*/
 }
 
 
@@ -419,15 +403,7 @@ void getImg(FILE* file, Image* image) {
             exit(0);
     }
 
-    int caractereActuel;
-    int i = 0;
-
     fread(image->image, sizeof(unsigned char), 3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding, file);
-    /*while(caractereActuel != EOF && i<3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding) {
-        caractereActuel = fgetc(file);
-        image->image[i] = caractereActuel;
-        i++;
-    }*/
 }
 
 //Fonction regroupant le nécessaire pour creer une image à partir d'un file
@@ -479,29 +455,24 @@ void encodeHeader(FILE* file, Image* image) {
                 fwrite(result, sizeof(unsigned char), 1, file);
                 result = littleEndianEncoding(1, image->header.type[1]);
                 fwrite(result, sizeof(unsigned char), 1, file);
-                //fputc(image->header.type[0], file); 
-                //fputc(image->header.type[1], file); 
                 break;
             case 1:
-                result = littleEndianEncoding(sizeElementsHeaders[i], image->header.size);
+                result = littleEndianEncoding(size, image->header.size);
                 break;
             case 2:
-                result = littleEndianEncoding(sizeElementsHeaders[i], image->header.createdBy);
+                result = littleEndianEncoding(size, image->header.createdBy);
                 break;
             case 3: 
-                result = littleEndianEncoding(sizeElementsHeaders[i], image->header.createdByBis);
+                result = littleEndianEncoding(size, image->header.createdByBis);
                 break;
             case 4:
-                result = littleEndianEncoding(sizeElementsHeaders[i], image->header.offset);
+                result = littleEndianEncoding(size, image->header.offset);
                 break;
         }
 
         if(i!=0) {
 
-            fwrite(result, sizeof(unsigned char), sizeElementsHeaders[i], file);
-            /*for(int j = 0; j< sizeElementsHeaders[i]; j++) {
-                fputc(result[j], file);
-            }*/
+            fwrite(result, sizeof(unsigned char), size, file);
         }
 
            
@@ -515,13 +486,8 @@ void ImgToFile(FILE* file, Image* image) {
     if(file == NULL || image == NULL) {
         exit(0);
     }
-    int caractereActuel;
-    int i = 0;
+
     fwrite(image->image, sizeof(unsigned char), 3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding, file);
-    /*while(i<3*image->dibHeader.width*image->dibHeader.height + image->dibHeader.height * image->padding) {
-        fputc(image->image[i], file);
-        i++;
-    }*/
 }
 
 //Encode les infos du DIBheader de l'image
@@ -548,16 +514,10 @@ void encodeDIBHeader(FILE* file, Image* image) {
         }
 
         fwrite(result, sizeof(unsigned char), size, file);
-        /*for(int j = 0; j< size; j++) {
-            fputc(result[j], file);
-        }*/
         free(result);
     }
 
     fwrite(image->dibHeader.rest, sizeof(unsigned char), REMAINING_BYTES_BEFORE_OFFSET, file);
-    /*for(int i = 0; i<image->header.offset-14-4-4-4; i++) {
-        fputc(image->dibHeader.rest[i] , file);
-    }*/
     
 }
 

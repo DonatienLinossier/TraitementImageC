@@ -25,5 +25,6 @@ void changeImageInterface(FILE* activeFile, Image* img);
 int choiceImageManipulation();
 void addImageToImageTmp(Image* img, char* filename);
 void getLastImage(Image *img, char* filename);
+void exitInterface(int* choiceRetour);
 
 #endif

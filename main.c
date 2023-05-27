@@ -75,7 +75,6 @@ int main() {
                 break;
             case 9:
                 blurInterface(&img, selection);
-                blurInterface(&img, selection);
                 break;
             case 10:
                 binaryInterface(&img, selection);
@@ -85,10 +84,8 @@ int main() {
                 break;
             case 12:
                 symmetryInterface(&img, selection);
-                symmetryInterface(&img, selection);
                 break;
             case 13:
-                steganographyInterface(&img);
                 steganographyInterface(&img);
                 break;
             case 14:
@@ -100,6 +97,8 @@ int main() {
             case 16:
                 getLastImage(&img, FILE_TMP_IMG);
                 break;
+            case 17:
+                exitInterface(&choice);
         }
     }
 

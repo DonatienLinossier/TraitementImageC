@@ -106,7 +106,7 @@ void contrast(Image *img, int sel[4]){
         printf("contrast : valeurs invalides\n");
         return;
     }
-    int power = 3,value,result;
+    int power = 3,value;
     for (int x = min_x; x<max_x; x++){
         for (int y = min_y; y<max_y; y++){
             for (int rgb = 0; rgb<3; rgb++){
