@@ -420,7 +420,7 @@ void grayscaleInterface(Image* image, int sel[4]) {
         printf("L'image a bien ete passe en noir et blanc\n");
 }
 
-void rotateInterface(Image* image, int sel[4]) { 
+void rotateInterface(Image* image) { 
     printf("De combien de degres voulez-vous faire pivoter l'image ?\n");
     printf("    1 - 90 \n");
     printf("    2 - 180 \n");
@@ -435,6 +435,8 @@ void rotateInterface(Image* image, int sel[4]) {
 
     switch (choice)
     {
+    case 4:
+        return;
     case 3:
         rotate_90(image);
     case 2:
@@ -447,6 +449,7 @@ void rotateInterface(Image* image, int sel[4]) {
     sel[1]=0;
     sel[2]=image->dibHeader.width;
     sel[3]=image->dibHeader.height;
+
     printf("Rotation effectuée\n");
 }
 
@@ -474,16 +477,18 @@ void contrastInterface(Image* image, int sel[4]) {
 }
 
 void blurInterface(Image* image, int sel[4]) {
-    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillée 10\n");
-    int factor = 0;
-    int ret,choice;
+    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillée 10. Entrez 0 pour revenir au menu principal.\n");
+    int choice = -1;
+    int ret;
     do {
         ret = scanf("%1d", &choice);
         clearBuffer();
-    } while(ret!=1 || factor>=1);
+    } while(ret!=1 || choice<=0);
 
-    if(choice==1) {
-        blur(image, factor * 2 - 1 , sel);
+    if(choice==0) {
+        return;
+    } else {
+        blur(image, choice * 2 - 1 , sel);
         printf("Effet de flou appliqué !\n");
     }
     

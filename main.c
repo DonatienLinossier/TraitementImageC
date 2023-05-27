@@ -49,7 +49,7 @@ int main() {
                 grayscaleInterface(&img,selection);
                 break;
             case 6:
-                rotateInterface(&img, selection);
+                rotateInterface(&img);
                 break;
             case 7:
                 brightnessInterface(&img,selection);

@@ -278,7 +278,7 @@ void rotate_90(Image *img){
         }
     }
     //On effecture une symetrie selon l'axe y, ce qui revient enfin à une rotation
-    int sel[] = {0,0,max_x,max_y};
+    int sel[] = {0,0,max_y,max_x};
     symmetry_y(img,sel);
     freeImage(&copy_img);
     
