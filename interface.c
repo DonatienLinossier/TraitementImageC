@@ -677,7 +677,7 @@ void getLastImage(Image *img, char* filename) {
     fclose(file);
 }
 
-void ctrlzInterface(Image *img, char* filename, int sel[4]) {
+void undoInterface(Image *img, char* filename, int sel[4]) {
     int choice = 0;
     int ret = 0;
     printf("Etes-vous sûr de vouloir annuler votre derniere modification ? \n");
