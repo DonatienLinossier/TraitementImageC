@@ -666,18 +666,39 @@ void addImageToImageTmp(Image* img, char* filename) {
     fclose(file);
 }
 
-void getLastImage(Image *img, char* filename, int sel[4]) {
+void getLastImage(Image *img, char* filename) {
     FILE* file = NULL;
     file = fopen(filename, "rb");
     if(file==NULL) {
         return;
     }
     *img = getImageFromFile(file);
-    sel[0]=0;
-    sel[1]=0;
-    sel[2]=img->dibHeader.width;
-    sel[3]=img->dibHeader.height;
+
     fclose(file);
+}
+
+void ctrlzInterface(Image *img, char* filename, int sel[4]) {
+    int choice = 0;
+    int ret = 0;
+    printf("Etes-vous sûr de vouloir annuler votre derniere modification ? \n");
+    printf("    1 - Oui\n");
+    printf("    2 - Non, revenir au menu principal\n");
+    do {
+        ret = scanf("%1d", &choice);
+        clearBuffer();
+    } while(ret!=1 || choice<1 || choice > 2);
+
+    if(choice==1) {
+        getLastImage(img, filename);
+        sel[0]=0;
+        sel[1]=0;
+        sel[2]=img->dibHeader.width;
+        sel[3]=img->dibHeader.height;
+        printf("Image précédente restaurée\n");
+    }
+
+
+
 }
 
 
@@ -700,6 +721,8 @@ void exitInterface(int* choiceRetour){
         *choiceRetour = 0;
     }
 }
+
+
 
 //Affiche le menu principal, avec toutes les options possibles
 int choiceImageManipulation() {
