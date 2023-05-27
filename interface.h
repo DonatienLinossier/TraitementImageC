@@ -12,7 +12,7 @@ void resizeInterface(Image* image, int sel[4]);
 void cropInterface(Image* image, int sel[4]);
 void displayInterfaceASCII(Image* image);
 void grayscaleInterface(Image* image, int sel[4]);
-void rotateInterface(Image* image);
+void rotateInterface(Image* image,, int sel[4]);
 void brightnessInterface(Image* image, int sel[4]);
 void contrastInterface(Image* image, int sel[4]);
 void blurInterface(Image* image, int sel[4]);

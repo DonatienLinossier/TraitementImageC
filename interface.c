@@ -420,7 +420,7 @@ void grayscaleInterface(Image* image, int sel[4]) {
         printf("L'image a bien ete passe en noir et blanc\n");
 }
 
-void rotateInterface(Image* image) { 
+void rotateInterface(Image* image, int sel[4]) { 
     printf("De combien de degres voulez-vous faire pivoter l'image ?\n");
     printf("    1 - 90 \n");
     printf("    2 - 180 \n");
