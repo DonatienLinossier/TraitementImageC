@@ -1,4 +1,4 @@
-//Ce fichier contient les différentes fonctions d'interface qui demandent à l'utilisateur les valeurs à utiliser pour le tranformations
+//Ce fichier contient les differentes fonctions d'interface qui demandent a l'utilisateur les valeurs a utiliser pour le tranformations
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -34,7 +34,7 @@ void clearBuffer() {
     }
 }
 
-//Fonction qui vérifie si le fichier existe déjà
+//Fonction qui verifie si le fichier existe deja
 int fileAlreadyExisting(char* filename) {
     char *repertory = NULL;
     DIR *outputRepertory = NULL;
@@ -55,12 +55,12 @@ int fileAlreadyExisting(char* filename) {
 
 
     
-    //Se déplacer dans le dossier Image et l'ouvrir
+    //Se deplacer dans le dossier Image et l'ouvrir
     strcat(repertory, "/");
     strcat(repertory, IMAGE_OUTPUT_DIRECTORY);
     outputRepertory = opendir(repertory);
 
-    //Enumerer les fichiers dans le dossier image + possibilité de lister les images contenu dans output
+    //Enumerer les fichiers dans le dossier image + possibilite de lister les images contenu dans output
     if (outputRepertory)
     {
         printf("\n");
@@ -123,7 +123,7 @@ int isBMP(char* filename) {
     return (filename[length-4] == '.' && (filename[length-3] == 'b' || filename[length-3] == 'B' )&& (filename[length-2] == 'm' || filename[length-2] == 'M' ) && (filename[length-1] == 'p' || filename[length-1] == 'P'));
 }
 
-//Permet à l'uilisateur de choisir son fichier dans Image dans Images et/ou Output et retourne le fichier ouvert
+//Permet a l'uilisateur de choisir son fichier dans Image dans Images et/ou Output et retourne le fichier ouvert
 FILE* fileChoice() {
     FILE* activeFile = NULL;
     char *repertory = NULL;
@@ -141,12 +141,12 @@ FILE* fileChoice() {
 
 
     
-    //Se déplacer dans le dossier Image et l'ouvrir
+    //Se deplacer dans le dossier Image et l'ouvrir
     strcat(repertory, "/");
     strcat(repertory, IMAGE_DIRECTORY);
     imageRepertory = opendir(repertory);
 
-    //Enumerer les fichiers dans le dossier image + possibilité de lister les images contenu dans output
+    //Enumerer les fichiers dans le dossier image + possibilite de lister les images contenu dans output
     int iFile = 1;
     if (imageRepertory)
     {
@@ -177,7 +177,7 @@ FILE* fileChoice() {
     } while(choice<1 || choice>iFile || ret!=1);
 
     if(choice!=iFile) {
-        //Si un fichier dans Images a été choisi 
+        //Si un fichier dans Images a ete choisi 
         imageRepertory = opendir(repertory);
         if (imageRepertory)
         {
@@ -207,7 +207,7 @@ FILE* fileChoice() {
             exit(0);
         }
     } else {
-        //Si l'utilisateur a preferé une image dans le dossier Output
+        //Si l'utilisateur a prefere une image dans le dossier Output
         printf("\nQuelle image voulez-vous selectionner ? (1/2/3/...)");
 
 
@@ -247,7 +247,7 @@ FILE* fileChoice() {
             clearBuffer();
         } while(choice<1 || choice>iFile || ret!=1);
 
-        if(choice!=iFile) {  //Si un fichier dans Output a été choisi 
+        if(choice!=iFile) {  //Si un fichier dans Output a ete choisi 
             imageRepertory = opendir(repertory);
             if (imageRepertory)
             {
@@ -283,7 +283,7 @@ FILE* fileChoice() {
     }
 
         
-    //ouvrir le fichier image selectionné 
+    //ouvrir le fichier image selectionne 
     activeFile = fopen(name, "rb");
     if(activeFile == NULL) {
         printf("Ouverture du fichier impossible \n");
@@ -297,7 +297,7 @@ FILE* fileChoice() {
     return activeFile;
 } 
 
-//Permet de changer quelle partie de l'image sera impactée par les changements
+//Permet de changer quelle partie de l'image sera impactee par les changements
 void selectionInterface(Image* image, int *sel){
     int ret, choice;
     printf("Bienvenue dans le module selection\n");
@@ -314,6 +314,7 @@ void selectionInterface(Image* image, int *sel){
         sel[2]=image->dibHeader.width;
         sel[3]=image->dibHeader.height;
     } else if(choice==2) {
+        printf("Votre image est de taille %d x %d \n", image->dibHeader.width, image->dibHeader.height );
         printf("Quelle coordonnee x voulez vous pour le coin haut-gauche de la selection ?\n");
         do {
             ret = scanf("%d", &sel[0]);
@@ -369,13 +370,13 @@ void resizeInterface(Image* image, int sel[4]) {
             resize(image, image->dibHeader.width*5, image->dibHeader.height*5);
             break;
         case 4:
-            printf("Quelle taille de redimension x voulez-vous appliquer à l'image ?\n");
+            printf("Quelle taille de redimension x voulez-vous appliquer a l'image ?\n");
             do{
                 ret=scanf("%d", &new_x);
                 clearBuffer();
             }while(ret!=1 || new_x<=0);
 
-            printf("Quelle taille de redimension y voulez-vous donner à l'image ?\n");
+            printf("Quelle taille de redimension y voulez-vous donner a l'image ?\n");
             do{
                 ret = scanf("%d", &new_y);
                 clearBuffer();
@@ -394,7 +395,7 @@ void resizeInterface(Image* image, int sel[4]) {
 
 void cropInterface(Image *image, int sel[4]) {
     crop(image, sel);
-    printf("Votre image a bien été redimensionnee, elle fait maintenant %d x %d pixels\n", image->dibHeader.width, image->dibHeader.height);
+    printf("Votre image a bien ete redimensionnee, elle fait maintenant %d x %d pixels\n", image->dibHeader.width, image->dibHeader.height);
 
 }
 
@@ -450,7 +451,7 @@ void rotateInterface(Image* image, int sel[4]) {
     sel[2]=image->dibHeader.width;
     sel[3]=image->dibHeader.height;
 
-    printf("Rotation effectuée\n");
+    printf("Rotation effectuee\n");
 }
 
 void brightnessInterface(Image* image, int sel[4]) {
@@ -477,7 +478,7 @@ void contrastInterface(Image* image, int sel[4]) {
 }
 
 void blurInterface(Image* image, int sel[4]) {
-    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillée 10. Entrez 0 pour revenir au menu principal.\n");
+    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillee 10. Entrez 0 pour revenir au menu principal.\n");
     int choice = -1;
     int ret;
     do {
@@ -489,7 +490,7 @@ void blurInterface(Image* image, int sel[4]) {
         return;
     } else {
         blur(image, choice * 2 - 1 , sel);
-        printf("Effet de flou appliqué !\n");
+        printf("Effet de flou applique !\n");
     }
     
 }
@@ -542,7 +543,7 @@ void steganographyInterface(Image* image) {
         printf("    3 - Cacher un message entre dans la console dans l'image (Ecrasera un potentiel message deja cache)\n");
         printf("    4 - Cacher un message au prelablement enregistre dans un fichier dans l'image (Ecrasera un potentiel message deja cache)\n");
         printf("    5 - Revenir au menu principal.\n");
-        //Sécuriser
+        //Securiser
         ret = scanf("%1d", &choice);
         clearBuffer();
     } while(choice<1 || choice>5 || ret!=1);
@@ -590,7 +591,7 @@ void steganographyInterface(Image* image) {
 
 //Sauvegarde l'image en .bmp
 void saveImageInterface(Image* image) {
-    //Déclaration
+    //Declaration
     char filename[FILENAME_SIZE_MAX];
     char finalFilename[FILENAME_SIZE_MAX] = IMAGE_OUTPUT_DIRECTORY;
     strcat(finalFilename, "/\0");
@@ -623,7 +624,7 @@ void saveImageInterface(Image* image) {
 
 //Permet de modifier une autre image
 void changeImageInterface(FILE* activeFile, Image* img, int sel[4]) {
-    //Déclaration
+    //Declaration
     char input = ' ';
     activeFile = NULL;
 
