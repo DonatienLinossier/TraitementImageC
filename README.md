@@ -49,10 +49,7 @@ A partir du terminal:
 
 ## Options du code
 
-
-
 * Le module `2 - Modifier la selection` permet de selectionner une zone. Les filtres suivants ne seront appliqués que sur la zone selectionnée. A l'ouverture du programme, la selection représente l'image entière.
-
 * La fonction `3 - Rogner` doit être précéder d'une séléction de la partie l'image à traiter (Module `2 - Modifier la selection`).
 * Pour les images de grande taille, il est conseillé de dézoomer dans le module `4 - Affichage en ASCII` pour les afficher correctement. 
 * La fonction `13 - Steganographie` permet de cacher un message entré manuellement dans l'interface, ou au préalablement inscrit dans le fichier *Stegano/Input.txt*, dans l'image active. De même, il est possible de récupérer un message caché dans l'image active pour l'afficher dans le terminal. Il est aussi possible d'inscrire le message caché directement dans le fichier *Stegano/Output.txt*.
