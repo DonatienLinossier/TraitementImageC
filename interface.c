@@ -329,12 +329,12 @@ void selectionInterface(Image* image, int *sel){
         do {
             ret = scanf("%d", &sel[2]);
             clearBuffer();
-        } while(ret!=1 || sel[2]>=image->dibHeader.width);
+        } while(ret!=1 || sel[2]>=image->dibHeader.width || sel[2]<= sel[0]);
         printf("Quelle coordonnee y voulez vous pour le coin bas-droite de la selection ?\n");
         do {
             ret = scanf("%d", &sel[3]);
             clearBuffer();
-        } while(ret!=1 || sel[3]>=image->dibHeader.height);
+        } while(ret!=1 || sel[3]>=image->dibHeader.height || sel[3]<= sel[1]);
     }
 }
 
