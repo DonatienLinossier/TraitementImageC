@@ -600,13 +600,13 @@ void saveImageInterface(Image* image) {
     char finalFilename[FILENAME_SIZE_MAX] = IMAGE_OUTPUT_DIRECTORY;
     strcat(finalFilename, "/\0");
     FILE* writingFile = NULL;
-
+    int ret = 0;
     //Corps de la fonction
     do {
         printf("\nComment voulez-vous vous nommer votre image ?\n");
-        scanf("%255s", filename);
+        ret = scanf("%255s", filename);
         clearBuffer();
-    } while(!isFilenameValid(filename) || fileAlreadyExisting(filename));
+    } while(!isFilenameValid(filename) || fileAlreadyExisting(filename) || ret!=1);
     strcat(finalFilename, filename);
     strcat(finalFilename, ".bmp");
 
@@ -631,13 +631,14 @@ void changeImageInterface(FILE* activeFile, Image* img, int sel[4]) {
     //Declaration
     char input = ' ';
     activeFile = NULL;
+    int ret = 0;
 
     //corps de la fonction
     do  {
         printf("\nEtes-vous sur de vouloir changer d'image ? Vos modifications non enregistrees seront effacees (Y/N) ");
-        scanf("%c", &input);
+        ret = scanf("%c", &input);
         clearBuffer();
-    } while(input!='y'&& input!='Y' && input!='N' && input!='n');
+    } while((input!='y'&& input!='Y' && input!='N' && input!='n') || ret!= 1);
 
     if(input=='n' || input == 'N') {
         return;
