@@ -79,7 +79,7 @@ int main() {
                 changeImageInterface(activeFile, &img, selection);
                 break;
             case 16:
-                ctrlzInterface(&img, FILE_TMP_IMG, selection);
+                undoInterface(&img, FILE_TMP_IMG, selection);
                 break;
             case 17:
                 exitInterface(&choice);
