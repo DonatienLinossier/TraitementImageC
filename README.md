@@ -51,11 +51,13 @@ A partir du terminal:
 
 * Il vous faudra ouvrir le terminal et effctuer un zoom négatif pour que les images en ASCII se voient dans leur entièreté.
 
-* Les images s'ouvrent manuellement et elles sont modifiées après enregistrement.
+* Les images s'ouvrent manuellement au lancement du programme. Il est aussi possible de changer d'image au cours du programme avec le module `15 - Changer d'image`. 
+
+* Les images doivent être enregistrées manuellement avec le module `14 - Enregistrer l'image` pour être sauvegardés.
 
 * La fonction `Crop` doit être précéder d'une séléction de la partie l'image à traiter, il s'agit du deuxième filtre dans le menu.
 
-* la fonction 'Steganography' permet de cacher un message entré manuellement dans l'interface, ou au préalablement inscrit dans le fichier *Stegano/Input.txt* dans l'image active. De meme, il est possible de récupérer un message cacher dans l'image active pour l''afficher dans le terminal. Il est aussi possible d'inscrire le message caché directement dans le fichier *Stegano/Output.txt*.
+* la fonction `Steganography` permet de cacher un message entré manuellement dans l'interface, ou au préalablement inscrit dans le fichier *Stegano/Input.txt* dans l'image active. De meme, il est possible de récupérer un message cacher dans l'image active pour l''afficher dans le terminal. Il est aussi possible d'inscrire le message caché directement dans le fichier *Stegano/Output.txt*.
 
 * La fonction `undo` ne fonctionne qu'une seule fois à la suite et ne retiens que la denière image. Elle permet d'annuler, à la manière d'un *ctrl+z*, la modification précédente.
 
