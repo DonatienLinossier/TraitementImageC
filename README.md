@@ -53,10 +53,11 @@ Cela permet d'initialiser tous les répertoires et fichiers nécessaires à l'ex
 
 * Les images s'ouvrent manuellement et elles sont modifiées après enregistrement.
 
-* La fonction Crop doit être précéder d'une séléction.
+* La fonction `Crop` doit être précéder d'une séléction de l'image à traiter, il s'agit du .
 
 * Une autre manière de cacher un message grâce à la steganographie : pour insérer du texte on peut le faire directement depuis le fichier *input* présent dans le dossier stegenographie et pour récupérer ce message il sera affiché dans le *output*.
-* la fonction "ctrl+Z" fonctionne qu'une seule fois à la suite et ne retiens que la denière image.
+
+* la fonction `undo` ne fonctionne qu'une seule fois à la suite et ne retiens que la denière image, elle permet d'annuler à la manière d'un ctrl+z la modification précédente.
 
 ## Technologies
 
