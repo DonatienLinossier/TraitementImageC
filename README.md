@@ -43,7 +43,7 @@ A partir du terminal:
 
 * Pour compiler : `make`. Permet d'initialiser/vérifier tous les répertoires et fichiers nécessaires à l'execution du programme, puis compile le code. 
 * Pour lancer le programme :  `make run`.
-* Pour nettoyer le programme : `make clean`. Permet de nettoyer tous les répertoires et fichiers nécessaires à l'execution du programme. Cela comprend le code compiler, les images créées par l'utilisateur, les fichiers temporaires ainsi que les fichiers utilisés par la stéganographie.
+* Pour nettoyer le programme : `make clean`. Permet de nettoyer tous les répertoires et fichiers nécessaires à l'execution du programme. Cela comprend le code compilé, les images créées par l'utilisateur, les fichiers temporaires ainsi que les fichiers utilisés par la stéganographie.
 
 
 
