@@ -12,7 +12,7 @@ Ces quelques lignes presentes au début de chaque fonction servent à les sécur
         printf("function : image null\n");
         exit(1);
         }
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         printf("function : valeurs invalides\n");
         return;
     }
@@ -29,7 +29,7 @@ void grayscale(Image *img, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         printf("grayscale : valeurs invalides\n");
         return;
     }
@@ -60,7 +60,7 @@ void brightness(Image *img, float percentage, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y ){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>max_x || min_y>=max_y ){
         printf("brightness : valeurs invalides\n");
         return;
     }
@@ -102,7 +102,7 @@ void contrast(Image *img, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>max_x || min_y>=max_y){
         printf("contrast : valeurs invalides\n");
         return;
     }
@@ -127,7 +127,7 @@ void binary(Image *img, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>max_x || min_y>max_y){
         printf("binary : valeurs invalides\n");
         return;
     }
@@ -159,7 +159,7 @@ void reverse_colors(Image *img, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         printf("reverse_image : valeurs invalides\n");
         return;
     }
@@ -181,7 +181,7 @@ void swap(Image *img, int x1, int y1, int x2, int y2){
         printf("swap : image null\n");
         exit(1);
     }
-    if(x1<0 || y1<0 || x2>=img->dibHeader.width || y2>=img->dibHeader.height){
+    if(x1<0 || y1<0 || x2>img->dibHeader.width || y2>img->dibHeader.height){
         printf("swap : valeurs invalides\n");
         return;
     }
@@ -204,7 +204,7 @@ void symmetry_y(Image *img, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>max_x || min_y>max_y){
         printf("symmetry_y : valeurs invalides\n");
         return;
     }
@@ -228,7 +228,7 @@ void symmetry_x(Image *img, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         printf("symmetry_x : valeurs invalides\n");
         return;
     }
@@ -294,7 +294,7 @@ void blur(Image *img, int range, int sel[4]){
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(range%2 != 1 || range<0 || min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(range%2 != 1 || range<0 || min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>max_x || min_y>max_y){
         printf("blur : valeurs invalides\n");
         return;
     }
@@ -351,7 +351,7 @@ void crop(Image *img, int sel[4]) {
     int min_x = sel[0];
     int max_y = sel[3];
     int max_x = sel[2];
-    if(min_x<0 || min_y<0 || max_x>=img->dibHeader.width || max_y>=img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
+    if(min_x<0 || min_y<0 || max_x>img->dibHeader.width || max_y>img->dibHeader.height|| min_x>=max_x || min_y>=max_y){
         printf("crop : valeurs invalides\n");
         return;
     }

@@ -17,11 +17,8 @@
 #define STEGANO_INPUT_FILE "Stegano/Input.txt"
 #define STEGANO_MESSAGE_SIZE_MAX 10001 //Message de 10000 + '\0'
 
-#define FILENAME_SIZE_MAX 255
-#define FOLDER_SIZE_MAX 255
-
-
-
+#define FILENAME_SIZE_MAX 256 //255 + '\0'
+#define FOLDER_SIZE_MAX 256 //255 + '\0'
 
 
 
@@ -316,33 +313,34 @@ void selectionInterface(Image* image, int *sel){
         sel[1]=0;
         sel[2]=image->dibHeader.width;
         sel[3]=image->dibHeader.height;
+    } else if(choice==2) {
+        printf("Quelle coordonnée x voulez vous pour le coin haut-gauche de la sélection ?\n");
+        do {
+            ret = scanf("%d", &sel[0]);
+            clearBuffer();
+        } while(ret!=1 || sel[0]<0);
+        printf("Quelle coordonnée y voulez vous pour le coin haut-gauche de la sélection ?\n");
+        do {
+            ret = scanf("%d", &sel[1]);
+            clearBuffer();
+        } while(ret!=1 || sel[1]<0);
+        printf("Quelle coordonnée x voulez vous pour le coin bas-droite de la sélection ?\n");
+        do {
+            ret = scanf("%d", &sel[2]);
+            clearBuffer();
+        } while(ret!=1 || sel[2]>=image->dibHeader.width);
+        printf("Quelle coordonnée y voulez vous pour le coin bas-droite de la sélection ?\n");
+        do {
+            ret = scanf("%d", &sel[3]);
+            clearBuffer();
+        } while(ret!=1 || sel[3]>=image->dibHeader.height);
     }
-    printf("Quelle coordonnée x voulez vous pour le coin haut-gauche de la sélection ?\n");
-    do {
-        ret = scanf("%d", &sel[0]);
-        clearBuffer();
-    } while(ret!=1 || sel[0]<0);
-    printf("Quelle coordonnée y voulez vous pour le coin haut-gauche de la sélection ?\n");
-    do {
-        ret = scanf("%d", &sel[1]);
-        clearBuffer();
-    } while(ret!=1 || sel[1]<0);
-    printf("Quelle coordonnée x voulez vous pour le coin bas-droite de la sélection ?\n");
-    do {
-        ret = scanf("%d", &sel[2]);
-        clearBuffer();
-    } while(ret!=1 || sel[2]>=image->dibHeader.width);
-    printf("Quelle coordonnée y voulez vous pour le coin bas-droite de la sélection ?\n");
-    do {
-        ret = scanf("%d", &sel[3]);
-        clearBuffer();
-    } while(ret!=1 || sel[3]>=image->dibHeader.height);
 }
 
 
 //Toutes les fonctions suivantes sont les versions utilisateurs des transformations
 
-void resizeInterface(Image* image) {
+void resizeInterface(Image* image, int sel[4]) {
     int new_x = 0;
     int new_y = 0;
     int ret;
@@ -354,41 +352,44 @@ void resizeInterface(Image* image) {
     printf("    2 - 2\n");
     printf("    3 - 5\n");
     printf("    4 - Taille personnalisee\n");
+    printf("    5 - Revenir au menu principal\n");
     do{
         ret=scanf("%d", &selection);
         clearBuffer();
-    } while(selection>4 || ret!=1 || selection<1);
+    } while(selection>5 || ret!=1 || selection<1);
 
-        switch(selection)
-        {
-            case 1:
-                resize(image, image->dibHeader.width*0.5, image->dibHeader.height*0.5);
-                break;
-            case 2:
-                resize(image, image->dibHeader.width*2, image->dibHeader.height*2);
-                break;
-            case 3:
-                resize(image, image->dibHeader.width*5, image->dibHeader.height*5);
-                break;
-            case 4:
-                printf("Bienvenue dans le module de redimensioner\n");
+    switch(selection) {
+        case 1:
+            resize(image, image->dibHeader.width*0.5, image->dibHeader.height*0.5);
+            break;
+        case 2:
+            resize(image, image->dibHeader.width*2, image->dibHeader.height*2);
+            break;
+        case 3:
+            resize(image, image->dibHeader.width*5, image->dibHeader.height*5);
+            break;
+        case 4:
+            printf("Quelle taille de redimension x voulez-vous appliquer à l'image ?\n");
+            do{
+                ret=scanf("%d", &new_x);
+                clearBuffer();
+            }while(ret!=1 || new_x<=0);
 
-                printf("Quelle taille de redimension x voulez-vous appliquer à l'image ?\n");
-                do{
-                    ret=scanf("%d", &new_x);
-                    clearBuffer();
-                }while(ret!=1 || new_x<=0);
-
-                printf("Quelle taille de redimension y voulez-vous donner à l'image ?\n");
-                do{
-                    ret = scanf("%d", &new_y);
-                    clearBuffer();
-                } while(selection>4 || ret!=1 || selection<1);
-                resize(image, new_x, new_y);
-                break;
-            
-
+            printf("Quelle taille de redimension y voulez-vous donner à l'image ?\n");
+            do{
+                ret = scanf("%d", &new_y);
+                clearBuffer();
+            } while(selection>4 || ret!=1 || selection<1);
+            resize(image, new_x, new_y);
+            break;
+        case 5:
+            return;
         }
+        
+        sel[0]=0;
+        sel[1]=0;
+        sel[2]=image->dibHeader.width;
+        sel[3]=image->dibHeader.height;
 }
 
 void cropInterface(Image *image, int sel[4]) {
@@ -419,7 +420,7 @@ void grayscaleInterface(Image* image, int sel[4]) {
         printf("L'image a bien ete passe en noir et blanc\n");
 }
 
-void rotateInterface(Image* image) { 
+void rotateInterface(Image* image, int sel[4]) { 
     printf("De combien de degres voulez-vous faire pivoter l'image ?\n");
     printf("    1 - 90 \n");
     printf("    2 - 180 \n");
@@ -442,11 +443,15 @@ void rotateInterface(Image* image) {
         rotate_90(image);
         break;
     }
+    sel[0]=0;
+    sel[1]=0;
+    sel[2]=image->dibHeader.width;
+    sel[3]=image->dibHeader.height;
     printf("Rotation effectuée\n");
 }
 
 void brightnessInterface(Image* image, int sel[4]) {
-    int percent;
+    int percent = 0;
     printf("De quel pourcentage voulez vous changer la luminosité ?\nMoins de 100 baisse la luminosité, plus de 100 l'augmente.\n");
     int ret;
     do {
@@ -612,7 +617,7 @@ void saveImageInterface(Image* image) {
 
 
 //Permet de modifier une autre image
-void changeImageInterface(FILE* activeFile, Image* img) {
+void changeImageInterface(FILE* activeFile, Image* img, int sel[4]) {
     //Déclaration
     char input = ' ';
     activeFile = NULL;
@@ -642,6 +647,10 @@ void changeImageInterface(FILE* activeFile, Image* img) {
     freeImage(img);
     
     *img = getImageFromFile(activeFile);
+    sel[0]=0;
+    sel[1]=0;
+    sel[2]=img->dibHeader.width;
+    sel[3]=img->dibHeader.height;
     fclose(activeFile); 
 
 
@@ -657,13 +666,17 @@ void addImageToImageTmp(Image* img, char* filename) {
     fclose(file);
 }
 
-void getLastImage(Image *img, char* filename) {
+void getLastImage(Image *img, char* filename, int sel[4]) {
     FILE* file = NULL;
     file = fopen(filename, "rb");
     if(file==NULL) {
         return;
     }
     *img = getImageFromFile(file);
+    sel[0]=0;
+    sel[1]=0;
+    sel[2]=img->dibHeader.width;
+    sel[3]=img->dibHeader.height;
     fclose(file);
 }
 
