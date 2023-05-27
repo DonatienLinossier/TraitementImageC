@@ -550,7 +550,7 @@ void steganographyInterface(Image* image) {
         if(file==NULL) {
             printf("Nous n'avons pas reussi a ouvrir le fichier. Verifiez que l'image %s exite bien et reessayez.\n", STEGANO_OUTPUT_FILE);
         }
-        fprintf(file, steganoReading(image));
+        fprintf(file, "%s", steganoReading(image));
         fclose(file);
         printf("Le message a ete sauvegarde dans le fichier Stegano/Output.txt\n");
         break;
