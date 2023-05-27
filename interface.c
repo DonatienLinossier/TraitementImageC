@@ -482,13 +482,13 @@ void contrastInterface(Image* image, int sel[4]) {
 }
 
 void blurInterface(Image* image, int sel[4]) {
-    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur conseillee 10. Entrez 0 pour revenir au menu principal.\n");
+    printf("Par quel facteur voulez vous flouter l'image ?\nValeur minimum 1, valeur maximum 10. Entrez 0 pour revenir au menu principal.\n");
     int choice = -1;
     int ret;
     do {
-        ret = scanf("%1d", &choice);
+        ret = scanf("%d", &choice);
         clearBuffer();
-    } while(ret!=1 || choice<=0);
+    } while(ret!=1 || choice<0 || choice>10);
 
     if(choice==0) {
         return;
