@@ -1,5 +1,5 @@
 
-# TraitementImageC    
+# CY-Image    
 
 Ce projet a pour but de créer un programme en C permettant le traitement d'images en format bmp. Vous allez pouvoir choisir une image dans un dossier prédéfini lui appliquer différents filtres et l'enregistrer dans un nouveau fichier.
 
