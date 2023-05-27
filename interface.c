@@ -447,7 +447,7 @@ void rotateInterface(Image* image, int sel[4]) {
     sel[1]=0;
     sel[2]=image->dibHeader.width;
     sel[3]=image->dibHeader.height;
-    printf("Rotation effectuée\n");
+    printf("Rotation effectuee\n");
 }
 
 void brightnessInterface(Image* image, int sel[4]) {
@@ -459,7 +459,7 @@ void brightnessInterface(Image* image, int sel[4]) {
         clearBuffer();
     }while(ret!=1 || percent < 0);
     brightness(image,percent,sel);
-    printf("La luminosite de l'image a bien été modifiee\n");
+    printf("La luminosite de l'image a bien ete modifiee\n");
 }
 
 void contrastInterface(Image* image, int sel[4]) {
